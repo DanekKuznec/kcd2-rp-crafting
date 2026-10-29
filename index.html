@@ -153,6 +153,9 @@ td.comp b{color:var(--ink);font-weight:500;font-family:var(--f-num)}
 details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top:8px}
 .signrow input{min-width:0;flex:1}
 [hidden]{display:none!important}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px 22px;margin-top:8px}
+.pgrid>div{min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--field)}
+.ph3{margin:0 0 8px;font-size:16px}
 .rtag{font-size:11px;color:var(--muted)}
 .ostat{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin:4px 0 10px}
 .ostat label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);min-width:0}
@@ -175,8 +178,12 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
 
   <section class="panel" aria-labelledby="ph">
     <div class="row"><h2 id="ph">Цены сырья, гроши</h2><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></div>
-    <div class="prices" id="prices"></div>
-    <details class="more" id="morep"><summary>Редкое сырьё</summary><div class="prices" id="prices2" style="margin-top:8px"></div></details>
+    <div class="pgrid">
+      <div><h3 class="ph3">Бронное дело</h3><div class="prices" id="prices"></div></div>
+      <div><h3 class="ph3">Кузнечное дело</h3><div class="prices" id="prices2"></div></div>
+    </div>
+    <div class="prices" id="pricesm" style="margin-top:10px"></div>
+    <p class="hint" style="margin:6px 0 0">Сырьё, которое нужно в обоих ремёслах (руда, уголь, шкуры…), есть в обоих окнах, и цена в них общая.</p>
     <div class="derived" id="derived"></div>
   </section>
 
@@ -315,10 +322,13 @@ function arm(b,txt,orig){ b.dataset.armed="1"; b.textContent=txt; clearTimeout(b
 function disarm(b,orig){ delete b.dataset.armed; b.textContent=orig; clearTimeout(b._t); }
 
 // --- prices
-const priceField=k=>`<div class="pf"><label for="p_${k}">${k==="markup"?"Работа, % от себест.":esc(NAME[k])}</label><input id="p_${k}" data-p="${k}" type="number" min="0" step="0.5" inputmode="decimal" value="${P[k]}"></div>`;
-document.getElementById("prices").innerHTML=[...MAINRAW,"markup"].map(priceField).join("");
-document.getElementById("prices2").innerHTML=RAWK.filter(k=>!MAINRAW.includes(k)).map(priceField).join("");
-document.querySelectorAll("[data-p]").forEach(inp=>inp.addEventListener("input",e=>{ const v=parseFloat(e.target.value); P[e.target.dataset.p]=isNaN(v)?0:v; save(); recalc(); renderAll(); }));
+const priceField=(k,pre="")=>`<div class="pf"><label for="p_${pre}${k}">${k==="markup"?"Работа, % от себест.":esc(NAME[k])}</label><input id="p_${pre}${k}" data-p="${k}" type="number" min="0" step="0.5" inputmode="decimal" value="${P[k]}"></div>`;
+function rawUsed(s){ const out=new Set(), walk=k=>{ if(MAT[k]) Object.keys(MAT[k].inp).forEach(walk); else out.add(k); };
+  ITEMS.filter(i=>i.s===s).forEach(i=>{ if(i.m) walk(i.m); else Object.keys(i.r).forEach(walk); }); return RAWK.filter(k=>out.has(k)); }
+document.getElementById("prices").innerHTML=rawUsed("a").map(k=>priceField(k,"a_")).join("");
+document.getElementById("prices2").innerHTML=rawUsed("w").map(k=>priceField(k,"w_")).join("");
+document.getElementById("pricesm").innerHTML=priceField("markup");
+document.querySelectorAll("[data-p]").forEach(inp=>inp.addEventListener("input",e=>{ const v=parseFloat(e.target.value); const k=e.target.dataset.p; P[k]=isNaN(v)?0:v; document.querySelectorAll(`[data-p="${k}"]`).forEach(i=>{ if(i!==e.target) i.value=e.target.value; }); save(); recalc(); renderAll(); }));
 document.getElementById("reset").addEventListener("click",()=>{ P={...DEF}; document.querySelectorAll("[data-p]").forEach(i=>i.value=P[i.dataset.p]); save(); recalc(); renderAll(); });
 function renderDerived(){
   document.getElementById("derived").innerHTML=["steel","iron","scrap","leather","pad","cu","frank","tol"].map(k=>`<span>${esc(NAME[k])}: <b>${g(uc(k))}</b></span>`).join("")+`<span>Работа: <b>+${fmt(P.markup)}%</b></span>`;
