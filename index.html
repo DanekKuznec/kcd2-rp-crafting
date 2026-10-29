@@ -232,7 +232,7 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
       <div style="min-width:0">
         <h3>2. Сырьё: сколько нужно и сколько докупить</h3>
         <div class="tablebox"><table class="mini"><thead><tr><th class="l">Ресурс</th><th>Всего</th><th>От заказчика</th><th>Со склада</th><th>Докупить</th><th>Гроши</th></tr></thead><tbody id="raw"></tbody></table></div>
-        <p class="hint">Сюда входит и то, что кладёшь прямо в рецепт, и то, что уходит на заготовки. Нажми на название ресурса, чтобы его не считать (например, добываешь сам): он уйдёт из «докупить» и из себестоимости.</p>
+        <p class="hint">«Всего» — сколько сырья уйдёт на заказ, если делать всё с нуля. «Докупить» учитывает склад, в том числе готовые заготовки: если сталь уже лежит, руду на неё докупать не надо. Нажми на название ресурса, чтобы его не считать (например, добываешь сам): он уйдёт из «докупить» и из себестоимости.</p>
       </div>
       <div style="grid-column:1/-1;min-width:0">
         <div class="row"><h3 style="margin:0">3. План крафта <span class="hint" id="plannote"></span></h3><button class="btn" id="planreset" type="button">Снять все галочки</button></div>
@@ -470,8 +470,11 @@ function renderBreakdown(b){
       + (b.extra.length?`<br><span class="buy">Не пойдёт в заказ (излишек, останется у тебя): ${b.extra.map(([k,v])=>`${NAME[k]} ${fmt(v)}`).join(", ")}.</span>`:"");
   if(!has) return;
   const cell=v=>`<td class="num">${v?fmt(v):"·"}</td>`;
-  document.getElementById("mid").innerHTML=b.mid.length?b.mid.map(r=>`<tr><td class="l">${esc(NAME[r.k])}</td>${cell(r.need)}<td class="num ok">${r.c?fmt(r.c):"·"}</td>${cell(r.s)}<td class="num"><b>${fmt(r.make)}</b></td><td class="l hint">${esc(howText(r))}</td></tr>`).join(""):`<tr><td class="l hint" colspan="6">Заготовки не нужны.</td></tr>`;
-  document.getElementById("raw").innerHTML=b.rows.map(r=>`<tr class="${r.off?"offrow":""}"><td class="l"><button type="button" class="rtog" data-k="${r.k}" aria-pressed="${!r.off}" title="${r.off?"Нажми, чтобы снова считать":"Нажми, чтобы не считать"}">${esc(NAME[r.k])}</button></td><td class="num"><b>${fmt(r.all)}</b></td><td class="num ok">${r.c?fmt(r.c):"·"}</td>${cell(r.s)}<td class="num ${r.off?"":r.buy?"buy":"ok"}">${r.off?"не считается":r.buy?fmt(r.buy):"хватает"}</td><td class="num">${r.money?fmt(r.money):"·"}</td></tr>`).join("")
+  const bb=breakdown(true), realMid=Object.fromEntries(b.mid.map(r=>[r.k,r])), realRow=Object.fromEntries(b.rows.map(r=>[r.k,r]));
+  const mids=bb.mid.map(r=>realMid[r.k]||{k:r.k,need:0,c:0,s:0,make:0,crafts:0,d:r.d,full:r.need}).map(r=>({...r,full:(bb.mid.find(x=>x.k===r.k)||{}).need||r.need}));
+  document.getElementById("mid").innerHTML=mids.length?mids.map(r=>`<tr><td class="l">${esc(NAME[r.k])}</td>${cell(r.full)}<td class="num ok">${r.c?fmt(r.c):"·"}</td>${cell(r.s)}<td class="num"><b>${r.make?fmt(r.make):"·"}</b></td><td class="l hint">${r.make?esc(howText(r)):(r.need?"хватает":"не нужно, хватает заготовок выше")}</td></tr>`).join(""):`<tr><td class="l hint" colspan="6">Заготовки не нужны.</td></tr>`;
+  const raws=bb.rows.map(f=>{ const r=realRow[f.k]||{k:f.k,c:0,s:0,buy:0,money:0,off:!!off[f.k]}; return {...r,all:f.all}; });
+  document.getElementById("raw").innerHTML=raws.map(r=>`<tr class="${r.off?"offrow":""}"><td class="l"><button type="button" class="rtog" data-k="${r.k}" aria-pressed="${!r.off}" title="${r.off?"Нажми, чтобы снова считать":"Нажми, чтобы не считать"}">${esc(NAME[r.k])}</button></td><td class="num"><b>${fmt(r.all)}</b></td><td class="num ok">${r.c?fmt(r.c):"·"}</td>${cell(r.s)}<td class="num ${r.off?"":r.buy?"buy":"ok"}">${r.off?"не считается":r.buy?fmt(r.buy):(!r.c&&!r.s?"хватает (заготовки на складе)":"хватает")}</td><td class="num">${r.money?fmt(r.money):"·"}</td></tr>`).join("")
     +`<tr><td class="l"><b>Итого докупить</b></td><td colspan="4"></td><td class="num"><b>${fmt(b.buyMoney)}</b></td></tr>`;
 }
 document.getElementById("raw").addEventListener("click",e=>{ const b=e.target.closest(".rtog"); if(!b) return; const k=b.dataset.k; if(off[k]) delete off[k]; else off[k]=1; save(); recalc(); renderOrder(); });
