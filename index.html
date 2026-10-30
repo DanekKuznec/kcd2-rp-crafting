@@ -338,7 +338,7 @@ document.getElementById("pricesm").innerHTML=priceField("markup");
 document.querySelectorAll("[data-p]").forEach(inp=>inp.addEventListener("input",e=>{ const v=parseFloat(e.target.value); const k=e.target.dataset.p; P[k]=isNaN(v)?0:v; document.querySelectorAll(`[data-p="${k}"]`).forEach(i=>{ if(i!==e.target) i.value=e.target.value; }); save(); recalc(); renderAll(); }));
 document.getElementById("reset").addEventListener("click",()=>{ P={...DEF}; document.querySelectorAll("[data-p]").forEach(i=>i.value=P[i.dataset.p]); save(); recalc(); renderAll(); });
 // --- market paste
-const SYN={co:["древесный уголь","уголь"],hd:["шкуры","шкура"],antl:["оленьи рога","рога"],nug:["самородки чистого серебра","самородок чистого серебра","самородки серебра"],met:["метеоритное железо","метеоритная руда"],agp:["чистое серебро"],log:["брёвна","бревна"],shaft:["древки","древко"]};
+const SYN={co:["уголь"],hd:["шкуры","шкура"],antl:["оленьи рога","рога"],nug:["самородки чистого серебра","самородок чистого серебра","самородки серебра"],met:["метеоритное железо","метеоритная руда"],agp:["чистое серебро"],log:["брёвна","бревна"],shaft:["древки","древко"]};
 document.getElementById("mkopen").addEventListener("click",()=>{ const bx=document.getElementById("mkbox"); bx.hidden=!bx.hidden; if(!bx.hidden) document.getElementById("mktext").focus(); });
 document.getElementById("mkapply").addEventListener("click",()=>{
   const txt=document.getElementById("mktext").value.toLowerCase().replace(/ё/g,"е"), col=+document.getElementById("mkcol").value, note=document.getElementById("mknote");
@@ -347,7 +347,7 @@ document.getElementById("mkapply").addEventListener("click",()=>{
   names.sort((x,y)=>y[0].length-x[0].length);
   const found={}, taken=[];
   for(const [n,k] of names){ if(found[k]!==undefined) continue;
-    const re=new RegExp("(^|[^а-яa-z])"+n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![а-яa-z])","g"); let m;
+    const re=new RegExp("(^|[\\n\\t]|\\s{2,})[ \\u00a0]*"+n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?=[ \\u00a0]*(\\t|\\n|\\d|$))","gm"); let m;
     while((m=re.exec(txt))){ const st=m.index+m[1].length; if(taken.some(([s,e])=>st<e&&st+n.length>s)) continue;
       const rest=txt.slice(st+n.length, st+n.length+200), nums=[...rest.matchAll(/(\d+(?:[.,]\d+)?)\s*гр/g)];
       if(nums.length>col){ found[k]=parseFloat(nums[col][1].replace(",",".")); taken.push([st,st+n.length]); break; } } }
