@@ -156,6 +156,7 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
 .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px 22px;margin-top:8px}
 .pgrid>div{min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--field)}
 .ph3{margin:0 0 8px;font-size:16px}
+.mkin{width:90px;font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);text-align:right}
 .mkbox{margin-top:10px;border:1px dashed var(--copper);border-radius:10px;padding:10px 12px}
 #mktext{width:100%;font:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink);resize:vertical}
 .rtag{font-size:11px;color:var(--muted)}
@@ -190,6 +191,10 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
       <div><h3 class="ph3">Кузнечное дело</h3><div class="prices" id="prices2"></div></div>
     </div>
     <div class="prices" id="pricesm" style="margin-top:10px"></div>
+    <details class="more" id="mkcmp" style="margin-top:12px"><summary>Заготовки: крафтить или купить на аукционе</summary>
+      <p class="hint" style="margin:6px 0">Впиши цену заготовки на аукционе (или подставь через «Цены с рынка»), и видно, что выгоднее: сделать самому из сырья по твоим ценам или купить готовое. Цена за 1 шт.</p>
+      <div class="tablebox"><table class="mini"><thead><tr><th class="l">Заготовка</th><th>Крафт, за 1 шт.</th><th>Аукцион, за 1 шт.</th><th class="l">Выгоднее</th></tr></thead><tbody id="mkrows"></tbody></table></div>
+    </details>
     <p class="hint" style="margin:6px 0 0">Сырьё, которое нужно в обоих ремёслах (руда, уголь, шкуры…), есть в обоих окнах, и цена в них общая.</p>
     <div class="derived" id="derived"></div>
   </section>
@@ -340,23 +345,30 @@ document.getElementById("reset").addEventListener("click",()=>{ P={...DEF}; docu
 // --- market paste
 const SYN={};
 document.getElementById("mkopen").addEventListener("click",()=>{ const bx=document.getElementById("mkbox"); bx.hidden=!bx.hidden; if(!bx.hidden) document.getElementById("mktext").focus(); });
+function parseMarket(txt){ const map={}, num=s=>{ const m=(s||"").match(/(\d+(?:[.,]\d+)?)\s*гр/); return m?parseFloat(m[1].replace(",",".")):null; };
+  const lines=txt.replace(/\r/g,"").split("\n");
+  if(lines.some(l=>l.includes("\t"))){ lines.forEach(l=>{ const c=l.split("\t"); const n=(c[0]||"").trim(); if(!n) return; const v=[num(c[1]),num(c[2])]; if(!map[n]||(map[n][0]==null&&map[n][1]==null)) map[n]=v; }); }
+  else { for(let i=0;i<lines.length;i++){ const n=lines[i].trim(); if(!n||/\d/.test(n)) continue; const v=[num(lines[i+1]),num(lines[i+2])]; if(!map[n]) map[n]=v; } }
+  return map; }
 document.getElementById("mkapply").addEventListener("click",()=>{
-  const txt=document.getElementById("mktext").value.toLowerCase().replace(/ё/g,"е"), col=+document.getElementById("mkcol").value, note=document.getElementById("mknote");
-  if(!txt.trim()){ note.textContent="Сначала вставь таблицу."; return; }
-  const names=[]; RAWK.forEach(k=>{ const list=[...(SYN[k]||[]),NAME[k].toLowerCase()]; list.forEach(n=>names.push([n.replace(/ё/g,"е"),k])); });
-  names.sort((x,y)=>y[0].length-x[0].length);
-  const found={}, taken=[];
-  for(const [n,k] of names){ if(found[k]!==undefined) continue;
-    const re=new RegExp("(^|[\\n\\t])[ \\u00a0]*"+n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?=[ \\u00a0]*(\\t|\\r|\\n|$))","gm"); let m;
-    while((m=re.exec(txt))){ const st=m.index+m[1].length; if(taken.some(([s,e])=>st<e&&st+n.length>s)) continue;
-      const rest=txt.slice(st+n.length, st+n.length+200), nums=[...rest.matchAll(/(\d+(?:[.,]\d+)?)\s*гр/g)];
-      if(nums.length>col){ found[k]=parseFloat(nums[col][1].replace(",",".")); taken.push([st,st+n.length]); break; } } }
-  const ks=Object.keys(found);
-  if(!ks.length){ note.textContent="Не нашёл знакомого сырья. Проверь, что скопировал таблицу с ценами."; return; }
-  ks.forEach(k=>{ P[k]=found[k]; document.querySelectorAll(`[data-p="${k}"]`).forEach(i=>i.value=P[k]); });
+  const raw=document.getElementById("mktext").value, col=+document.getElementById("mkcol").value, note=document.getElementById("mknote");
+  if(!raw.trim()){ note.textContent="Сначала вставь таблицу."; return; }
+  const nm=s=>s.toLowerCase().replace(/ё/g,"е").trim(), mp={}; Object.entries(parseMarket(raw)).forEach(([n,v])=>{ const k=nm(n); if(!mp[k]) mp[k]=v; });
+  const got=[], gotM=[];
+  RAWK.forEach(k=>{ const v=mp[nm(NAME[k])]; if(v&&v[col]!=null){ P[k]=v[col]; document.querySelectorAll(`[data-p="${k}"]`).forEach(i=>i.value=P[k]); got.push(k); } });
+  Object.entries(MATMK).forEach(([k,list])=>{ for(const n of list){ const v=mp[nm(n)]; if(v&&v[col]!=null){ P["mk_"+k]=v[col]; gotM.push(k); break; } } });
+  if(!got.length&&!gotM.length){ note.textContent="Не нашёл знакомого сырья. Проверь, что скопировал таблицу с ценами."; return; }
   save(); recalc(); renderAll();
-  note.textContent="Обновлено: "+ks.map(k=>`${NAME[k].toLowerCase()} ${fmt(found[k],1)}`).join(", ");
+  note.textContent="Обновлено: "+got.map(k=>`${NAME[k].toLowerCase()} ${fmt(P[k],1)}`).join(", ")+(gotM.length?". Заготовки с аукциона: "+gotM.map(k=>`${NAME[k].toLowerCase()} ${fmt(P["mk_"+k],1)}`).join(", "):"");
 });
+const MATMK={leather:["кожа"],pad:["набивка"],steel:["стальные бруски","steel"],cu:["copper","медь"],frank:["frankfurt steel","франкфуртская сталь"],horn:["antler shards","оленьи рога"],tol:["толедская сталь","toledo steel"],iron:["железо","iron"],scrap:["железный лом"],fast:["крепёж","крепеж"],sheet:["листовая сталь"]};
+const mkRows=document.getElementById("mkrows");
+function renderMkCmp(){ mkRows.innerHTML=Object.keys(MAT).filter(k=>k!=="indr").map(k=>{ const c=uc(k), m=+P["mk_"+k]||0;
+    const verdict=!m?'<span class="hint">впиши цену</span>':m<c?`<span class="buy">купить: дешевле на ${g(c-m)} гр.</span>`:m>c?`<span class="ok">крафтить: дешевле на ${g(m-c)} гр.</span>`:"одинаково";
+    return `<tr><td class="l">${esc(NAME[k])}</td><td class="num">${g(c)}</td><td class="num"><input class="mkin" data-mk="${k}" type="number" min="0" step="0.5" inputmode="decimal" placeholder="—" value="${m||""}" aria-label="Цена на аукционе: ${esc(NAME[k])}"></td><td class="l">${verdict}</td></tr>`; }).join(""); }
+mkRows.addEventListener("input",e=>{ const k=e.target.dataset.mk; if(!k) return; const v=parseFloat(e.target.value); if(v>0) P["mk_"+k]=v; else delete P["mk_"+k]; save();
+  const c=uc(k), m=v>0?v:0, cell=e.target.closest("tr").lastElementChild;
+  cell.innerHTML=!m?'<span class="hint">впиши цену</span>':m<c?`<span class="buy">купить: дешевле на ${g(c-m)} гр.</span>`:m>c?`<span class="ok">крафтить: дешевле на ${g(m-c)} гр.</span>`:"одинаково"; });
 function renderDerived(){
   document.getElementById("derived").innerHTML=["steel","iron","scrap","leather","pad","cu","frank","tol"].map(k=>`<span>${esc(NAME[k])}: <b>${g(uc(k))}</b></span>`).join("")+`<span>Работа: <b>+${fmt(P.markup)}%</b></span>`;
 }
@@ -610,7 +622,7 @@ function applyFold(){ catBody.hidden=folded; [tabs,cats].forEach(el=>el.hidden=f
 foldBtn.addEventListener("click",()=>{ folded=!folded; try{ localStorage.setItem("forge-fold",folded?"1":"0"); }catch(e){} applyFold(); });
 document.getElementById("q").addEventListener("focus",()=>{ if(folded){ folded=false; applyFold(); } });
 applyFold();
-function renderAll(){ renderJournal(); renderVarList(); renderDerived(); renderCatalogNav(); renderTable(); renderOrder(); }
+function renderAll(){ renderMkCmp(); renderJournal(); renderVarList(); renderDerived(); renderCatalogNav(); renderTable(); renderOrder(); }
 renderOrderList(); renderStatus(); renderAll();
 
 </script>
