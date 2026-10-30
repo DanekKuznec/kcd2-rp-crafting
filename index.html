@@ -156,6 +156,8 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
 .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px 22px;margin-top:8px}
 .pgrid>div{min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--field)}
 .ph3{margin:0 0 8px;font-size:16px}
+.mkbox{margin-top:10px;border:1px dashed var(--copper);border-radius:10px;padding:10px 12px}
+#mktext{width:100%;font:inherit;font-size:13px;padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--field);color:var(--ink);resize:vertical}
 .rtag{font-size:11px;color:var(--muted)}
 .ostat{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin:4px 0 10px}
 .ostat label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);min-width:0}
@@ -177,7 +179,12 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
   </header>
 
   <section class="panel" aria-labelledby="ph">
-    <div class="row"><h2 id="ph">Цены сырья, гроши</h2><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></div>
+    <div class="row"><h2 id="ph">Цены сырья, гроши</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mkopen" type="button">Цены с рынка</button><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></span></div>
+    <div class="mkbox" id="mkbox" hidden>
+      <p class="hint" style="margin:0 0 6px">На сайте KCDRP открой «Аукционы», выдели мышкой таблицу «Цены» целиком, скопируй (Ctrl+C) и вставь сюда (Ctrl+V). Калькулятор сам найдёт знакомое сырьё и подставит цены.</p>
+      <textarea id="mktext" rows="5" placeholder="Вставь сюда таблицу цен с рынка"></textarea>
+      <div class="obar" style="margin-top:6px"><label class="hint">Какую цену брать <select id="mkcol"><option value="0">Дешевле всего</option><option value="1">Продано за 7 дней (средняя)</option></select></label><button class="btn go" id="mkapply" type="button">Подставить цены</button><span class="hint" id="mknote"></span></div>
+    </div>
     <div class="pgrid">
       <div><h3 class="ph3">Бронное дело</h3><div class="prices" id="prices"></div></div>
       <div><h3 class="ph3">Кузнечное дело</h3><div class="prices" id="prices2"></div></div>
@@ -330,6 +337,26 @@ document.getElementById("prices2").innerHTML=rawUsed("w").map(k=>priceField(k,"w
 document.getElementById("pricesm").innerHTML=priceField("markup");
 document.querySelectorAll("[data-p]").forEach(inp=>inp.addEventListener("input",e=>{ const v=parseFloat(e.target.value); const k=e.target.dataset.p; P[k]=isNaN(v)?0:v; document.querySelectorAll(`[data-p="${k}"]`).forEach(i=>{ if(i!==e.target) i.value=e.target.value; }); save(); recalc(); renderAll(); }));
 document.getElementById("reset").addEventListener("click",()=>{ P={...DEF}; document.querySelectorAll("[data-p]").forEach(i=>i.value=P[i.dataset.p]); save(); recalc(); renderAll(); });
+// --- market paste
+const SYN={co:["древесный уголь","уголь"],hd:["шкуры","шкура"],antl:["оленьи рога","рога"],nug:["самородки чистого серебра","самородок чистого серебра","самородки серебра"],met:["метеоритное железо","метеоритная руда"],agp:["чистое серебро"],log:["брёвна","бревна"],shaft:["древки","древко"]};
+document.getElementById("mkopen").addEventListener("click",()=>{ const bx=document.getElementById("mkbox"); bx.hidden=!bx.hidden; if(!bx.hidden) document.getElementById("mktext").focus(); });
+document.getElementById("mkapply").addEventListener("click",()=>{
+  const txt=document.getElementById("mktext").value.toLowerCase().replace(/ё/g,"е"), col=+document.getElementById("mkcol").value, note=document.getElementById("mknote");
+  if(!txt.trim()){ note.textContent="Сначала вставь таблицу."; return; }
+  const names=[]; RAWK.forEach(k=>{ const list=[...(SYN[k]||[]),NAME[k].toLowerCase()]; list.forEach(n=>names.push([n.replace(/ё/g,"е"),k])); });
+  names.sort((x,y)=>y[0].length-x[0].length);
+  const found={}, taken=[];
+  for(const [n,k] of names){ if(found[k]!==undefined) continue;
+    const re=new RegExp("(^|[^а-яa-z])"+n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![а-яa-z])","g"); let m;
+    while((m=re.exec(txt))){ const st=m.index+m[1].length; if(taken.some(([s,e])=>st<e&&st+n.length>s)) continue;
+      const rest=txt.slice(st+n.length, st+n.length+200), nums=[...rest.matchAll(/(\d+(?:[.,]\d+)?)\s*гр/g)];
+      if(nums.length>col){ found[k]=parseFloat(nums[col][1].replace(",",".")); taken.push([st,st+n.length]); break; } } }
+  const ks=Object.keys(found);
+  if(!ks.length){ note.textContent="Не нашёл знакомого сырья. Проверь, что скопировал таблицу с ценами."; return; }
+  ks.forEach(k=>{ P[k]=found[k]; document.querySelectorAll(`[data-p="${k}"]`).forEach(i=>i.value=P[k]); });
+  save(); recalc(); renderAll();
+  note.textContent="Обновлено: "+ks.map(k=>`${NAME[k].toLowerCase()} ${fmt(found[k],1)}`).join(", ");
+});
 function renderDerived(){
   document.getElementById("derived").innerHTML=["steel","iron","scrap","leather","pad","cu","frank","tol"].map(k=>`<span>${esc(NAME[k])}: <b>${g(uc(k))}</b></span>`).join("")+`<span>Работа: <b>+${fmt(P.markup)}%</b></span>`;
 }
