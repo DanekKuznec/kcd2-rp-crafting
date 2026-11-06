@@ -267,3 +267,20 @@ body{padding-block:12px 90px}
 .tree-t tr.strike td{color:var(--muted)}
 .tree-t tr.strike td:first-child,.tree-t tr.strike td:nth-child(2){text-decoration:line-through}
 .tree-t tr.refrow td{color:var(--muted)}
+/* правки после проверки: колонка заказа не растягивается пустой, цены занимают остаток; узкие экраны */
+@media (min-width:1100px) and (min-height:620px){
+  .basket{flex:0 0 auto;max-height:68%}
+  .pricep{flex-basis:0}
+  .pricep{flex:1 1 auto;max-height:none;min-height:130px}
+  #tiles{flex:0 1 auto;min-height:0}
+  #tiles:has(.tiles){min-height:150px}
+  .left{overflow-x:hidden}
+}
+@media (min-width:1100px) and (max-width:1399px){
+  .app{grid-template-columns:minmax(0,1fr) 360px}
+  td.comp{min-width:120px}
+  td.name{min-width:130px}
+  .book td:first-child{width:46px}
+  .book .ic{width:34px;height:34px;min-width:34px}
+  .qty{width:44px}
+}

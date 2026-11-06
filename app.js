@@ -1400,10 +1400,11 @@ function clientText() {
   const L = [`Заказ: ${o.name}`];
   sortedIds().forEach(id => L.push(`- ${nameV(id, varOf(id))} × ${Q()[id]}`));
   const pr = priceOf(b),
-    matFull = t.cost,
+    bench = t.b + b.matBench,
     price = pr.price,
     labor = pr.labor;
-  L.push(`Материалы: ${fmt(matFull)} гр.`);
+  L.push(`Материалы: ${fmt(t.cost - bench)} гр.`);
+  L.push(`Верстак: ${fmt(bench)} гр.`);
   const cl = ALLK.filter(k => o.client[k]);
   if (o.allc) {
     L.push("Сырьё: всё ваше");
