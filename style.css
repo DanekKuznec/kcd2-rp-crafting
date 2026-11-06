@@ -260,3 +260,10 @@ body{padding-block:12px 90px}
 .pman:hover,.pman:focus{border-color:var(--copper)}
 .sum .pk,.sum .pv{align-self:center}
 .sum .pv{color:var(--copper)}
+
+.tree-t td.tree{padding-left:calc(7px + var(--d,0) * 22px)}
+.tree-t .tl{color:var(--muted);margin-right:5px}
+.tree-t tr.midrow td{background:var(--copper-soft)}
+.tree-t tr.strike td{color:var(--muted)}
+.tree-t tr.strike td:first-child,.tree-t tr.strike td:nth-child(2){text-decoration:line-through}
+.tree-t tr.refrow td{color:var(--muted)}

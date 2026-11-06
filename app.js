@@ -1100,14 +1100,15 @@ const sortedIds = () =>
 const varOf = id => (O().vars || {})[id] || "";
 const nameV = (id, v) => BYID[id].n + (v ? ` — ${v}` : "");
 function priceOf(b) {
-  const t = b.t;
-  const mat = t.cost - b.disc - b.offVal,
-    labor = (t.cost * P.markup) / 100,
-    calc = mat + labor,
-    man = +O().manual || 0;
-  return man > 0
-    ? { mat, labor: man - mat, price: man, calc, manual: true }
-    : { mat, labor, price: calc, calc, manual: false };
+  // Полная цена = всё сырьё и верстак + работа. Свою цену вписывают тоже как полную.
+  // Вычитается только то, что принёс заказчик (склад и «не считать» цену не меняют).
+  const t = b.t,
+    labor0 = (t.cost * P.markup) / 100,
+    calc = t.cost + labor0,
+    man = +O().manual || 0,
+    full = man > 0 ? man : calc,
+    price = full - b.disc;
+  return { mat: t.cost - b.disc, labor: full - t.cost, full, price, calc, manual: man > 0 };
 }
 function renderOrder(skip) {
   const b = breakdown(),
@@ -1128,26 +1129,17 @@ function renderOrder(skip) {
   const pr = priceOf(b),
     { mat, labor, price } = pr,
     bench = t.b + b.matBench;
-  omanual.placeholder = t.n ? fmt(Math.round(pr.calc)) : "по расчёту";
-  const raw = mat - bench,
+    const raw = t.cost - bench,
     pct = t.cost ? Math.round((labor / t.cost) * 100) : 0;
   document.getElementById("bsum").innerHTML = t.n
     ? `
     <span class="k">Вещей</span><span class="v">${t.n}</span>
-    ${b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(b.disc)} гр.</span>` : ""}
-    ${
-      b.offVal
-        ? `<span class="k">Не считается (${b.rows
-            .filter(r => r.off)
-            .map(r => NAME[r.k].toLowerCase())
-            .join(", ")})</span><span class="v ok">−${fmt(b.offVal)} гр.</span>`
-        : ""
-    }
     <span class="k">Материалы</span><span class="v">${fmt(raw)} гр.</span>
     <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
     <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${labor < 0 ? "buy" : ""}">${labor < 0 ? "−" : "+"}${fmt(Math.abs(labor))} гр.</span>
-    <span class="k pk"><label for="pman">Цена заказчику</label></span><span class="v big pv"><input id="pman" class="pman" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(price)}" title="Можно вписать свою цену"> гр.</span>
+    <span class="k pk"><label for="pman">Цена заказчику</label></span><span class="v big pv"><input id="pman" class="pman" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>
     ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="pmreset" type="button">↺ вернуть</button></span>` : ""}
+    ${b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(b.disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(price)} гр.</span>` : ""}
     ${O().pay === "pre" ? `<span class="k">Внесено</span><span class="v ok">${fmt(O().paid || 0)} гр.</span><span class="k">Осталось доплатить</span><span class="v buy">${fmt(Math.max(0, price - (O().paid || 0)))} гр.</span>` : ""}
     ${b.unpriced.length ? `<span class="k warn" style="grid-column:1/-1">Нет цены: ${b.unpriced.map(k => NAME[k].toLowerCase()).join(", ")}. Впиши её в блоке цен, иначе цена занижена.</span>` : ""}`
     : "";
@@ -1208,31 +1200,70 @@ function renderBreakdown(b) {
         ? `<br><span class="buy">Не пойдёт в заказ (излишек, останется у тебя): ${b.extra.map(([k, v]) => `${NAME[k]} ${fmt(v)}`).join(", ")}.</span>`
         : "");
   if (!has) return;
-  const cell = v => `<td class="num">${v ? fmt(v) : "·"}</td>`;
-  const bb = breakdown(true),
-    realMid = Object.fromEntries(b.mid.map(r => [r.k, r])),
-    realRow = Object.fromEntries(b.rows.map(r => [r.k, r]));
-  const mids = bb.mid
-    .map(r => realMid[r.k] || { k: r.k, need: 0, c: 0, s: 0, make: 0, crafts: 0, d: r.d, full: r.need })
-    .map(r => ({ ...r, full: (bb.mid.find(x => x.k === r.k) || {}).need || r.need }));
-  document.getElementById("mid").innerHTML = mids.length
-    ? mids
-        .map(
-          r =>
-            `<tr><td class="l">${esc(NAME[r.k])}</td>${cell(r.full)}<td class="num ok">${r.c ? fmt(r.c) : "·"}</td>${cell(r.s)}<td class="num"><b>${r.make ? fmt(r.make) : "·"}</b></td><td class="l hint">${r.make ? esc(howText(r)) : r.need ? "хватает" : "не нужно, хватает заготовок выше"}</td></tr>`,
-        )
-        .join("")
-    : `<tr><td class="l hint" colspan="6">Заготовки не нужны.</td></tr>`;
-  const raws = bb.rows.map(f => {
-    const r = realRow[f.k] || { k: f.k, c: 0, s: 0, buy: 0, money: 0, off: !!off[f.k] };
-    return { ...r, all: f.all };
+  const dot = v => (v ? fmt(v) : "·");
+  // Порядок: как идут в рецептах вещей заказа; под заготовкой - из чего её делают.
+  const order = [];
+  sortedIds().forEach(id => {
+    const i = BYID[id];
+    (i.m ? [i.m] : Object.keys(i.r)).forEach(k => order.includes(k) || order.push(k));
   });
+  const MID = Object.fromEntries(b.mid.map(r => [r.k, r])),
+    RAW = Object.fromEntries(b.rows.map(r => [r.k, r])),
+    remC = {},
+    remS = {};
+  b.rows.forEach(r => ((remC[r.k] = r.c), (remS[r.k] = r.s)));
+  const shown = new Set(),
+    out = [];
+  function emit(k, amt, d, struck) {
+    if (!amt) return 0;
+    if (MAT[k]) {
+      const m = MID[k];
+      if (struck || !m || shown.has(k)) {
+        out.push({ t: struck || !m ? "x" : "ref", k, amt, d });
+        return 0;
+      }
+      shown.add(k);
+      const row = { t: "mid", k, d, m, money: 0 };
+      out.push(row);
+      const full = m.make ? 0 : Math.ceil(m.need / MAT[k].out);
+      Object.entries(MAT[k].inp).forEach(([i, v]) => {
+        row.money += m.crafts ? emit(i, v * m.crafts, d + 1, false) : emit(i, v * full, d + 1, true);
+      });
+      return row.money;
+    }
+    if (struck) {
+      out.push({ t: "x", k, amt, d });
+      return 0;
+    }
+    const r = RAW[k] || { off: !!off[k] },
+      c = Math.min(remC[k] || 0, amt),
+      st = Math.min(remS[k] || 0, amt - c),
+      buy = amt - c - st,
+      money = r.off ? 0 : buy * uc(k);
+    remC[k] = (remC[k] || 0) - c;
+    remS[k] = (remS[k] || 0) - st;
+    out.push({ t: "raw", k, amt, c, s: st, buy, money, off: r.off, d });
+    return money;
+  }
+  order.forEach(k => emit(k, b.t.need[k], 0, false));
+  const nm = (r, extra = "") =>
+    `<td class="l tree" style="--d:${r.d}">${r.d ? '<span class="tl">└</span>' : ""}${extra || esc(NAME[r.k])}</td>`;
+  const rtog = r =>
+    `<button type="button" class="rtog" data-k="${r.k}" aria-pressed="${!r.off}" title="${r.off ? "Нажми, чтобы снова считать" : "Нажми, чтобы не считать (добываешь сам)"}">${esc(NAME[r.k])}</button>`;
   document.getElementById("raw").innerHTML =
-    raws
-      .map(
-        r =>
-          `<tr class="${r.off ? "offrow" : ""}"><td class="l"><button type="button" class="rtog" data-k="${r.k}" aria-pressed="${!r.off}" title="${r.off ? "Нажми, чтобы снова считать" : "Нажми, чтобы не считать"}">${esc(NAME[r.k])}</button></td><td class="num"><b>${fmt(r.all)}</b></td><td class="num ok">${r.c ? fmt(r.c) : "·"}</td>${cell(r.s)}<td class="num ${r.off ? "" : r.buy ? "buy" : "ok"}">${r.off ? "не считается" : r.buy ? fmt(r.buy) : !r.c && !r.s ? "хватает (заготовки на складе)" : "хватает"}</td><td class="num">${r.money ? fmt(r.money) : "·"}</td></tr>`,
-      )
+    out
+      .map(r => {
+        if (r.t === "mid") {
+          const m = r.m,
+            left = m.crafts * MAT[r.k].out - m.make;
+          return `<tr class="midrow">${nm(r, `<b>${esc(NAME[r.k])}</b> <span class="rtag">заготовка</span>${m.crafts ? `<br><span class="hint">${fmt(m.crafts)} крафт. по ${MAT[r.k].out} шт.${left ? `, лишних ${left}` : ""}</span>` : ""}`)}<td class="num"><b>${fmt(m.need)}</b></td><td class="num ok">${dot(m.c)}</td><td class="num">${dot(m.s)}</td><td class="num">${m.make ? `сделать <b>${fmt(m.make)}</b>` : '<span class="ok">хватает</span>'}</td><td class="num hint" title="Сырьё на эту заготовку, уже входит в строки ниже">${r.money ? fmt(r.money) : "·"}</td></tr>`;
+        }
+        if (r.t === "x")
+          return `<tr class="strike">${nm(r)}<td class="num">${fmt(r.amt)}</td><td colspan="3" class="l hint">не нужно, заготовки хватает</td><td class="num">·</td></tr>`;
+        if (r.t === "ref")
+          return `<tr class="refrow">${nm(r)}<td class="num">${fmt(r.amt)}</td><td colspan="3" class="l hint">входит в «${esc(NAME[r.k])}» выше</td><td class="num">·</td></tr>`;
+        return `<tr class="${r.off ? "offrow" : ""}">${nm(r, rtog(r))}<td class="num"><b>${fmt(r.amt)}</b></td><td class="num ok">${dot(r.c)}</td><td class="num">${dot(r.s)}</td><td class="num ${r.off ? "" : r.buy ? "buy" : "ok"}">${r.off ? "не считается" : r.buy ? fmt(r.buy) : "хватает"}</td><td class="num">${dot(r.money)}</td></tr>`;
+      })
       .join("") +
     `<tr><td class="l"><b>Итого докупить</b></td><td colspan="4"></td><td class="num"><b>${fmt(b.buyMoney)}</b></td></tr>`;
 }
@@ -1364,7 +1395,7 @@ function clientText() {
   const L = [`Заказ: ${o.name}`];
   sortedIds().forEach(id => L.push(`- ${nameV(id, varOf(id))} × ${Q()[id]}`));
   const pr = priceOf(b),
-    matFull = t.cost - b.offVal,
+    matFull = t.cost,
     price = pr.price,
     labor = pr.labor;
   L.push(`Материалы: ${fmt(matFull)} гр.`);
@@ -1377,6 +1408,7 @@ function clientText() {
     L.push(`Засчитано за ваше сырьё: −${fmt(b.disc)} гр.`);
   }
   if (!pr.manual) L.push(`Работа: ${fmt(labor)} гр.`);
+  if (b.disc) L.push(`Цена без вашего сырья: ${fmt(pr.full)} гр.`);
   L.push(`К оплате: ${fmt(price)} гр.`);
   if (o.pay === "pre" && o.paid) {
     L.push(`Внесено: ${fmt(o.paid)} гр.`);
