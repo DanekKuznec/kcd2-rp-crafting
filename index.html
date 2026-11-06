@@ -109,6 +109,9 @@
     <aside class="basket panel" id="zakaz" aria-labelledby="bh">
       <h2 id="bh">Заказы</h2>
       <div class="obar"><label class="sr" for="osel">Выбрать заказ</label><select id="osel"></select><button class="btn" id="onew" type="button">+ Новый</button></div>
+      <div id="tiles"></div><datalist id="varlist"></datalist>
+      <div class="sum" id="bsum"></div>
+      <details class="omore" id="omore"><summary>Детали: название, срок, оплата, своя цена, подпись</summary>
       <div class="obar"><label class="sr" for="oname">Название заказа</label><input id="oname" type="text" maxlength="40" placeholder="Название, например: Ян, латы"><button class="btn" id="clearq" type="button">Очистить</button><button class="btn" id="odel" type="button">Удалить</button></div>
       <div class="ostat">
         <label>Срок<input id="odue" type="date"></label>
@@ -118,9 +121,8 @@
         <label class="chk"><input id="oallc" type="checkbox"> Всё сырьё от заказчика</label>
         <label class="chk"><input id="ogiven" type="checkbox"> Отдан заказчику</label>
       </div>
-      <div id="tiles"></div><datalist id="varlist"></datalist>
-      <div class="sum" id="bsum"></div>
       <div class="obar signrow"><label class="hint" for="sign">Подпись</label><input id="sign" type="text" maxlength="60" placeholder="Например: мастер-бронник, Кутна Гора"></div>
+      </details>
       <div class="obar"><button class="btn" id="copyc" type="button">Скопировать для заказчика</button><span class="hint" id="copynote"></span></div>
       <textarea id="copytxt" hidden readonly rows="7" aria-label="Текст для заказчика"></textarea>
       <button class="linkbtn" type="button" data-goview="calc">Подробный расчёт сырья →</button>
