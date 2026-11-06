@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261107d">
+<link rel="stylesheet" href="style.css?v=20261107e">
 </head>
 <body>
 <header class="top">
@@ -62,7 +62,7 @@
       <div style="min-width:0">
         <h3>1. Сырьё и заготовки по порядку</h3>
         <div class="tablebox"><table class="mini tree-t"><thead><tr><th class="l">Ресурс</th><th>Всего</th><th>От заказчика</th><th>Со склада</th><th>Докупить / сделать</th><th>Гроши</th></tr></thead><tbody id="raw"></tbody></table></div>
-        <p class="hint">Под заготовкой - из чего её делают. Если заготовку дал заказчик или она есть на складе, её сырьё зачёркивается. Сырьё, которое нужно и само по себе (например, уголь на вещь), стоит отдельной строкой. Заготовки делают партиями (сталь по 2, железо по 3), поэтому иногда выходит больше, чем нужно, излишек после «Заказ выполнен» уходит на склад. Нажми на название сырья, чтобы его не считать в «докупить» (например, добываешь сам).</p>
+        <p class="hint">Под заготовкой - из чего её делают. Если заготовку дал заказчик или она есть на складе, её сырьё зачёркивается. Сырьё, которое нужно и само по себе (например, уголь на вещь), стоит отдельной строкой. Заготовки делают партиями (сталь по 2, железо по 3), поэтому иногда выходит больше, чем нужно, излишек после «Заказ выполнен» уходит на склад. Нажми на название сырья, чтобы не считать именно эту строку в «докупить» (например, уголь на сталь у тебя есть, а уголь на саму вещь нужно купить).</p>
       </div>
       <div style="grid-column:1/-1;min-width:0">
         <div class="row"><h3 style="margin:0">2. План крафта <span class="hint" id="plannote"></span></h3><button class="btn" id="planreset" type="button">Снять все галочки</button></div>
@@ -142,8 +142,8 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261107d"></script>
-<script src="app.js?v=20261107d"></script>
-<script src="layout.js?v=20261107d"></script>
+<script src="data.js?v=20261107e"></script>
+<script src="app.js?v=20261107e"></script>
+<script src="layout.js?v=20261107e"></script>
 </body>
 </html>

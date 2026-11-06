@@ -1214,7 +1214,7 @@ function renderBreakdown(b) {
   b.rows.forEach(r => ((remC[r.k] = r.c), (remS[r.k] = r.s)));
   const shown = new Set(),
     out = [];
-  function emit(k, amt, d, struck) {
+  function emit(k, amt, d, struck, par = "") {
     if (!amt) return 0;
     if (MAT[k]) {
       const m = MID[k];
@@ -1227,7 +1227,7 @@ function renderBreakdown(b) {
       out.push(row);
       const full = m.make ? 0 : Math.ceil(m.need / MAT[k].out);
       Object.entries(MAT[k].inp).forEach(([i, v]) => {
-        row.money += m.crafts ? emit(i, v * m.crafts, d + 1, false) : emit(i, v * full, d + 1, true);
+        row.money += m.crafts ? emit(i, v * m.crafts, d + 1, false, k) : emit(i, v * full, d + 1, true, k);
       });
       return row.money;
     }
@@ -1235,21 +1235,23 @@ function renderBreakdown(b) {
       out.push({ t: "x", k, amt, d });
       return 0;
     }
-    const r = RAW[k] || { off: !!off[k] },
+    const ok = par + ">" + k,
+      isOff = !!(off[k] || off[ok]),
       c = Math.min(remC[k] || 0, amt),
       st = Math.min(remS[k] || 0, amt - c),
       buy = amt - c - st,
-      money = r.off ? 0 : buy * uc(k);
+      money = isOff ? 0 : buy * uc(k);
     remC[k] = (remC[k] || 0) - c;
     remS[k] = (remS[k] || 0) - st;
-    out.push({ t: "raw", k, amt, c, s: st, buy, money, off: r.off, d });
+    out.push({ t: "raw", k, ok, amt, c, s: st, buy, money, off: isOff, d });
     return money;
   }
   order.forEach(k => emit(k, b.t.need[k], 0, false));
+  const total = out.reduce((a, r) => a + (r.t === "raw" ? r.money : 0), 0);
   const nm = (r, extra = "") =>
     `<td class="l tree" style="--d:${r.d}">${r.d ? '<span class="tl">└</span>' : ""}${extra || esc(NAME[r.k])}</td>`;
   const rtog = r =>
-    `<button type="button" class="rtog" data-k="${r.k}" aria-pressed="${!r.off}" title="${r.off ? "Нажми, чтобы снова считать" : "Нажми, чтобы не считать (добываешь сам)"}">${esc(NAME[r.k])}</button>`;
+    `<button type="button" class="rtog" data-k="${esc(r.ok)}" data-raw="${r.k}" aria-pressed="${!r.off}" title="${r.off ? "Нажми, чтобы снова считать" : "Нажми, чтобы не считать (добываешь сам)"}">${esc(NAME[r.k])}</button>`;
   document.getElementById("raw").innerHTML =
     out
       .map(r => {
@@ -1265,13 +1267,16 @@ function renderBreakdown(b) {
         return `<tr class="${r.off ? "offrow" : ""}">${nm(r, rtog(r))}<td class="num"><b>${fmt(r.amt)}</b></td><td class="num ok">${dot(r.c)}</td><td class="num">${dot(r.s)}</td><td class="num ${r.off ? "" : r.buy ? "buy" : "ok"}">${r.off ? "не считается" : r.buy ? fmt(r.buy) : "хватает"}</td><td class="num">${dot(r.money)}</td></tr>`;
       })
       .join("") +
-    `<tr><td class="l"><b>Итого докупить</b></td><td colspan="4"></td><td class="num"><b>${fmt(b.buyMoney)}</b></td></tr>`;
+    `<tr><td class="l"><b>Итого докупить</b></td><td colspan="4"></td><td class="num"><b>${fmt(total)}</b></td></tr>`;
 }
 document.getElementById("raw").addEventListener("click", e => {
   const b = e.target.closest(".rtog");
   if (!b) return;
-  const k = b.dataset.k;
-  if (off[k]) delete off[k];
+  // «не считать» - для конкретной строки: уголь под сталью отдельно от угля на саму вещь
+  const k = b.dataset.k,
+    raw = b.dataset.raw;
+  if (off[raw]) delete off[raw];
+  else if (off[k]) delete off[k];
   else off[k] = 1;
   save();
   recalc();
