@@ -202,7 +202,7 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
       <div class="obar" style="margin:0 0 8px"><button class="btn go" id="mkfetch" type="button">Подтянуть с аукциона KCDRP</button><label class="btn" style="cursor:pointer">Загрузить файл<input type="file" id="mkfile" accept=".json,application/json,text/plain" hidden></label><span class="hint" id="mkfnote"></span></div>
       <p class="hint" style="margin:0 0 6px">Кнопка берёт цены с аукциона сервера (копия обновляется раз в час). Если не сработала: открой <a href="https://account.kcdroleplay.com/api/ucp/realm?world=ru" target="_blank" rel="noopener">эту ссылку</a> и сохрани страницу (Ctrl+S), потом нажми «Загрузить файл». Или нажми там Ctrl+A, Ctrl+C и вставь сюда (Ctrl+V) один раз, в пустое поле. Можно вставить и таблицу «Цены» со страницы «Аукционы». Калькулятор сам найдёт знакомое сырьё.</p>
       <textarea id="mktext" rows="5" placeholder="Вставь сюда ответ ссылки или таблицу цен с рынка"></textarea>
-      <div class="obar" style="margin-top:6px"><label class="hint">Какую цену брать <select id="mkcol"><option value="0">Дешевле всего</option><option value="1">Средняя цена продаж</option></select></label><button class="btn go" id="mkapply" type="button">Подставить цены</button><span class="hint" id="mknote"></span></div>
+      <div class="obar" style="margin-top:6px"><label class="hint">Какую цену брать <select id="mkcol"><option value="0">Дешевле всего сейчас</option><option value="1">Средняя за 7 дней продаж</option></select></label><button class="btn go" id="mkapply" type="button">Подставить цены</button><span class="hint" id="mknote"></span></div>
     </div>
     <div class="pgrid">
       <div><h3 class="ph3">Бронное дело</h3><div class="prices" id="prices"></div></div>
@@ -394,7 +394,7 @@ function applyMarket(raw,note){
   Object.entries(MATMK).forEach(([k,list])=>{ for(const n of list){ const x=pick(mp[nm(n)],"mk_"+k); if(x!=null){ P["mk_"+k]=x; gotM.push(k); break; } } });
   if(!got.length&&!gotM.length){ note.textContent="Не нашёл знакомого сырья. Проверь, что скопировал таблицу с ценами."; return false; }
   save(); recalc(); renderAll();
-  note.textContent=(isJson?"С аукциона KCDRP. ":"")+"Обновлено: "+got.map(k=>`${NAME[k].toLowerCase()} ${fmt(P[k],1)}`).join(", ")+(gotM.length?". Заготовки с аукциона: "+gotM.map(k=>`${NAME[k].toLowerCase()} ${fmt(P["mk_"+k],1)}`).join(", "):"")+(fb.length?". Нет в продаже, взята другая колонка: "+fb.map(k=>NAME[k.replace(/^mk_/,"")].toLowerCase()).join(", "):"");
+  note.textContent=(isJson?"С аукциона KCDRP, ":"")+(col?"средняя цена за 7 дней. ":"самая дешёвая цена сейчас. ")+"Обновлено: "+got.map(k=>`${NAME[k].toLowerCase()} ${fmt(P[k],1)}`).join(", ")+(gotM.length?". Заготовки с аукциона: "+gotM.map(k=>`${NAME[k].toLowerCase()} ${fmt(P["mk_"+k],1)}`).join(", "):"")+(fb.length?". Нет в продаже, взята другая колонка: "+fb.map(k=>NAME[k.replace(/^mk_/,"")].toLowerCase()).join(", "):"");
   return true; }
 document.getElementById("mkapply").addEventListener("click",()=>{ const raw=document.getElementById("mktext").value, note=document.getElementById("mknote");
   if(!raw.trim()){ note.textContent="Сначала вставь ответ ссылки или таблицу."; return; } applyMarket(raw,note); });
