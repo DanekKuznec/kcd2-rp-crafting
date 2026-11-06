@@ -116,6 +116,18 @@ try:
             if fx: GFX[(s,en)]=fx
             if ic: GICON[(s,en)]=ic
 except FileNotFoundError: pass
+
+# recipes that exist in game but not on the wiki (from screenshots 6 Nov)
+exec(open('new/extra_recipes.py').read())
+G['beeswax']=('wax','Пчелиный воск','good:beeswax')
+_ln,_ll,_li,_lf,_lfile=LUTE
+D['mat']['lutep']={'n':_ln,'inp':{key_of(n):q for n,q in _li.items()},'out':1,'b':_lf,'src':'wiki','lvl':_ll,'sec':'cp'}
+MICON['lutep']=aicon({'f':F+_lfile+'.png','box':[36,46,108,118]})
+EXTRA={'br':[],'cp':[]}
+for ru,l,out,inp,f,tag in B:
+    EXTRA['br'].append({'s':'br','l':l,'c':'Напитки','n':ru,'en':ru,'note':'есть в игре, нет на вики · плата за верстак не видна на скрине','r':{key_of(n):q for n,q in inp.items()},'b':0,'o':out,'id':'br:'+ru,'_ic':aicon({'f':F+f+'.png','box':[34,32,107,105]})})
+for ru,l,inp,fee,f,cat in J:
+    EXTRA['cp'].append({'s':'cp','l':l,'c':cat,'n':ru,'en':ru,'note':'есть в игре, нет на вики'+(' · плата за верстак не видна на скрине' if ru=='Fine lantern' else ''),'r':{key_of(n):q for n,q in inp.items()},'b':fee,'id':'cp:'+ru,'_ic':aicon({'f':F+f+'.png','box':[36,46,108,118]})})
 CATS={}
 for s,cid,label in SECS:
     items=[]
@@ -142,6 +154,8 @@ for s,cid,label in SECS:
         if it['out']>1: x['o']=it['out']
         if it['var']: x['var']=it['var']
         items.append(x)
+    for x in EXTRA.get(s,[]):
+        x=dict(x); icd=x.pop('_ic'); ic='g_'+s+'_'+str(len(D['icons'])); D['icons'][ic]=icd; x['ic']=ic; items.append(x)
     items.sort(key=lambda i:(i['l'],0 if i['c']=='Материалы' else 1))
     order=['Материалы']+[c for c in dict.fromkeys(i['c'] for i in items) if c!='Материалы']
     CATS[s]=[c for c in order if any(i['c']==c for i in items)]
