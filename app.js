@@ -1003,7 +1003,7 @@ ITEMS.forEach(i => {
 function tipHtml(i) {
   const head = `<div class="dt-n">${esc(i.n)}</div><div class="dt-s">${esc(i.c)} · ${i.l} ур.</div>`;
   // i.fx — что делает предмет (текст из игры), для зелий и прочего без цифр
-  const fx = i.fx ? `<div class="dt-h">Действие</div><div class="dt-fx">${esc(i.fx)}</div>` : "";
+  const fx = i.fx ? `<div class="dt-h">${i.s === "al" ? "Действие" : "Описание"}</div><div class="dt-fx">${esc(i.fx)}</div>` : "";
   if (!i.st) return head + (fx || `<div class="dt-none">Нет данных о характеристиках</div>`);
   const F = FIELDS[i.s],
     m = DMAX[i.s + i.c] || {},

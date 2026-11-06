@@ -21,7 +21,7 @@ def key_of(name):
     if g[2] and g[2] in realm:
         x=realm[g[2]]; price=x['avg'] or x['low'] or 0
     D['raw'].append([k,g[1],price]); rawk.add(k); return k
-SECS=[('t','tailoring','Портняжное'),('b','bowyery','Лучное'),('j','jewelling','Ювелирное'),('al','alchemy','Алхимия'),('ck','cooking','Готовка'),('br','brewing','Пивоварение'),('cp','joinery','Плотницкое')]
+SECS=[('t','tailoring','Портняжное'),('b','bowyery','Лучное'),('j','jewelling','Ювелирное'),('al','alchemy','Алхимия'),('ck','cooking','Готовка'),('br','brewing','Пивоварение'),('cp','joinery','Столярное')]
 # materials (parts); first recipe = main key, alternatives get suffix keys
 EXIST={}
 for s,cid,_ in SECS:
@@ -101,6 +101,21 @@ try:
         if en in AIC: GICON[('al',en)]=aicon(AIC[en])
     if 'cwater' in AIC: MICON['cwater']=aicon(AIC['cwater'])
 except FileNotFoundError: pass
+# brewing, cooking, jewelling, joinery: game names, effects, icons (screenshots 6 Nov)
+try:
+    NIC=json.load(open('new/icons.json'))
+    for s,cid in (('br','brewing'),('ck','cooking'),('j','jewelling'),('cp','joinery')):
+        PK={p['n'] for p in w[cid]['parts']}
+        for l in open(f'tr/game_{cid}.tsv',encoding='utf8'):
+            en,ru,fx=l.rstrip('\n').split('\t')
+            ic=aicon(NIC[cid][en]) if en in NIC.get(cid,{}) else None
+            if en in PK:
+                if ic: MICON[PARTS[en][0]]=ic
+                continue
+            GAME[(s,en)]=ru
+            if fx: GFX[(s,en)]=fx
+            if ic: GICON[(s,en)]=ic
+except FileNotFoundError: pass
 CATS={}
 for s,cid,label in SECS:
     items=[]
@@ -132,7 +147,7 @@ for s,cid,label in SECS:
     CATS[s]=[c for c in order if any(i['c']==c for i in items)]
     D['items']+=items
 for s,_,_ in SECS: D['cats'][s]=CATS[s]
-D['secs']=[['a','Броня','Рецепты со скринов верстака бронника.'],['w','Оружие','Рецепты со скринов верстака кузнеца.']]+[[s,label,'Рецепты с вики сервера (wiki.kcdroleplay.com), названия переведены с английского и могут не совпадать с игрой слово в слово. Оригинальное название под каждой вещью.'] for s,_,label in SECS]
+D['secs']=[['a','Броня','Рецепты со скринов верстака бронника.'],['w','Оружие','Рецепты со скринов верстака кузнеца.']]+[[s,label,('Рецепты с вики сервера (wiki.kcdroleplay.com), названия и иконки со скринов игры. Оригинальное название под каждой вещью.' if s in ('al','br','ck','j','cp','b') else 'Рецепты с вики сервера (wiki.kcdroleplay.com), названия переведены с английского и могут не совпадать с игрой слово в слово. Оригинальное название под каждой вещью.')] for s,_,label in SECS]
 # auction ids for new raws + mats
 D['api']={g[2]:g[1] for g in G.values() if g[2] and g[1]}
 seen_ids=set()
