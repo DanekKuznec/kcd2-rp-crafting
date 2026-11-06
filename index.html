@@ -174,7 +174,6 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
 .pgrid>div{min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--field)}
 .ph3{margin:0 0 8px;font-size:16px}
 .mkin{width:90px;font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);text-align:right}
-.mkbox{margin-top:10px;border:1px dashed var(--copper);border-radius:10px;padding:10px 12px}
 .rtag{font-size:11px;color:var(--muted)}
 .ostat{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin:4px 0 10px}
 .ostat label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);min-width:0}
@@ -196,19 +195,15 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
   </header>
 
   <section class="panel" aria-labelledby="ph">
-    <div class="row"><h2 id="ph">Цены сырья, гроши</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mkopen" type="button">Цены с рынка</button><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></span></div>
-    <div class="mkbox" id="mkbox" hidden>
-      <div class="obar" style="margin:0 0 8px"><button class="btn go mkfetch" data-col="1" type="button">Подтянуть: средняя за 7 дней</button><button class="btn go mkfetch" data-col="0" type="button">Подтянуть: минимальная</button><label class="btn" style="cursor:pointer">Загрузить файл<input type="file" id="mkfile" accept=".json,application/json,text/plain" hidden></label><span class="hint" id="mkfnote"></span></div>
-      <p class="hint" style="margin:0 0 4px">Цены с аукциона сервера, копия обновляется раз в час. Если кнопки не сработали: открой <a href="https://account.kcdroleplay.com/api/ucp/realm?world=ru" target="_blank" rel="noopener">эту ссылку</a>, сохрани страницу (Ctrl+S) и нажми «Загрузить файл» (берётся средняя за 7 дней).</p>
-      <p class="hint" id="mknote" style="margin:0"></p><select id="mkcol" hidden><option value="0">min</option><option value="1" selected>avg</option></select>
-    </div>
+    <div class="row"><h2 id="ph">Цены сырья, гроши</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn go mkfetch" data-col="1" type="button" title="Средняя цена реальных продаж на аукционе KCDRP за 7 дней">Подтянуть: средняя за 7 дней</button><button class="btn go mkfetch" data-col="0" type="button" title="Самый дешёвый лот на аукционе KCDRP сейчас">Подтянуть: минимальная</button><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></span></div>
+    <p class="hint" style="margin:0 0 8px"><span id="mkfnote"></span> <span id="mknote"></span></p><select id="mkcol" hidden><option value="0">min</option><option value="1" selected>avg</option></select>
     <div class="pgrid">
       <div><h3 class="ph3">Бронное дело</h3><div class="prices" id="prices"></div></div>
       <div><h3 class="ph3">Кузнечное дело</h3><div class="prices" id="prices2"></div></div>
     </div>
     <div class="prices" id="pricesm" style="margin-top:10px"></div>
     <details class="more" id="mkcmp" style="margin-top:12px"><summary>Заготовки: крафтить или купить на аукционе</summary>
-      <p class="hint" style="margin:6px 0">Впиши цену заготовки на аукционе (или подставь через «Цены с рынка»), и видно, что выгоднее: сделать самому из сырья по твоим ценам или купить готовое. Цена за 1 шт.</p>
+      <p class="hint" style="margin:6px 0">Впиши цену заготовки на аукционе (или подтяни кнопкой вверху), и видно, что выгоднее: сделать самому из сырья по твоим ценам или купить готовое. Цена за 1 шт.</p>
       <div class="tablebox"><table class="mini"><thead><tr><th class="l">Заготовка</th><th>Крафт, за 1 шт.</th><th>Аукцион, за 1 шт.</th><th class="l">Выгоднее</th></tr></thead><tbody id="mkrows"></tbody></table></div>
     </details>
     <p class="hint" style="margin:6px 0 0">Сырьё, которое нужно в обоих ремёслах (руда, уголь, шкуры…), есть в обоих окнах, и цена в них общая.</p>
@@ -362,7 +357,6 @@ document.querySelectorAll("[data-p]").forEach(inp=>inp.addEventListener("input",
 document.getElementById("reset").addEventListener("click",()=>{ P={...DEF}; document.querySelectorAll("[data-p]").forEach(i=>i.value=P[i.dataset.p]); save(); recalc(); renderAll(); });
 // --- market paste
 const SYN={};
-document.getElementById("mkopen").addEventListener("click",()=>{ const bx=document.getElementById("mkbox"); bx.hidden=!bx.hidden; });
 function parseMarket(txt){ const map={}, num=s=>{ const m=(s||"").match(/(\d+(?:[.,]\d+)?)\s*гр/); return m?parseFloat(m[1].replace(",",".")):null; };
   const lines=txt.replace(/\r/g,"").split("\n");
   if(lines.some(l=>l.includes("\t"))){ lines.forEach(l=>{ const c=l.split("\t"); const n=(c[0]||"").trim(); if(!n) return; const v=[num(c[1]),num(c[2])]; if(!map[n]||(map[n][0]==null&&map[n][1]==null)) map[n]=v; }); }
@@ -394,8 +388,6 @@ function applyMarket(raw,note){
   save(); recalc(); renderAll();
   note.textContent=(isJson?"С аукциона KCDRP, ":"")+(col?"средняя цена за 7 дней. ":"самая дешёвая цена сейчас. ")+"Обновлено: "+got.map(k=>`${NAME[k].toLowerCase()} ${fmt(P[k],1)}`).join(", ")+(gotM.length?". Заготовки с аукциона: "+gotM.map(k=>`${NAME[k].toLowerCase()} ${fmt(P["mk_"+k],1)}`).join(", "):"")+(fb.length?". Нет в продаже, взята другая колонка: "+fb.map(k=>NAME[k.replace(/^mk_/,"")].toLowerCase()).join(", "):"");
   return true; }
-document.getElementById("mkfile").addEventListener("change",e=>{ const f=e.target.files[0], note=document.getElementById("mknote"); if(!f) return;
-  const rd=new FileReader(); rd.onload=()=>{ document.getElementById("mkcol").value="1"; applyMarket(String(rd.result),note); e.target.value=""; }; rd.readAsText(f); });
 const MIRROR_URL="https://raw.githubusercontent.com/DanekKuznec/kcd2-rp-crafting/prices/auction.json";
 async function getText(url,ms){ const c=new AbortController(), t=setTimeout(()=>c.abort(),ms);
   try{ const r=await fetch(url,{credentials:"omit",cache:"no-store",signal:c.signal}); if(!r.ok) throw new Error("HTTP "+r.status); return await r.text(); } finally{ clearTimeout(t); } }
@@ -407,7 +399,7 @@ document.querySelectorAll(".mkfetch").forEach(btn=>btn.addEventListener("click",
     if(!txt){ txt=await getText(MIRROR_URL+"?t="+Date.now(),10000);
       try{ const u=JSON.parse(txt).updated; if(u){ const d=new Date(u), min=Math.round((Date.now()-d)/60000); when="на "+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})+(min>=0?` (${min<60?min+" мин":Math.round(min/60)+" ч"} назад)`:""); } }catch(err){} }
     fn.textContent="Цены "+when+"."; applyMarket(txt,note); }
-  catch(err){ fn.textContent="Не удалось загрузить цены. Открой ссылку ниже, сохрани страницу (Ctrl+S) и загрузи файл."; }
+  catch(err){ console.warn("auction",err); fn.textContent="Не удалось загрузить цены с аукциона. Попробуй позже."; }
   finally{ all.forEach(x=>x.disabled=false); } }));
 const MATMK={leather:["кожа"],pad:["набивка"],steel:["стальные бруски","steel"],cu:["copper","медь"],frank:["frankfurt steel","франкфуртская сталь"],horn:["antler shards","оленьи рога"],tol:["толедская сталь","toledo steel"],iron:["железо","iron"],scrap:["железный лом"],fast:["крепёж","крепеж"],sheet:["листовая сталь"]};
 const mkRows=document.getElementById("mkrows");
