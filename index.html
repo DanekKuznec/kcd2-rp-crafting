@@ -199,8 +199,8 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
   <section class="panel" aria-labelledby="ph">
     <div class="row"><h2 id="ph">Цены сырья, гроши</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mkopen" type="button">Цены с рынка</button><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></span></div>
     <div class="mkbox" id="mkbox" hidden>
-      <div class="obar" style="margin:0 0 8px"><button class="btn go" id="mkfetch" type="button">Подтянуть с аукциона KCDRP</button><span class="hint" id="mkfnote"></span></div>
-      <p class="hint" style="margin:0 0 6px">Если кнопка не сработала: открой <a href="https://account.kcdroleplay.com/api/ucp/realm?world=ru" target="_blank" rel="noopener">эту ссылку</a>, нажми Ctrl+A, Ctrl+C и вставь сюда (Ctrl+V). Можно вставить и таблицу «Цены» со страницы «Аукционы». Калькулятор сам найдёт знакомое сырьё.</p>
+      <div class="obar" style="margin:0 0 8px"><button class="btn go" id="mkfetch" type="button">Подтянуть с аукциона KCDRP</button><label class="btn" style="cursor:pointer">Загрузить файл<input type="file" id="mkfile" accept=".json,application/json,text/plain" hidden></label><span class="hint" id="mkfnote"></span></div>
+      <p class="hint" style="margin:0 0 6px">Если кнопка не сработала: открой <a href="https://account.kcdroleplay.com/api/ucp/realm?world=ru" target="_blank" rel="noopener">эту ссылку</a> и сохрани страницу (Ctrl+S), потом нажми «Загрузить файл». Или нажми там Ctrl+A, Ctrl+C и вставь сюда (Ctrl+V) один раз, в пустое поле. Можно вставить и таблицу «Цены» со страницы «Аукционы». Калькулятор сам найдёт знакомое сырьё.</p>
       <textarea id="mktext" rows="5" placeholder="Вставь сюда ответ ссылки или таблицу цен с рынка"></textarea>
       <div class="obar" style="margin-top:6px"><label class="hint">Какую цену брать <select id="mkcol"><option value="0">Дешевле всего</option><option value="1">Средняя цена продаж</option></select></label><button class="btn go" id="mkapply" type="button">Подставить цены</button><span class="hint" id="mknote"></span></div>
     </div>
@@ -373,11 +373,20 @@ function parseMarket(txt){ const map={}, num=s=>{ const m=(s||"").match(/(\d+(?:
 // realm API (auction.items): item id -> name the calculator knows
 const API_URL="https://account.kcdroleplay.com/api/ucp/realm?world=ru";
 const API_ID={"good:ore":"Железная руда","good:coal":"Уголь","good:copperore":"Медная руда","good:silver":"Серебряная руда","good:silvernugget":"Самородки чистого серебра","good:gold":"Золотая руда","good:meteoric":"Метеоритное железо","good:hide":"Шкуры","good:nettle":"Крапива","good:logs":"Брёвна","good:antler":"Рога","good:finesilver":"Чистое серебро","good:resin":"Сосновая смола","good:haft":"Древки","good:relicstub":"Обломок оружия","good:relicaxe":"Сломанный топор","good:relicclaw":"Драконий коготь","good:leather":"кожа","good:padding":"набивка","good:steel":"steel"};
-function parseRealm(txt){ let d; try{ d=JSON.parse(txt); }catch(e){ return null; } const it=d&&d.auction&&d.auction.items; if(!Array.isArray(it)) return null;
+// cut one balanced {...} starting at index i (respects strings); null if unbalanced
+function cutObj(t,i){ let dep=0,str=false,esc=false; for(let j=i;j<t.length;j++){ const c=t[j];
+  if(str){ if(esc) esc=false; else if(c==="\\") esc=true; else if(c==='"') str=false; continue; }
+  if(c==='"') str=true; else if(c==="{") dep++; else if(c==="}"){ dep--; if(!dep) return t.slice(i,j+1); } } return null; }
+function parseRealm(txt){ let d=null; const t=txt.replace(/^\uFEFF/,"");
+  try{ d=JSON.parse(t); }catch(e){
+    const a=t.indexOf('"auction"'); // pasted twice or with junk around: take just the auction object
+    if(a>=0){ const o=t.indexOf("{",a), part=o>=0?cutObj(t,o):null; if(part) try{ d={auction:JSON.parse(part)}; }catch(e2){} }
+    if(!d){ const o=t.indexOf("{"), part=o>=0?cutObj(t,o):null; if(part) try{ d=JSON.parse(part); }catch(e3){} } }
+  const it=d&&d.auction&&d.auction.items; if(!Array.isArray(it)) return null;
   const map={}; it.forEach(x=>{ const n=API_ID[x.item]; if(n) map[n]=[x.low>0?x.low:null, x.avg>0?x.avg:null]; }); return map; }
 function applyMarket(raw,note){
   const col=+document.getElementById("mkcol").value;
-  const isJson=/^\s*\{/.test(raw), parsed=isJson?parseRealm(raw):parseMarket(raw);
+  const isJson=/^\s*\{/.test(raw)||raw.includes('"auction"'), parsed=isJson?parseRealm(raw):parseMarket(raw);
   if(isJson&&!parsed){ note.textContent="Это не похоже на ответ аукциона KCDRP (нет списка auction)."; return false; }
   const nm=s=>s.toLowerCase().replace(/ё/g,"е").trim(), mp={}; Object.entries(parsed).forEach(([n,v])=>{ const k=nm(n); if(!mp[k]) mp[k]=v; });
   const got=[], gotM=[], fb=[]; const pick=(v,k)=>{ if(!v) return null; if(v[col]!=null) return v[col]; const o=v[1-col]; if(o!=null){ fb.push(k); return o; } return null; };
@@ -389,11 +398,13 @@ function applyMarket(raw,note){
   return true; }
 document.getElementById("mkapply").addEventListener("click",()=>{ const raw=document.getElementById("mktext").value, note=document.getElementById("mknote");
   if(!raw.trim()){ note.textContent="Сначала вставь ответ ссылки или таблицу."; return; } applyMarket(raw,note); });
+document.getElementById("mkfile").addEventListener("change",e=>{ const f=e.target.files[0], note=document.getElementById("mknote"); if(!f) return;
+  const rd=new FileReader(); rd.onload=()=>{ applyMarket(String(rd.result),note); e.target.value=""; }; rd.readAsText(f); });
 document.getElementById("mkfetch").addEventListener("click",async e=>{ const b=e.currentTarget, note=document.getElementById("mknote"), fn=document.getElementById("mkfnote");
   b.disabled=true; fn.textContent="Загружаю…";
   try{ const r=await fetch(API_URL,{credentials:"omit",cache:"no-store"}); if(!r.ok) throw new Error("HTTP "+r.status);
     const txt=await r.text(); fn.textContent=""; applyMarket(txt,note); }
-  catch(err){ fn.textContent="Сайт не отдал данные напрямую. Открой ссылку ниже и вставь её содержимое в поле."; }
+  catch(err){ fn.textContent="Сайт не отдаёт данные калькулятору напрямую. Открой ссылку ниже, сохрани страницу (Ctrl+S) и загрузи файл, или скопируй и вставь текст."; }
   finally{ b.disabled=false; } });
 const MATMK={leather:["кожа"],pad:["набивка"],steel:["стальные бруски","steel"],cu:["copper","медь"],frank:["frankfurt steel","франкфуртская сталь"],horn:["antler shards","оленьи рога"],tol:["толедская сталь","toledo steel"],iron:["железо","iron"],scrap:["железный лом"],fast:["крепёж","крепеж"],sheet:["листовая сталь"]};
 const mkRows=document.getElementById("mkrows");
