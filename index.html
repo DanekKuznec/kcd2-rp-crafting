@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261107b">
+<link rel="stylesheet" href="style.css?v=20261107c">
 </head>
 <body>
 <header class="top">
@@ -111,19 +111,19 @@
       <div class="obar"><label class="sr" for="osel">Выбрать заказ</label><select id="osel"></select><button class="btn" id="onew" type="button">+ Новый</button></div>
       <div id="tiles"></div><datalist id="varlist"></datalist>
       <div class="sum" id="bsum"></div>
-      <details class="omore" id="omore"><summary>Детали: название, срок, оплата, своя цена, подпись</summary>
-      <div class="obar"><label class="sr" for="oname">Название заказа</label><input id="oname" type="text" maxlength="40" placeholder="Название, например: Ян, латы"><button class="btn" id="clearq" type="button">Очистить</button><button class="btn" id="odel" type="button">Удалить</button></div>
+      <details class="omore" id="omore"><summary>Детали: название, срок, оплата, подпись</summary>
+      <div class="obar"><label class="sr" for="oname">Название заказа</label><input id="oname" type="text" maxlength="40" placeholder="Название, например: Ян, латы"></div>
       <div class="ostat">
         <label>Срок<input id="odue" type="date"></label>
         <label>Оплата<select id="opay"><option value="no">Не оплачено</option><option value="pre">Предоплата</option><option value="yes">Оплачено</option></select></label>
         <label id="paidbox" hidden>Внесено, гр.<input id="opaid" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
-        <label>Своя цена, гр.<span style="display:flex;gap:4px"><input id="omanual" type="number" min="0" step="1" inputmode="numeric" placeholder="по расчёту"><button class="btn" id="omreset" type="button" title="Вернуть цену по расчёту" style="padding:4px 9px">↺</button></span></label>
+        <input id="omanual" type="hidden"><button id="omreset" type="button" hidden></button>
         <label class="chk"><input id="oallc" type="checkbox"> Всё сырьё от заказчика</label>
         <label class="chk"><input id="ogiven" type="checkbox"> Отдан заказчику</label>
       </div>
       <div class="obar signrow"><label class="hint" for="sign">Подпись</label><input id="sign" type="text" maxlength="60" placeholder="Например: мастер-бронник, Кутна Гора"></div>
       </details>
-      <div class="obar"><button class="btn" id="copyc" type="button">Скопировать для заказчика</button><span class="hint" id="copynote"></span></div>
+      <div class="obar"><button class="btn" id="copyc" type="button" title="Скопировать текст заказа для заказчика">Скопировать</button><button class="btn" id="clearq" type="button" title="Убрать все вещи из заказа">Очистить</button><button class="btn" id="odel" type="button" title="Удалить заказ целиком">Удалить</button></div><span class="hint" id="copynote"></span>
       <textarea id="copytxt" hidden readonly rows="7" aria-label="Текст для заказчика"></textarea>
       <button class="linkbtn" type="button" data-goview="calc">Подробный расчёт сырья →</button>
     </aside>
@@ -147,8 +147,8 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261107b"></script>
-<script src="app.js?v=20261107b"></script>
-<script src="layout.js?v=20261107b"></script>
+<script src="data.js?v=20261107c"></script>
+<script src="app.js?v=20261107c"></script>
+<script src="layout.js?v=20261107c"></script>
 </body>
 </html>

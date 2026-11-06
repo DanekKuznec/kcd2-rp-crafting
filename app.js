@@ -830,6 +830,23 @@ document.getElementById("omreset").addEventListener("click", () => {
 [odue, opay, opaid, omanual, oallc, ogiven].forEach(el =>
   el.addEventListener(el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input", statusChanged),
 );
+// Цена заказчику прямо в итоге: вписал своё - стала «своя цена», ↺ возвращает расчётную
+const bsumEl = document.getElementById("bsum");
+bsumEl.addEventListener("change", e => {
+  if (e.target.id !== "pman") return;
+  const v = Math.max(0, parseFloat(e.target.value) || 0),
+    calc = Math.round(priceOf(breakdown()).calc);
+  omanual.value = !v || Math.round(v) === calc ? "" : v;
+  statusChanged();
+});
+bsumEl.addEventListener("keydown", e => {
+  if (e.target.id === "pman" && e.key === "Enter") e.target.blur();
+});
+bsumEl.addEventListener("click", e => {
+  if (e.target.id !== "pmreset") return;
+  omanual.value = "";
+  statusChanged();
+});
 const signEl = document.getElementById("sign");
 signEl.value = sign;
 signEl.addEventListener("input", () => {
@@ -1112,10 +1129,11 @@ function renderOrder(skip) {
     { mat, labor, price } = pr,
     bench = t.b + b.matBench;
   omanual.placeholder = t.n ? fmt(Math.round(pr.calc)) : "по расчёту";
+  const raw = mat - bench,
+    pct = t.cost ? Math.round((labor / t.cost) * 100) : 0;
   document.getElementById("bsum").innerHTML = t.n
     ? `
     <span class="k">Вещей</span><span class="v">${t.n}</span>
-    <span class="k">Себестоимость</span><span class="v">${fmt(t.cost)} гр.</span>
     ${b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(b.disc)} гр.</span>` : ""}
     ${
       b.offVal
@@ -1125,14 +1143,13 @@ function renderOrder(skip) {
             .join(", ")})</span><span class="v ok">−${fmt(b.offVal)} гр.</span>`
         : ""
     }
-    <span class="k">Материалы</span><span class="v">${fmt(mat)} гр.</span>
-    ${pr.manual ? `<span class="k">По расчёту</span><span class="v" style="text-decoration:line-through;color:var(--muted)">${fmt(pr.calc)} гр.</span><span class="k">За работу выходит</span><span class="v ${labor < 0 ? "buy" : ""}">${labor < 0 ? "−" : "+"}${fmt(Math.abs(labor))} гр.</span>` : `<span class="k">Работа ${fmt(P.markup)}% от полной себестоимости</span><span class="v">+${fmt(labor)} гр.</span>`}
-    <span class="k">${pr.manual ? "Твоя цена" : "Цена заказчику"}</span><span class="v big" style="color:var(--copper)">${fmt(price)} гр.</span>
-    ${O().pay === "pre" ? `<span class="k">Внесено</span><span class="v ok">${fmt(O().paid || 0)} гр.</span><span class="k">Осталось доплатить</span><span class="v buy">${fmt(Math.max(0, price - (O().paid || 0)))} гр.</span>` : ""}
+    <span class="k">Материалы</span><span class="v">${fmt(raw)} гр.</span>
     <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
-    <span class="k">Докупить сырья</span><span class="v">${fmt(b.buyMoney)} гр.</span>
-    <span class="k">Из кармана</span><span class="v">${fmt(b.buyMoney + bench)} гр.</span>
-    ${b.unpriced.length ? `<span class="k warn" style="grid-column:1/-1">Нет цены: ${b.unpriced.map(k => NAME[k].toLowerCase()).join(", ")}. Впиши её вверху, иначе цена занижена.</span>` : ""}`
+    <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${labor < 0 ? "buy" : ""}">${labor < 0 ? "−" : "+"}${fmt(Math.abs(labor))} гр.</span>
+    <span class="k pk"><label for="pman">Цена заказчику</label></span><span class="v big pv"><input id="pman" class="pman" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(price)}" title="Можно вписать свою цену"> гр.</span>
+    ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="pmreset" type="button">↺ вернуть</button></span>` : ""}
+    ${O().pay === "pre" ? `<span class="k">Внесено</span><span class="v ok">${fmt(O().paid || 0)} гр.</span><span class="k">Осталось доплатить</span><span class="v buy">${fmt(Math.max(0, price - (O().paid || 0)))} гр.</span>` : ""}
+    ${b.unpriced.length ? `<span class="k warn" style="grid-column:1/-1">Нет цены: ${b.unpriced.map(k => NAME[k].toLowerCase()).join(", ")}. Впиши её в блоке цен, иначе цена занижена.</span>` : ""}`
     : "";
   document.getElementById("mTot").textContent = fmt(price) + " гр.";
   if (osel.options[cur]) osel.options[cur].textContent = optLabel(O(), t.n);

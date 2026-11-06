@@ -255,3 +255,8 @@ body{padding-block:12px 90px}
 @media (min-width:1100px) and (min-height:620px){
   #tiles{flex:1 1 auto;min-height:150px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding-right:2px}
 }
+
+.pman{width:110px;font:inherit;font-family:var(--f-num);font-size:18px;font-weight:500;color:var(--copper);text-align:right;padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:var(--field)}
+.pman:hover,.pman:focus{border-color:var(--copper)}
+.sum .pk,.sum .pv{align-self:center}
+.sum .pv{color:var(--copper)}
