@@ -87,6 +87,20 @@ try:
     for mk,src in (('bowstr','bowstr_x3'),('bowstr2','bowstr_x3'),('bowstr3','bowstr_x4'),('haftc','hafts')):
         if src in BM: MICON[mk]=bicon(BM[src][0])
 except FileNotFoundError: pass
+
+# alchemy: game names, effects, icons
+GFX={}
+try:
+    AIC=json.load(open('alc/icons.json'))
+    def aicon(v):
+        im=Image.open(v['f']).convert('RGB').crop(tuple(v['box'])).resize((72,72),Image.LANCZOS)
+        im=unlock_fix(im); b=io.BytesIO(); im.save(b,'JPEG',quality=70); return 'data:image/jpeg;base64,'+base64.b64encode(b.getvalue()).decode()
+    for l in open('tr/game_alchemy.tsv',encoding='utf8'):
+        en,ru,fx=l.rstrip('\n').split('\t'); GAME[('al',en)]=ru
+        if fx: GFX[('al',en)]=fx
+        if en in AIC: GICON[('al',en)]=aicon(AIC[en])
+    if 'cwater' in AIC: MICON['cwater']=aicon(AIC['cwater'])
+except FileNotFoundError: pass
 CATS={}
 for s,cid,label in SECS:
     items=[]
@@ -107,6 +121,7 @@ for s,cid,label in SECS:
         note=it['n']+(f' · {it["var"]} вар.' if it['var'] else '')+(f' · {SIZE[it["kind"].split(", ")[1]]}' if s=='cp' else '')
         x={'s':s,'l':it['l'],'c':c,'n':ru,'en':it['n'],'note':note,'r':{key_of(n):q for n,q in it['inp'].items()},'b':it['fee'],'id':f'{s}:{ru}'}
         if (s,it['n']) in GST: x['st']=GST[(s,it['n'])]
+        if (s,it['n']) in GFX: x['fx']=GFX[(s,it['n'])]
         if (s,it['n']) in GICON:
             ic='g_'+s+'_'+str(len(D['icons'])); D['icons'][ic]=GICON[(s,it['n'])]; x['ic']=ic
         if it['out']>1: x['o']=it['out']

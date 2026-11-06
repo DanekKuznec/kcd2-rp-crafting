@@ -171,3 +171,5 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
 .jdel{padding:2px 8px;font-size:13px}
 .jnote{display:block;width:100%;margin-top:4px;font:inherit;font-size:12.5px;padding:3px 6px;border:1px dashed var(--line);border-radius:5px;background:transparent;color:var(--ink)}
 .jnote:focus{border-style:solid;background:var(--field)}
+.dt-fx{font-size:13.5px;line-height:1.4;margin:2px 0 2px}
+.dtip:has(.dt-fx){width:320px}

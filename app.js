@@ -935,7 +935,7 @@ function renderTable() {
     }
     const c = cost(i),
       id = esc(i.id);
-    h += `<tr class="${q[i.id] ? "picked" : ""}"${FIELDS[i.s] && i.c !== "Материалы" && i.c !== "Детали" ? ` data-tip="${id}"` : ""}><td>${icon(i)}</td><td class="name"><div class="ru" style="font-size:14.5px;color:var(--ink)">${esc(i.n)}</div>${flat ? `<div class="flag">${i.l} ур.</div>` : ""}${i.note ? `<div class="flag">${esc(i.note)}</div>` : ""}</td>
+    h += `<tr class="${q[i.id] ? "picked" : ""}"${i.fx || (FIELDS[i.s] && i.c !== "Материалы" && i.c !== "Детали") ? ` data-tip="${id}"` : ""}><td>${icon(i)}</td><td class="name"><div class="ru" style="font-size:14.5px;color:var(--ink)">${esc(i.n)}</div>${flat ? `<div class="flag">${i.l} ур.</div>` : ""}${i.note ? `<div class="flag">${esc(i.note)}</div>` : ""}</td>
       <td class="comp">${compText(i)}</td><td class="num res">${i.m ? "<b>" + MAT[i.m].out + "</b>" : i.o ? "<b>" + i.o + "</b>" : "1"}</td>      <td class="num cost">${fmt(c, i.m || i.o ? 1 : 0)}</td><td class="num sell">${fmt(c * (1 + P.markup / 100), i.m || i.o ? 1 : 0)}</td>
       <td><div class="qcell"><input class="qty" data-k="${id}" type="number" min="0" step="1" value="${q[i.id] || ""}" aria-label="Количество: ${esc(i.n)}"><button class="add" type="button" data-k="${id}" aria-label="Добавить: ${esc(i.n)}">+</button></div></td></tr>`;
   });
@@ -1002,7 +1002,9 @@ ITEMS.forEach(i => {
 });
 function tipHtml(i) {
   const head = `<div class="dt-n">${esc(i.n)}</div><div class="dt-s">${esc(i.c)} · ${i.l} ур.</div>`;
-  if (!i.st) return head + `<div class="dt-none">Нет данных о характеристиках</div>`;
+  // i.fx — что делает предмет (текст из игры), для зелий и прочего без цифр
+  const fx = i.fx ? `<div class="dt-h">Действие</div><div class="dt-fx">${esc(i.fx)}</div>` : "";
+  if (!i.st) return head + (fx || `<div class="dt-none">Нет данных о характеристиках</div>`);
   const F = FIELDS[i.s],
     m = DMAX[i.s + i.c] || {},
     bar = (v, mx) => `<i><u style="width:${Math.round((100 * v) / (mx || 1))}%"></u></i>`;
@@ -1014,6 +1016,7 @@ function tipHtml(i) {
     head +
     `<div class="dt-h">${i.s === "a" ? "Защита" : "Характеристики"}</div>` +
     rows +
+    fx +
     (i.st[wi] != null ? `<div class="dt-w">Вес: <b>${i.st[wi]}</b></div>` : "") +
     `<div class="dt-f">полосы — от лучшего в разделе «${esc(i.c)}»</div>`
   );
