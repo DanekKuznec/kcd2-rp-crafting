@@ -71,11 +71,31 @@ try:
         if U[int(idx)].get('locked'): im=unlock_fix(im)
         b=io.BytesIO(); im.save(b,'JPEG',quality=70); GICON[('t',en)]='data:image/jpeg;base64,'+base64.b64encode(b.getvalue()).decode()
 except FileNotFoundError: pass
+
+# bowyery: game names, damage, icons from in-game screenshots
+GST={}; MICON={}
+try:
+    BM=json.load(open('bow/match.json')); BL=json.load(open('bow/rows.json')); BLK={r['k']:r for r in BL}
+    def bicon(k):
+        im=Image.open(f"bow/rows/{k}_i.png").convert('RGB').resize((72,72),Image.LANCZOS)
+        if BLK[k].get('lock'): im=unlock_fix(im)
+        b=io.BytesIO(); im.save(b,'JPEG',quality=70); return 'data:image/jpeg;base64,'+base64.b64encode(b.getvalue()).decode()
+    for l in open('tr/game_bowyery.tsv',encoding='utf8'):
+        en,ru,dmg=l.rstrip('\n').split('\t'); GAME[('b',en)]=ru
+        if dmg: GST[('b',en)]=[int(dmg),None]
+        if en in BM: GICON[('b',en)]=bicon(BM[en][0])
+    for mk,src in (('bowstr','bowstr_x3'),('bowstr2','bowstr_x3'),('bowstr3','bowstr_x4'),('haftc','hafts')):
+        if src in BM: MICON[mk]=bicon(BM[src][0])
+except FileNotFoundError: pass
 CATS={}
 for s,cid,label in SECS:
     items=[]
     for k,m in D['mat'].items():
-        if m.get('sec')==s: items.append({'s':s,'l':m['lvl'],'c':'Материалы','n':m['n'],'r':{},'b':0,'m':k,'id':f'{s}:{m["n"]}'})
+        if m.get('sec')==s:
+            it0={'s':s,'l':m['lvl'],'c':'Материалы','n':m['n'],'r':{},'b':0,'m':k,'id':f'{s}:{m["n"]}'}
+            if k in MICON:
+                ic='g_m_'+k; D['icons'][ic]=MICON[k]; it0['ic']=ic
+            items.append(it0)
     for k,l in EXIST.get(s,[]):
         items.append({'s':s,'l':l,'c':'Материалы','n':D['mat'][k]['n'],'r':{},'b':0,'m':k,'id':f'{s}:{D["mat"][k]["n"]}'})
     for it in w[cid]['items']:
@@ -86,6 +106,7 @@ for s,cid,label in SECS:
         else: c={'j':'Украшения','al':'Зелья и снадобья','ck':'Еда','br':'Напитки'}[s]
         note=it['n']+(f' · {it["var"]} вар.' if it['var'] else '')+(f' · {SIZE[it["kind"].split(", ")[1]]}' if s=='cp' else '')
         x={'s':s,'l':it['l'],'c':c,'n':ru,'en':it['n'],'note':note,'r':{key_of(n):q for n,q in it['inp'].items()},'b':it['fee'],'id':f'{s}:{ru}'}
+        if (s,it['n']) in GST: x['st']=GST[(s,it['n'])]
         if (s,it['n']) in GICON:
             ic='g_'+s+'_'+str(len(D['icons'])); D['icons'][ic]=GICON[(s,it['n'])]; x['ic']=ic
         if it['out']>1: x['o']=it['out']

@@ -976,6 +976,7 @@ dsortEl.addEventListener("click", e => {
   renderTable();
 });
 const FIELDS = {
+  b: [["Урон", 0]],
   a: [
     ["Колющий", 0],
     ["Режущий", 1],
@@ -1005,7 +1006,7 @@ function tipHtml(i) {
   const F = FIELDS[i.s],
     m = DMAX[i.s + i.c] || {},
     bar = (v, mx) => `<i><u style="width:${Math.round((100 * v) / (mx || 1))}%"></u></i>`;
-  const rows = F.filter(([, n]) => i.s === "a" || i.st[n])
+  const rows = F.filter(([, n]) => i.s !== "w" || i.st[n])
     .map(([t, n]) => `<div class="dt-r"><span>${t}</span><b>${i.st[n]}</b>${bar(i.st[n], m[n])}</div>`)
     .join("");
   const wi = F.length;

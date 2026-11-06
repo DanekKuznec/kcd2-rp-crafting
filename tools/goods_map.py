@@ -50,7 +50,7 @@ G = {
 # wiki parts -> new material keys (Russian names). Existing ones reuse keys.
 PARTS = {
  "linen":("linen","Льняное полотно"), "linen strips":("lstrip","Льняные полосы"), "suture kits":("suture","Набор для швов"),
- "hanged man's nooses":("noose","Верёвка повешенного"), "bowstrings":("bowstr","Тетивы"), "hafts":("haftc","Древки (лучное дело)"),
+ "hanged man's nooses":("noose","Верёвка повешенного"), "bowstrings":("bowstr","Тетивы"), "hafts":("haftc","Древки (лучные)"),
  "commemorative coins":("mcoin","Памятные монеты"), "knitbone poultices":("poult","Окопниковая припарка"),
  "charcoal water":("cwater","Угольная вода"), "barley malt":("malt","Ячменный солод"), "fine silver":("agpc","Чистое серебро (ювелирное)"),
  "leather":("leather",None), "padding":("pad",None),
