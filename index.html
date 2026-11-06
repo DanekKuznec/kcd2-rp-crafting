@@ -152,8 +152,8 @@ tr[data-tip]{cursor:default}
 .dt-w{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);color:var(--muted)}
 .dt-w b{color:var(--ink);font-family:var(--f-num);font-weight:500}
 .dt-f,.dt-none{color:var(--muted);font-size:12px;margin-top:4px}
-.dt-avg{margin-top:4px;padding-top:4px;border-top:1px dashed var(--line)}
-.dt-avg span{color:var(--copper)}
+
+
 </style>
 </head>
 <body>
@@ -480,17 +480,18 @@ function renderTable(){
   cats.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.c===cat)));
   const match=i=>i.s===sec&&(tab==="all"||String(i.l)===tab)&&(cat==="all"||i.c===cat)&&(!query||i.n.toLowerCase().includes(query));
   let h="",pl=null,pc=null; const q=Q();
-  const F=FIELDS[sec]; if(dsort!==""&&dsort!=="avg"&&!F.some(f=>String(f[1])===dsort)) dsort="";
-  dsortEl.innerHTML=`<span class="sortlbl">Сортировать внутри групп:</span><button class="tab" type="button" data-d="">как на верстаке</button>`+F.map(([t,n])=>`<button class="tab" type="button" data-d="${n}">${t.toLowerCase()}</button>`).join("")+`<button class="tab" type="button" data-d="avg">среднее</button>`;
+  const F=FIELDS[sec]; if(dsort!==""&&!F.some(f=>String(f[1])===dsort)) dsort="";
+  dsortEl.innerHTML=`<span class="sortlbl">Сортировать внутри групп:</span><button class="tab" type="button" data-d="">как на верстаке</button>`+F.map(([t,n])=>`<button class="tab" type="button" data-d="${n}">${t.toLowerCase()}</button>`).join("")+`<span class="sortlbl sorthint">${cat!=="all"?"— по всему виду, без учёта уровня":""}</span>`;
   dsortEl.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.d===dsort)));
   let list=ITEMS.filter(match);
-  if(dsort!==""){ const gk=i=>i.l+"|"+i.c, gi={}; list.forEach((i,n)=>{ if(!(gk(i) in gi)) gi[gk(i)]=n; });
-    const v=i=>!i.st?-1:dsort==="avg"?avgOf(i):i.st[+dsort]; list=list.map((i,n)=>[i,n]).sort((a,b)=>gi[gk(a[0])]-gi[gk(b[0])]||v(b[0])-v(a[0])||a[1]-b[1]).map(x=>x[0]); }
+  const flat=dsort!==""&&cat!=="all";
+  if(dsort!==""){ const gk=i=>flat?i.c:i.l+"|"+i.c, gi={}; list.forEach((i,n)=>{ if(!(gk(i) in gi)) gi[gk(i)]=n; });
+    const v=i=>!i.st?-1:i.st[+dsort]; list=list.map((i,n)=>[i,n]).sort((a,b)=>gi[gk(a[0])]-gi[gk(b[0])]||v(b[0])-v(a[0])||a[1]-b[1]).map(x=>x[0]); }
   list.forEach(i=>{
-    if(i.l!==pl){ h+=`<tr class="lvl"><td colspan="7">Уровень ${i.l}</td></tr>`; pl=i.l; pc=null; }
+    if(!flat&&i.l!==pl){ h+=`<tr class="lvl"><td colspan="7">Уровень ${i.l}</td></tr>`; pl=i.l; pc=null; }
     if(i.c!==pc){ h+=`<tr class="cat"><td></td><td colspan="6">${esc(i.c)}</td></tr>`; pc=i.c; }
     const c=cost(i), id=esc(i.id);
-    h+=`<tr class="${q[i.id]?"picked":""}"${i.c!=="Материалы"&&i.c!=="Детали"?` data-tip="${id}"`:""}><td>${icon(i)}</td><td class="name"><div class="ru" style="font-size:14.5px;color:var(--ink)">${esc(i.n)}</div>${i.note?`<div class="flag">${esc(i.note)}</div>`:""}</td>
+    h+=`<tr class="${q[i.id]?"picked":""}"${i.c!=="Материалы"&&i.c!=="Детали"?` data-tip="${id}"`:""}><td>${icon(i)}</td><td class="name"><div class="ru" style="font-size:14.5px;color:var(--ink)">${esc(i.n)}</div>${flat?`<div class="flag">${i.l} ур.</div>`:""}${i.note?`<div class="flag">${esc(i.note)}</div>`:""}</td>
       <td class="comp">${compText(i)}</td><td class="num res">${i.m?"<b>"+MAT[i.m].out+"</b>":"1"}</td>      <td class="num cost">${fmt(c,i.m?1:0)}</td><td class="num sell">${fmt(c*(1+P.markup/100),i.m?1:0)}</td>
       <td><div class="qcell"><input class="qty" data-k="${id}" type="number" min="0" step="1" value="${q[i.id]||""}" aria-label="Количество: ${esc(i.n)}"><button class="add" type="button" data-k="${id}" aria-label="Добавить: ${esc(i.n)}">+</button></div></td></tr>`;
   });
@@ -503,14 +504,13 @@ const dsortEl=document.getElementById("dsort"), dtip=document.getElementById("dt
 let dsort=""; try{ dsort=localStorage.getItem("forge-dsort")||""; }catch(e){}
 dsortEl.addEventListener("click",e=>{ const b=e.target.closest(".tab"); if(!b) return; dsort=b.dataset.d; try{ localStorage.setItem("forge-dsort",dsort); }catch(e){} renderTable(); });
 const FIELDS={a:[["Колющий",0],["Режущий",1],["Дробящий",2]], w:[["Атака",0],["Колющий",1],["Режущий",2],["Дробящий",3],["Защита",4]]};
-const avgOf=i=>{ const F=FIELDS[i.s]; return F.reduce((t,f)=>t+i.st[f[1]],0)/F.length; };
-const DMAX={}; ITEMS.forEach(i=>{ if(!i.st) return; const F=FIELDS[i.s], k=i.s+i.c, m=DMAX[k]||(DMAX[k]={avg:0}); F.forEach(([,n])=>{ if(i.st[n]>(m[n]||0)) m[n]=i.st[n]; }); const av=avgOf(i); if(av>m.avg) m.avg=av; });
+const DMAX={}; ITEMS.forEach(i=>{ if(!i.st) return; const F=FIELDS[i.s], k=i.s+i.c, m=DMAX[k]||(DMAX[k]={}); F.forEach(([,n])=>{ if(i.st[n]>(m[n]||0)) m[n]=i.st[n]; }); });
 function tipHtml(i){ const head=`<div class="dt-n">${esc(i.n)}</div><div class="dt-s">${esc(i.c)} · ${i.l} ур.</div>`;
   if(!i.st) return head+`<div class="dt-none">Нет данных о характеристиках</div>`;
   const F=FIELDS[i.s], m=DMAX[i.s+i.c]||{}, bar=(v,mx)=>`<i><u style="width:${Math.round(100*v/(mx||1))}%"></u></i>`;
   const rows=F.filter(([,n])=>i.s==="a"||i.st[n]).map(([t,n])=>`<div class="dt-r"><span>${t}</span><b>${i.st[n]}</b>${bar(i.st[n],m[n])}</div>`).join("");
-  const av=avgOf(i), wi=F.length;
-  return head+`<div class="dt-h">${i.s==="a"?"Защита":"Характеристики"}</div>`+rows+`<div class="dt-r dt-avg"><span>Среднее</span><b>${fmt(av,1)}</b>${bar(av,m.avg)}</div>`+(i.st[wi]!=null?`<div class="dt-w">Вес: <b>${i.st[wi]}</b></div>`:"")+`<div class="dt-f">полосы — от лучшего в разделе «${esc(i.c)}»</div>`; }
+  const wi=F.length;
+  return head+`<div class="dt-h">${i.s==="a"?"Защита":"Характеристики"}</div>`+rows+(i.st[wi]!=null?`<div class="dt-w">Вес: <b>${i.st[wi]}</b></div>`:"")+`<div class="dt-f">полосы — от лучшего в разделе «${esc(i.c)}»</div>`; }
 function placeTip(x,y){ const w=dtip.offsetWidth,h=dtip.offsetHeight,vw=innerWidth,vh=innerHeight; let L=x+16,T=y+14; if(L+w>vw-8) L=Math.max(8,x-w-16); if(T+h>vh-8) T=Math.max(8,vh-h-8); dtip.style.left=L+"px"; dtip.style.top=T+"px"; }
 let tipId=null;
 document.addEventListener("mousemove",e=>{ const r=e.target.closest&&e.target.closest("#tb tr[data-tip]"); if(!r||e.target.closest("input,button")){ dtip.hidden=true; tipId=null; return; }
