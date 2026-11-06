@@ -173,3 +173,85 @@ details.more summary{cursor:pointer;color:var(--muted);font-size:14px;margin-top
 .jnote:focus{border-style:solid;background:var(--field)}
 .dt-fx{font-size:13.5px;line-height:1.4;margin:2px 0 2px}
 .dtip:has(.dt-fx){width:320px}
+
+/* ===== Раскладка «одним экраном» (ноябрь): шапка с фильтрами, рецепты слева, заказ и цены справа ===== */
+body{padding-block:12px 90px}
+.top{display:flex;flex-direction:column;gap:8px;max-width:1880px;margin:0 auto 12px}
+.toprow,.toolrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.top h1{font-size:18px;white-space:nowrap;margin-right:2px}
+.top .seg button{font-size:15px;padding:5px 11px}
+.views{display:inline-flex;gap:2px;margin-left:auto;border-bottom:1px solid var(--line)}
+.views button{font:inherit;font-size:14.5px;padding:6px 9px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);cursor:pointer}
+.views button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--copper);font-weight:700}
+.views button:hover{color:var(--ink)}
+.lvls{gap:4px}
+.lvls .tab{font-family:var(--f-body);font-size:13.5px;padding:3px 9px}
+.dd{position:relative}
+.ddb b{font-weight:700;color:var(--copper)}
+.ddb[aria-expanded="true"]{border-color:var(--copper)}
+.ddp{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:240px;max-width:min(560px,90vw);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.ddp .cats,.ddp .sortbar{margin:0}
+.ddp .sortbar{flex-direction:column;align-items:stretch}
+.ddp .sortbar .tab{text-align:left;border-radius:6px}
+.ddp .sortlbl{font-size:12px}
+.help .ddb{width:34px;padding:6px 0;font-weight:700;border-radius:999px}
+.help .ddp{left:auto;right:0;width:380px;font-size:14px}
+.help .ddp p{margin:0 0 8px}.help .ddp p:last-child{margin:0}
+.app{max-width:1880px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:16px;align-items:start}
+.left{min-width:0}
+.right{display:flex;flex-direction:column;gap:12px;min-width:0}
+.view>.panel{margin:0}
+.view[data-v="calc"]>.panel,.view[data-v="journal"]>.panel{min-height:200px}
+.linkbtn{font:inherit;font-size:13px;color:var(--copper);background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.linkbtn:hover{text-decoration:underline}
+.pricep{display:flex;flex-direction:column;gap:8px;padding:12px}
+.phead{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ptog{display:flex;gap:6px;align-items:center;font:inherit;background:none;border:0;padding:0;color:var(--ink);cursor:pointer}
+.ptog .chev{color:var(--muted);transition:transform .15s}
+.ptog[aria-expanded="false"] .chev{transform:rotate(-90deg)}
+.pbtns{display:flex;gap:6px}
+.pbtns .btn{padding:5px 9px;font-size:13.5px}
+.pricep .pgrid{grid-template-columns:minmax(0,1fr);gap:10px}
+.pricep .prices{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px 10px}
+.pricep .pf input{font-size:14px;padding:5px 7px}
+.pricep .pf label{font-size:11px}
+.pricep .derived{font-size:13px}
+#basketgap{display:none}
+/* тонкие, но видимые полосы прокрутки */
+.left,.right,.basket,.pbody,.ddp{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.left::-webkit-scrollbar,.basket::-webkit-scrollbar,.pbody::-webkit-scrollbar{width:8px}
+.left::-webkit-scrollbar-thumb,.basket::-webkit-scrollbar-thumb,.pbody::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+/* большой экран: всё в одно окно, прокручиваются только рецепты и колонки справа */
+@media (min-width:1100px) and (min-height:620px){
+  html,body{height:100%;overflow:hidden}
+  body{display:flex;flex-direction:column;overflow:hidden;padding-bottom:12px}
+  .top{width:100%}
+  .app{flex:1 1 auto;min-height:0;width:100%;align-items:stretch}
+  .left{overflow-y:auto;min-height:0;padding-right:4px}
+  .left .tablebox{overflow:visible}
+  .book thead th{position:sticky;top:0;z-index:2;box-shadow:0 1px 0 var(--line)}
+  .right{min-height:0;overflow:hidden}
+  .basket{flex:1 1 auto;min-height:160px;overflow-y:auto}
+  .pricep{flex:0 1 auto;max-height:36%;min-height:0}
+  .pricep.closed{flex:0 0 auto}
+  .pbody{overflow-y:auto;min-height:0;padding-right:4px}
+  .mbar{display:none!important}
+}
+@media (max-width:1099px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .views{margin-left:0}
+  .top h1{font-size:20px}
+}
+
+.view[data-v="calc"] .bd{grid-template-columns:minmax(0,1fr)}
+.help{margin-left:auto}
+.help+.views{margin-left:0}
+
+.omore{border-top:1px dashed var(--line);padding-top:8px}
+.omore summary{font-family:var(--f-body);font-size:14px;color:var(--muted)}
+.omore[open] summary{margin-bottom:8px}
+.omore .obar{margin-bottom:8px}
+@media (min-width:1100px) and (min-height:620px){
+  #tiles{flex:1 1 auto;min-height:150px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding-right:2px}
+}

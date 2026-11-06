@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Счётная книга ремесленника (старый вид)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Счётная книга ремесленника</h1>
+    <p class="sub">Выбери ремесло и добавляй вещи в заказ кнопкой «+». Ниже появится всё сырьё: что сделать заранее, что докупить и план крафта. В одном заказе можно смешивать вещи разных ремёсел. Всё запоминается в этом браузере.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="ph">
+    <div class="row"><h2 id="ph">Цены сырья, гроши</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn go mkfetch" data-col="1" type="button" title="Средняя цена реальных продаж на аукционе KCDRP за 7 дней">Подтянуть: средняя за 7 дней</button><button class="btn go mkfetch" data-col="0" type="button" title="Самый дешёвый лот на аукционе KCDRP сейчас">Подтянуть: минимальная</button><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></span></div>
+    <p class="hint" style="margin:0 0 8px"><span id="mkfnote"></span> <span id="mknote"></span></p><select id="mkcol" hidden><option value="0">min</option><option value="1" selected>avg</option></select>
+    <div class="pgrid" id="pgrid"></div>
+    <div class="prices" id="pricesm" style="margin-top:10px"></div>
+    <details class="more" id="mkcmp" style="margin-top:12px"><summary>Заготовки: крафтить или купить на аукционе</summary>
+      <p class="hint" style="margin:6px 0">Впиши цену заготовки на аукционе (или подтяни кнопкой вверху), и видно, что выгоднее: сделать самому из сырья по твоим ценам или купить готовое. Цена за 1 шт.</p>
+      <div class="tablebox"><table class="mini"><thead><tr><th class="l">Заготовка</th><th>Крафт, за 1 шт.</th><th>Аукцион, за 1 шт.</th><th class="l">Выгоднее</th></tr></thead><tbody id="mkrows"></tbody></table></div>
+    </details>
+    <p class="hint" style="margin:6px 0 0">Показано сырьё открытого ремесла. Цена у одного и того же сырья общая во всех ремёслах.</p>
+    <div class="derived" id="derived"></div>
+  </section>
+
+  <div class="layout">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div class="row">
+        <div class="seg" id="secs" role="group" aria-label="Ремесло"></div>
+        <input class="search" id="q" type="search" placeholder="Поиск по названию" aria-label="Поиск предмета"><button class="btn" id="fold" type="button" aria-expanded="true">Свернуть чертежи</button>
+      </div>
+      <div class="tabs" id="tabs" role="group" aria-label="Уровень"></div>
+      <div class="cats" id="cats" role="group" aria-label="Раздел"></div>
+      <div class="tabs sortbar" id="dsort" role="group" aria-label="Сортировка по характеристикам"></div>
+      <div class="dtip" id="dtip" hidden></div>
+      <div id="catbody">
+      <div class="tablebox">
+        <table class="book">
+          <thead><tr><th></th><th class="name">Предмет</th><th class="l">Состав</th><th>Выход за крафт</th><th>Себест.</th><th>С работой</th><th>В заказ</th></tr></thead>
+          <tbody id="tb"></tbody>
+        </table>
+      </div>
+      <p class="note" id="footnote"></p>
+      </div>
+    </div>
+
+    <aside class="basket panel" id="zakaz" aria-labelledby="bh">
+      <h2 id="bh">Заказы</h2>
+      <div class="obar"><label class="sr" for="osel">Выбрать заказ</label><select id="osel"></select><button class="btn" id="onew" type="button">+ Новый</button></div>
+      <div class="obar"><label class="sr" for="oname">Название заказа</label><input id="oname" type="text" maxlength="40" placeholder="Название, например: Ян, латы"><button class="btn" id="clearq" type="button">Очистить</button><button class="btn" id="odel" type="button">Удалить</button></div>
+      <div class="ostat">
+        <label>Срок<input id="odue" type="date"></label>
+        <label>Оплата<select id="opay"><option value="no">Не оплачено</option><option value="pre">Предоплата</option><option value="yes">Оплачено</option></select></label>
+        <label id="paidbox" hidden>Внесено, гр.<input id="opaid" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+        <label>Своя цена, гр.<span style="display:flex;gap:4px"><input id="omanual" type="number" min="0" step="1" inputmode="numeric" placeholder="по расчёту"><button class="btn" id="omreset" type="button" title="Вернуть цену по расчёту" style="padding:4px 9px">↺</button></span></label>
+        <label class="chk"><input id="oallc" type="checkbox"> Всё сырьё от заказчика</label>
+        <label class="chk"><input id="ogiven" type="checkbox"> Отдан заказчику</label>
+      </div>
+      <div id="tiles"></div><datalist id="varlist"></datalist>
+      <div class="sum" id="bsum"></div>
+      <div class="obar signrow"><label class="hint" for="sign">Подпись</label><input id="sign" type="text" maxlength="60" placeholder="Например: мастер-бронник, Кутна Гора"></div>
+      <div class="obar"><button class="btn" id="copyc" type="button">Скопировать для заказчика</button><span class="hint" id="copynote"></span></div>
+      <textarea id="copytxt" hidden readonly rows="7" aria-label="Текст для заказчика"></textarea>
+      <a class="note" href="#raschet">Подробный расчёт сырья ↓</a>
+    </aside>
+  </div>
+
+  <section class="panel" id="raschet" aria-labelledby="rh">
+    <h2 id="rh">Расчёт сырья на заказ</h2>
+    <p class="sub" id="rempty">Отбери вещи в заказ, и здесь появится разбивка.</p>
+    <div class="bd" id="bd" hidden>
+      <div style="min-width:0">
+        <h3>1. Что сделать заранее</h3>
+        <div class="tablebox"><table class="mini"><thead><tr><th class="l">Заготовка</th><th>Нужно</th><th>От заказчика</th><th>Со склада</th><th>Сделать</th><th class="l">Крафтов и из чего</th></tr></thead><tbody id="mid"></tbody></table></div>
+        <p class="hint">Заготовки делают партиями (сталь по 2, железо по 3, крепёж по 5 и т.д.), поэтому иногда выходит больше, чем нужно. Излишек после «Заказ выполнен» уходит на склад.</p>
+      </div>
+      <div style="min-width:0">
+        <h3>2. Сырьё: сколько нужно и сколько докупить</h3>
+        <div class="tablebox"><table class="mini"><thead><tr><th class="l">Ресурс</th><th>Всего</th><th>От заказчика</th><th>Со склада</th><th>Докупить</th><th>Гроши</th></tr></thead><tbody id="raw"></tbody></table></div>
+        <p class="hint">«Всего» — сколько сырья уйдёт на заказ, если делать всё с нуля. «Докупить» учитывает склад, в том числе готовые заготовки: если сталь уже лежит, руду на неё докупать не надо. Нажми на название ресурса, чтобы его не считать (например, добываешь сам): он уйдёт из «докупить» и из себестоимости.</p>
+      </div>
+      <div style="grid-column:1/-1;min-width:0">
+        <div class="row"><h3 style="margin:0">3. План крафта <span class="hint" id="plannote"></span></h3><button class="btn" id="planreset" type="button">Снять все галочки</button></div>
+        <ol class="plan" id="plan"></ol>
+      </div>
+    </div>
+    <div class="obar" style="margin-top:14px"><button class="btn" id="odone" type="button" hidden>Заказ выполнен: списать со склада</button><button class="btn" id="oundo" type="button" hidden>Отменить выполнение</button><span class="hint" id="odonenote"></span></div>
+    <div class="cbox">
+      <div class="row"><h3 style="margin:0">Сырьё от заказчика: <span id="cname"></span></h3><button class="btn" id="callc" type="button">Всё сырьё от заказчика</button><button class="btn" id="cclear" type="button">Очистить сырьё заказчика</button></div>
+      <p class="hint" style="margin:4px 0 10px">Впиши, сколько он принёс. Засчитывается по твоим ценам сырья, всё, что он принёс, даже излишек. В дело его сырьё идёт первым, потом склад, остальное докупаешь. Показаны ресурсы, которые нужны на этот заказ.</p>
+      <div class="client" id="client"></div>
+      <p id="csum" style="margin:10px 0 0;font-size:14px"></p>
+    </div>
+    <details style="margin-top:14px" open>
+      <summary>Склад (общий для всех заказов)</summary>
+      <p class="hint">Впиши, что у тебя уже лежит. Готовые заготовки (сталь, железо, гарды…) уменьшают число крафтов, а сырьё — сколько докупать.</p>
+      <div class="stock" id="stock"></div>
+      <div class="obar" style="margin-top:10px"><label class="hint"><input type="checkbox" id="sall"> Показать все ресурсы</label><button class="btn" id="sclear" type="button">Очистить склад</button></div>
+    </details>
+  </section>
+
+  <section class="panel" aria-labelledby="jh">
+    <div class="row"><h2 id="jh">Журнал продаж</h2><div class="seg" id="jper" role="group" aria-label="Период"><button type="button" data-p="week">Неделя</button><button type="button" data-p="month">Месяц</button><button type="button" data-p="all">Всё время</button></div></div>
+    <div class="derived" id="jsum" style="margin-top:10px"></div>
+    <p class="hint" id="jtop"></p>
+    <div class="tablebox"><table class="mini"><thead><tr><th class="l">Дата</th><th class="l">Заказ</th><th class="l">Вещи</th><th>Сумма</th><th>За работу</th><th></th></tr></thead><tbody id="jlist"></tbody></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="dh">
+    <h2 id="dh">Данные</h2>
+    <p class="sub">Сохрани всё (цены, склад, заказы) в файл, чтобы перенести на другой компьютер или в другую версию книги.</p>
+    <div class="obar" style="margin-top:10px"><button class="btn" id="dsave" type="button">Сохранить в файл</button><label class="btn" for="dload">Загрузить из файла</label><input id="dload" type="file" accept=".json,application/json" style="position:absolute;width:1px;height:1px;opacity:0"><span class="hint" id="datanote"></span></div>
+  </section>
+</div>
+
+<div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↑</a></div>
+<script src="../data.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>
