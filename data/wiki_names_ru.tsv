@@ -1,0 +1,979 @@
+Bandage	Бинт
+Bandage (recipe 2)	Бинт (рецепт 2)
+Moonshine	Самогон
+Weak Chamomile decoction	Отвар ромашки (слабая версия)
+Soap	Мыло
+Leached coal	Выщелоченный уголь
+Weak Saviour Schnapps	Шнапс-спаситель (слабая версия)
+Weak Cockerel	«Петушок» (слабая версия)
+Chamomile decoction	Отвар ромашки
+Saviour Schnapps	Шнапс-спаситель
+Weak Hair o' the Dog	«Похмелье» (слабая версия)
+Weak Embrocation	Растирка (слабая версия)
+Cockerel	«Петушок»
+Weak Anti-inflammatory potion	Противовоспалительное зелье (слабая версия)
+Rock Pitch	Каменная смола
+Weak Mintha perfume	Духи «Минта» (слабая версия)
+Strong Chamomile decoction	Отвар ромашки (крепкая версия)
+Weak Bowman's brew	Зелье лучника (слабая версия)
+Weak Nighthawk	«Козодой» (слабая версия)
+Strong Saviour Schnapps	Шнапс-спаситель (крепкая версия)
+Hair o' the Dog	«Похмелье»
+Embrocation	Растирка
+Strong Cockerel	«Петушок» (крепкая версия)
+Anti-inflammatory potion	Противовоспалительное зелье
+Enamel powder	Порошок эмали
+Weak Digestive potion	Зелье для пищеварения (слабая версия)
+Mintha perfume	Духи «Минта»
+Weak Aesop	«Эзоп» (слабая версия)
+Bowman's brew	Зелье лучника
+Nighthawk	«Козодой»
+Henry's Chamomile decoction	Отвар ромашки (версия Индржиха)
+Henry's Saviour Schnapps	Шнапс-спаситель (версия Индржиха)
+Strong Hair o' the Dog	«Похмелье» (крепкая версия)
+Strong Embrocation	Растирка (крепкая версия)
+Strong Anti-inflammatory potion	Противовоспалительное зелье (крепкая версия)
+Henry's Cockerel	«Петушок» (версия Индржиха)
+Acidum chloridum	Acidum chloridum
+Digestive potion	Зелье для пищеварения
+Weak Marigold decoction	Отвар календулы (слабая версия)
+Scattershot (Alchemy)	Дробь (алхимия)
+Weak Painkiller brew	Обезболивающее зелье (слабая версия)
+Strong Mintha Perfume	Духи «Минта» (крепкая версия)
+Aesop	«Эзоп»
+Weak Lion perfume	Духи «Лев» (слабая версия)
+Strong Bowman's brew	Зелье лучника (крепкая версия)
+Strong Nighthawk	«Козодой» (крепкая версия)
+Henry's Anti-inflammatory potion	Противовоспалительное зелье (версия Индржиха)
+Henry's Hair o' the Dog	«Похмелье» (версия Индржиха)
+Henry's Embrocation	Растирка (версия Индржиха)
+Strong Digestive potion	Зелье для пищеварения (крепкая версия)
+Weak Quickfinger potion	Зелье «Ловкие пальцы» (слабая версия)
+Marigold decoction	Отвар календулы
+Painkiller brew	Обезболивающее зелье
+Lead ball (Alchemy)	Свинцовая пуля (алхимия)
+Strong Aesop	«Эзоп» (крепкая версия)
+Henry's Mintha perfume	Духи «Минта» (версия Индржиха)
+Lion perfume	Духи «Лев»
+Weak fragrant oil	Ароматное масло (слабая версия)
+Henry's Bowman's brew	Зелье лучника (версия Индржиха)
+Henry's Nighthawk	«Козодой» (версия Индржиха)
+Fever tonic	Жаропонижающее
+Quickfinger potion	Зелье «Ловкие пальцы»
+Henry's Digestive potion	Зелье для пищеварения (версия Индржиха)
+Strong Marigold Decoction	Отвар календулы (крепкая версия)
+Weak Mandrake decoction	Отвар мандрагоры (слабая версия)
+Strong Painkiller brew	Обезболивающее зелье (крепкая версия)
+Weak St. Roch's potion	Зелье святого Роха (слабая версия)
+Henry's Aesop	«Эзоп» (версия Индржиха)
+Strong Lion Perfume	Духи «Лев» (крепкая версия)
+Fragrant oil	Ароматное масло
+Strong Quickfinger potion	Зелье «Ловкие пальцы» (крепкая версия)
+Henry's Marigold Decoction	Отвар календулы (версия Индржиха)
+St. Roch's potion	Зелье святого Роха
+Mandrake decoction	Отвар мандрагоры
+Henry's Painkiller brew	Обезболивающее зелье (версия Индржиха)
+Strong Fragrant oil	Ароматное масло (крепкая версия)
+Henry's Lion perfume	Духи «Лев» (версия Индржиха)
+Strong St. Roch's potion	Зелье святого Роха (крепкая версия)
+Henry's Quickfinger potion	Зелье «Ловкие пальцы» (версия Индржиха)
+Strong Mandrake Decoction	Отвар мандрагоры (крепкая версия)
+Henry's Fragrant oil	Ароматное масло (версия Индржиха)
+Henry's St. Roch's potion	Зелье святого Роха (версия Индржиха)
+Henry's Mandrake Decoction	Отвар мандрагоры (версия Индржиха)
+Battle bolt	Боевой болт
+Tournament arrow	Турнирная стрела
+Battle arrow	Боевая стрела
+Scattershot	Дробь
+Lead ball	Свинцовая пуля
+Crude arrow	Грубая стрела
+Crude bolt	Грубый болт
+Common bolt	Обычный болт
+Ordinary arrow	Обычная стрела
+Long-range arrow	Дальнобойная стрела
+Village hazel bow	Деревенский лук из лещины
+Village dogwood bow	Деревенский лук из кизила
+Old hunting crossbow	Старый охотничий арбалет
+Village elm bow	Деревенский лук из вяза
+Ash village bow	Деревенский лук из ясеня
+Tournament bolt	Турнирный болт
+Wounding arrow	Ранящая стрела
+Hunting bolt	Охотничий болт
+Marksman's bolt	Болт меткого стрелка
+Hunting arrow	Охотничья стрела
+Piercing arrow	Бронебойная стрела
+Hunting crossbow	Охотничий арбалет
+Worn Cuman bow	Изношенный половецкий лук
+Hazel longbow	Длинный лук из лещины
+Dogwood hunting bow	Охотничий лук из кизила
+Elm hunting bow	Охотничий лук из вяза
+Wounding bolt	Ранящий болт
+Piercing bolt	Бронебойный болт
+Improved long-range arrow	Улучшенная дальнобойная стрела
+Improved hunting arrow	Улучшенная охотничья стрела
+Improved wounding arrow	Улучшенная ранящая стрела
+Old field crossbow	Старый полевой арбалет
+Yew hunting bow	Охотничий лук из тиса
+Footpad's bow	Лук грабителя
+Ash hunting bow	Охотничий лук из ясеня
+Ornate hunting crossbow	Украшенный охотничий арбалет
+Improved hunting bolt	Улучшенный охотничий болт
+Sharpshooter's bolt	Болт снайпера
+Improved piercing bolt	Улучшенный бронебойный болт
+Improved wounding bolt	Улучшенный ранящий болт
+Improved piercing arrow	Улучшенная бронебойная стрела
+Field crossbow	Полевой арбалет
+Cuman folded bow	Половецкий составной лук
+Poacher's bow	Лук браконьера
+Artemis' crossbow	Арбалет Артемиды
+Battle shot	Боевой заряд
+Black arrow	Чёрная стрела
+Fine bolt	Отличный болт
+Ornate Cuman bow	Украшенный половецкий лук
+Miners' crossbow	Арбалет рудокопов
+Decorated field crossbow	Украшенный полевой арбалет
+Cuman chief's bow	Лук половецкого вождя
+Heavy crossbow	Тяжёлый арбалет
+Reinforced heavy crossbow	Усиленный тяжёлый арбалет
+Elm longbow	Длинный лук из вяза
+Ash longbow	Длинный лук из ясеня
+Pistole	Пищаль
+Hook gun	Гаковница
+Master's handgonne	Ручница мастера
+Marksman's hook gun	Гаковница меткого стрелка
+Pushko's Push'em	«Пушко» Пушко
+Beer	Пиво
+Cheap wine	Дешёвое вино
+Troskowitz beer	Тросковицкое пиво
+Wine	Вино
+Jitschine beer	Йичинское пиво
+Mead	Медовуха
+Aujezd beer	Ауезское пиво
+Fine wine	Хорошее вино
+Wine from Loretz	Вино из Лорецы
+Turnau beer	Турновское пиво
+Rose hip wine	Вино из шиповника
+Ancient moonshine	Древний самогон
+Wedding beer	Свадебное пиво
+Schnapps	Шнапс
+Drinking water	Питьевая вода
+Dried apple	Сушёное яблоко
+Dried boletus	Сушёный белый гриб
+Cooked lepiota	Варёный зонтик
+Dried lepiota	Сушёный зонтик
+Dried pear	Сушёная груша
+Pretzel	Крендель
+Bagel	Бублик
+Cooked beet	Варёная свёкла
+Bread roll	Булочка
+Cooked carrot	Варёная морковь
+Sweet pancake	Сладкий блин
+Marikľa	Марикля
+Herring	Сельдь
+Cooked onion	Варёный лук
+Cooked pear	Печёная груша
+Sauerkraut	Квашеная капуста
+Cooked hare meat	Варёная зайчатина
+Cooked hare meat (recipe 2)	Варёная зайчатина (рецепт 2)
+Cooked perch	Варёный окунь
+Cooked apple	Печёное яблоко
+Cooked boletus	Варёный белый гриб
+Quark kolach	Колач с творогом
+Hard boiled egg	Варёное яйцо
+Cooked garlic	Печёный чеснок
+Cracklings	Шкварки
+Jewish bread	Еврейский хлеб
+Poppy seed kolach	Колач с маком
+Dried hare meat	Вяленая зайчатина
+Smoked hare meat	Копчёная зайчатина
+Walnut kolach	Колач с орехами
+Curd cheese	Творожный сыр
+Cooked horseradish	Варёный хрен
+Smoked perch	Копчёный окунь
+Cooked cabbage	Тушёная капуста
+Roasted chicken leg	Жареная куриная ножка
+Roasted chicken leg (recipe 2)	Жареная куриная ножка (рецепт 2)
+Dried mutton	Вяленая баранина
+Bread	Хлеб
+Dried chicken	Вяленая курица
+Dried roe deer loin	Вяленая косулья вырезка
+Bacon	Бекон
+Dried deer ribs	Вяленые оленьи рёбра
+Kuttenberg bread	Кутногорский хлеб
+Dried perch	Вяленый окунь
+Cooked roe deer meat	Варёная косулятина
+Salami	Салями
+Smoked chicken	Копчёная курица
+Dried pork	Вяленая свинина
+Cooked trout	Варёная форель
+Cooked crayfish	Варёные раки
+Cooked venison	Варёная оленина
+Cheese	Сыр
+Cream	Сливки
+Dried venison	Вяленая оленина
+Smoked mutton	Копчёная баранина
+Smoked roe deer loin	Копчёная косулья вырезка
+Dried salami	Сушёная салями
+Dried wolf meat	Вяленая волчатина
+Dried beef	Вяленая говядина
+Cooked chicken	Варёная курица
+Cooked boar meat	Варёная кабанятина
+Smoked beef	Копчёная говядина
+Smoked pork	Копчёная свинина
+Cooked roe deer loin	Варёная косулья вырезка
+Dried trout	Вяленая форель
+Dried cheese	Сушёный сыр
+Smoked deer ribs	Копчёные оленьи рёбра
+Cooked lamb	Варёная ягнятина
+Smoked trout	Копчёная форель
+Smoked venison	Копчёная оленина
+Cooked blue crayfish	Варёные голубые раки
+Smoked trout (recipe 2)	Копчёная форель (рецепт 2)
+Dried deer rump	Вяленый олений огузок
+Roast duck	Жареная утка
+Kuttenberg sausauge	Кутногорская колбаса
+Boiled wolf meat	Варёная волчатина
+Smoked wolf meat	Копчёная волчатина
+Smoked boar meat	Копчёная кабанятина
+Dried roe deer meat	Вяленая косулятина
+Smoked salami	Копчёная салями
+Cooked pork	Варёная свинина
+Dried pork tenderloin	Вяленая свиная вырезка
+Cooked crayfish (recipe 2)	Варёные раки (рецепт 2)
+Cooked deer ribs	Варёные оленьи рёбра
+Smoked sausage	Копчёная колбаса
+Cooked sheep stomach	Варёный бараний желудок
+Smoked venison (Roe)	Копчёная косулятина
+Cooked trout (recipe 2)	Варёная форель (рецепт 2)
+Cooked beef	Варёная говядина
+Dried boar meat	Вяленая кабанятина
+Smoked cheese	Копчёный сыр
+Dried beef tenderloin	Вяленая говяжья вырезка
+Smoked deer rump	Копчёный олений огузок
+Cooked roe deer kidneys	Варёные косульи почки
+Cooked beef kidneys	Варёные говяжьи почки
+Smoked pork tenderloin	Копчёная свиная вырезка
+Dried boar tenderloin	Вяленая кабанья вырезка
+Smoked boar rump	Копчёный кабаний огузок
+Dried boar rump	Вяленый кабаний огузок
+Cooked hare heart	Варёное заячье сердце
+Cooked deer rump	Варёный олений огузок
+Kuttenberg bacon	Кутногорский бекон
+Pepa's Sauerkraut	Квашеная капуста Пепы
+Cooked boar kidneys	Варёные кабаньи почки
+Cooked deer heart	Варёное оленье сердце
+Cooked wolf heart	Варёное волчье сердце
+Smoked beef tenderloin	Копчёная говяжья вырезка
+Cooked pork tenderloin	Варёная свиная вырезка
+Cooked beef tongue	Варёный говяжий язык
+Boiled pork liver	Варёная свиная печень
+Smoked boar tenderloin	Копчёная кабанья вырезка
+Cooked beef tenderloin	Варёная говяжья вырезка
+Cooked boar rump	Варёный кабаний огузок
+Cooked boar tenderloin	Варёная кабанья вырезка
+Parler's spectacles	Очки Парлержа
+Cheap ring	Дешёвое кольцо
+Brass brooch with lettering	Латунная брошь с надписью
+Silver brooch	Серебряная брошь
+Decorated headpiece	Украшенный головной убор
+Barnabas' Ring	Кольцо Варнавы
+Decorated headpiece (style 2)	Украшенный головной убор (фасон 2)
+Decorated headpiece (style 3)	Украшенный головной убор (фасон 3)
+Tin cross	Оловянный крест
+Lord Semine's necklace	Ожерелье пана Семина
+Ordinary ring	Обычное кольцо
+Narrow headband	Узкий обруч
+Narrow headband (style 2)	Узкий обруч (фасон 2)
+Oats' ring (Samuel)	Кольцо Овса (Самуэль)
+Virgin Mary medallion	Медальон Девы Марии
+Old ring	Старое кольцо
+Engraved silver ring	Гравированное серебряное кольцо
+Silver brooch enamelled	Серебряная брошь с эмалью
+Engraved gemstone ring	Гравированное кольцо с камнем
+Spectacles	Очки
+Gemstone silver ring	Серебряное кольцо с камнем
+Decorated sword pommel	Украшенное навершие меча (ювелирное)
+Scapular with saint	Скапулярий со святым
+Voivode's necklace	Ожерелье воеводы
+Women's brooche	Женская брошь
+Coloured gold	Цветное золото
+Scapular with aperture	Скапулярий с окошком
+Noble gloves (Rings)	Панские перчатки (с кольцами)
+Silver cross with garnet	Серебряный крест с гранатом
+Silver cross with insignia	Серебряный крест со знаком
+Gemstone ring	Кольцо с камнем
+Scapular with insignia	Скапулярий со знаком
+Golden heraldic brooch	Золотая гербовая брошь
+Pavlena's necklace	Ожерелье Павлены
+Golden initial brooch	Золотая брошь с инициалом
+Golden cross with garnets	Золотой крест с гранатами
+Golden cross with pearls	Золотой крест с жемчугом
+Golden cross ring	Золотое кольцо с крестом
+Solid gold ring	Кольцо из чистого золота
+Straw bed	Соломенная постель
+Rough table	Грубый стол
+Log stool	Табурет из чурбака
+Plain chair	Простой стул
+Log bench	Скамья из бревна
+Plain shelf	Простая полка
+Basket of apples	Корзина яблок
+Basket of bread	Корзина хлеба
+Cushion	Подушка
+Bed of boughs	Ложе из лапника
+Bedroll	Спальная скатка
+Campfire	Костёр
+Candle	Свеча
+Pillar candle	Толстая свеча
+Ribboned wreath	Венок с лентами
+Straw wreath	Соломенный венок
+Twig cross	Крест из прутьев
+Coil of rope	Моток верёвки
+Sack of flour	Мешок муки
+Heap of hay	Куча сена
+Log carrier	Дровница
+Rail fence	Жердевой забор
+Sheaf of hay	Сноп сена
+Drying herbs	Сушащиеся травы
+Egg basket	Корзина яиц
+Garlic	Чеснок (связка)
+Heap of pears	Куча груш
+Pretzel	Крендель (украшение)
+Round loaf	Круглый каравай
+Sack of apples	Мешок яблок
+String of onions	Связка лука
+Small table	Маленький стол
+Rustic stool	Деревенский табурет
+Plain bench	Простая скамья
+Barrel	Бочка
+Crate	Ящик
+Wall shelf	Настенная полка
+Boar hide	Кабанья шкура
+Deer hide	Оленья шкура (ковёр)
+Sheepskin	Овчина
+Wall rack	Настенная стойка
+Wash tub	Корыто
+Bough lean-to	Навес из лапника
+Camp grill	Походная решётка
+Cooking pot	Котелок
+Hanging cauldron	Подвесной котёл
+Roasting spit	Вертел
+Shabby shelter	Ветхий навес
+Straw pallet	Соломенный тюфяк
+Short ladder	Короткая лестница
+Candles	Свечи
+Candlestick	Подсвечник
+Clay lamp	Глиняная лампа
+Guttered candles	Оплывшие свечи
+Wall torch	Настенный факел
+Bouquet	Букет
+Clay tankard	Глиняная кружка
+Cow skull	Коровий череп
+Leaf wreath	Венок из листьев
+Vase	Ваза
+Wreath of blue flowers	Венок из синих цветов
+Blank sign	Пустая вывеска
+Butter churn	Маслобойка
+Saddle stand	Подставка для седла
+Straw dummy	Соломенное чучело
+Covered woodpile	Поленница под навесом
+Criss-cross fence	Забор крест-накрест
+Paddock fence	Ограда загона
+Picket gate	Калитка
+Bowl of cracklings	Миска шкварок
+Bowl of goulash	Миска гуляша
+Cauldron of soup	Котёл супа
+Crock of sauerkraut	Горшок квашеной капусты
+Pitcher	Кувшин
+Side of bacon	Шмат сала
+Smoked sausages	Копчёные колбаски
+Watermelons	Арбузы
+Wedge of cheese	Кусок сыра
+Wine jug	Кувшин вина
+Cradle	Колыбель
+Rustic bed	Деревенская кровать
+Rustic table	Деревенский стол
+Rustic chair	Деревенский стул
+Long bench	Длинная скамья
+Small chest	Маленький сундук
+Small crate	Маленький ящик
+Rustic shelves	Деревенские полки
+Cowhide	Коровья шкура (ковёр)
+Draped pelt	Накинутая шкура
+Fox pelt	Лисья шкура
+Grey pelt	Серая шкура
+Woven rug	Тканый коврик
+Cooking tripod	Тренога для котла
+Roasting pit	Яма для жарки
+Rustic canopy	Деревенский навес
+Rustic lean-to	Деревенский шалаш
+Small tent	Маленький шатёр
+Ladder	Лестница
+Brazier	Жаровня
+Iron candlestick	Железный подсвечник
+Leather lantern	Кожаный фонарь
+Spike lamp	Лампа на штыре
+Alms box	Ящик для подаяний
+Book	Книга
+Inkwell and quill	Чернильница и перо
+Pottery	Глиняная посуда
+Prayer rug	Молитвенный коврик
+Ram's skull	Бараний череп
+Sketch	Набросок
+Wide vase	Широкая ваза
+Wooden flute	Деревянная флейта
+Herbalist's shelf	Полка травника
+Pretzel stand	Подставка для кренделей
+Quenching barrel	Бочка для закалки
+Rolled hides	Свёрнутые шкуры
+Tapped cask	Бочонок с краном
+Wheelbarrow	Тачка
+Elder bush	Куст бузины
+Harrow	Борона
+Hay rack	Сенник
+Hop poles	Хмелевые жерди
+Log beehive	Колода-улей
+Plough	Плуг
+Stone trough	Каменная колода
+Wayside cross	Придорожный крест
+Woven fence	Плетень
+Cauldron of goulash	Котёл гуляша
+Curd tart	Творожный пирог
+Honeycomb	Медовые соты
+Jug of mead	Кувшин медовухи
+Pig's head	Свиная голова
+Poppy-seed tart	Маковый пирог
+Walnut cake	Ореховый пирог
+Dice board	Доска для костей
+Dice table	Стол для игры в кости
+Hidden vat	Тайный чан
+Carved rustic bed	Резная деревенская кровать
+Square table	Квадратный стол
+Beer barrel	Пивная бочка
+Rustic cupboard	Деревенский шкаф
+Deerskin coverlet	Покрывало из оленьей шкуры
+Prayer kneeler	Молитвенная скамеечка
+Raised hearth	Очаг на возвышении
+Chequered awning	Клетчатый навес
+Small green tent	Маленький зелёный шатёр
+Long ladder	Длинная лестница
+Pricket candlestick	Подсвечник со штырём
+Tavern lamp	Трактирная лампа
+Twin-cup candlestick	Подсвечник на две свечи
+Wooden chandelier	Деревянная люстра
+Hunting horn	Охотничий рог
+Mounted antlers	Рога на стене
+Row of books	Ряд книг
+Scrolls	Свитки
+Town banner	Городское знамя
+Wall hanging	Настенный ковёр
+Baker's sign	Вывеска пекаря
+Bellows	Мехи
+Blacksmith's sign	Вывеска кузнеца
+Bolts of cloth	Рулоны ткани
+Butcher's sign	Вывеска мясника
+Draper's sign	Вывеска суконщика
+Herb drying rack	Сушилка для трав
+Herbalist's sign	Вывеска травника
+Hide drying rack	Рама для сушки шкур
+Keg	Бочонок
+Merchant's shelf	Полка торговца
+Merchant's sign	Вывеска торговца
+Shop counter	Прилавок
+Tavern sign	Вывеска трактира
+Dog kennel	Собачья будка
+Hen house	Курятник
+Rose bush	Куст роз
+Straw skep	Соломенный улей
+Altar ewer	Алтарный кувшин
+Roast suckling pig	Жареный поросёнок
+Hidden still	Тайный перегонный куб
+Double rustic bed	Двуспальная деревенская кровать
+Long trestle table	Длинный стол на козлах
+Painted cupboard	Расписной шкаф
+Bookshelf	Книжная полка
+Antlers on a shield	Рога на щите
+Patterned rug	Узорчатый ковёр
+Yellow tent	Жёлтый шатёр
+Hanging lantern	Подвесной фонарь
+Lantern	Фонарь
+Two-branched candlestick	Двухрожковый подсвечник
+Fine tablecloth	Нарядная скатерть
+Hourglass	Песочные часы
+Icon of the Holy Face	Икона Святого Лика
+Lute	Лютня
+Map	Карта
+Pewter jug	Оловянный кувшин
+Stag's skull	Череп оленя
+Armourer's sign	Вывеска бронника
+Embroidery frame	Пяльцы
+Hanging scales	Подвесные весы
+Pavise	Павеза
+Polearms	Древковое оружие (стойка)
+Potter's wheel	Гончарный круг
+Spinning wheel	Прялка
+Dressed piglet	Разделанный поросёнок
+Hanging deer	Подвешенный олень
+Fine table	Нарядный стол
+Fine chair	Нарядный стул
+Fine bench	Нарядная скамья
+Bath canopy	Балдахин над купелью
+Dressing screen	Ширма
+Great stag antlers	Огромные оленьи рога
+Timber-framed hearth	Фахверковый очаг
+Siege ladder	Осадная лестница
+Candelabrum	Канделябр
+Censer	Кадило
+Easel	Мольберт
+Home altar	Домашний алтарь
+Hunting tapestry	Гобелен с охотой
+Icon of a holy bishop	Икона святого епископа
+Lectern	Аналой
+Processional cross	Выносной крест
+Anvil on a stump	Наковальня на пне
+Cask on a cradle	Бочка на подставке
+Market stall with an awning	Рыночный прилавок с навесом
+Plank market stall	Дощатый рыночный прилавок
+Stone cross	Каменный крест
+Whole pig	Целая свинья
+Burgher's bed	Мещанская кровать
+Round table	Круглый стол
+Fine cabinet	Нарядный шкафчик
+Rolled eastern carpet	Свёрнутый восточный ковёр
+Long tent	Длинный шатёр
+Yurt	Юрта
+Lamp stand	Подставка для лампы
+Ring chandelier	Кольцевая люстра
+Chalice	Чаша
+Courtly tapestry	Придворный гобелен
+Icon	Икона
+Icon of Saint George	Икона святого Георгия
+Icon of the Virgin	Икона Богородицы
+Veiled saint	Святая под покрывалом
+Alchemist's table	Стол алхимика
+Armour stand	Стойка для доспеха
+Canopied market stall	Рыночный прилавок с балдахином
+Sword rack	Стойка для мечей
+Scrolled chair	Стул с завитками
+Great chest	Большой сундук
+Fine bookshelf	Нарядная книжная полка
+Pointed pavilion	Остроконечный павильон
+Round pavilion	Круглый павильон
+Great candelabrum	Большой канделябр
+Pierced hanging lantern	Резной подвесной фонарь
+Pierced lantern	Резной фонарь
+Altar cross	Алтарный крест
+Birdcage	Клетка для птиц
+Madonna and Child	Мадонна с младенцем
+Wooden saint	Деревянный святой
+Fine weapon rack	Нарядная стойка для оружия
+Great market stall	Большой рыночный прилавок
+Small forge	Маленький горн
+Sweep well	Колодец-журавль
+Wayside shrine	Придорожная часовня
+Burgher's double bed	Мещанская двуспальная кровать
+Carved table	Резной стол
+Hall bench	Скамья для зала
+Italian court tapestry	Итальянский придворный гобелен
+Statue of the Virgin	Статуя Богородицы
+Winged altar	Створчатый алтарь
+Devotional pillar	Молитвенный столп
+Canopy bed	Кровать с балдахином
+Lord's chair	Панское кресло
+Lord's shelves	Панские полки
+Knight's pavilion	Рыцарский павильон
+Great chandelier	Большая люстра
+Stuffed crocodile	Чучело крокодила
+Hand wrap	Обмотки для рук
+Felt cap	Войлочная шапка
+Headscarf	Платок
+Felt cap (style 2)	Войлочная шапка (фасон 2)
+Old straw hat	Старая соломенная шляпа
+Beggar tunic	Туника нищего
+Beggar's hood	Капюшон нищего
+Drowner's hood	Капюшон утопленника
+Wreath	Венок
+Bonnet	Чепец
+Women's straw hat	Женская соломенная шляпа
+Short tunic	Короткая туника
+Frilled veil	Вуаль с оборками
+Colourful headscarf	Цветной платок
+Work headscarf	Рабочий платок
+Wreath (light)	Венок (лёгкий)
+Pig skin	Свиная кожа
+Beggar's shirt	Рубаха нищего
+Vagrant's boots	Сапоги бродяги
+Coif	Подшлемник
+Loose hose	Свободные шоссы
+Servant's hood	Капюшон слуги
+Leather apron	Кожаный фартук
+Butcher's apron	Фартук мясника
+Worn tunic	Поношенная туника
+Wanderer's tunic	Туника странника
+Baggy cap	Мешковатая шапка
+Hunter's belt	Охотничий пояс
+Crude padded coif	Грубый стёганый подшлемник
+Padded collar (plain)	Стёганый воротник (простой)
+Poleyn	Наколенник
+Cleric habit	Ряса священника
+Lord's overcoat	Панский кафтан
+Quilted vagrant's cap	Стёганая шапка бродяги
+Long gambeson (light)	Длинный стёганый доспех (лёгкий)
+Cleric habit (style 2)	Ряса священника (фасон 2)
+Legate's robe	Одеяние легата
+Cleric habit (Rabi)	Ряса священника (Раби)
+Padded coif (plain)	Стёганый подшлемник (простой)
+Knight's belt	Рыцарский пояс
+Cleric habit (style 4)	Ряса священника (фасон 4)
+Soft leather bridle	Уздечка из мягкой кожи
+Noseband bridle	Уздечка с капсюлем
+Fastened caftan	Застёгнутый кафтан
+Padded coif - black (plain)	Стёганый подшлемник, чёрный (простой)
+Riding gloves (light)	Перчатки для верховой езды (лёгкие)
+Henry's blacksmith gloves	Кузнечные перчатки Индржиха
+Bridle with plating	Уздечка с накладками
+Embroidered hood (heavy)	Вышитый капюшон (тяжёлый)
+Cleric habit (style 5)	Ряса священника (фасон 5)
+Cleric habit (style 6)	Ряса священника (фасон 6)
+Cuman caftan	Половецкий кафтан
+Thief's gloves	Воровские перчатки
+Noble gloves (reinforced)	Панские перчатки (усиленные)
+Unicorn chanfron	Шафрон «Единорог»
+Cow skin	Коровья шкура
+Cuman leather hat	Половецкая кожаная шапка
+Work scarf	Рабочий шарф
+Wanderer's hat	Шляпа странника
+Vagrant's hat	Шляпа бродяги
+Tall Cuman cap	Высокая половецкая шапка
+Fur-lined hat	Шапка с мехом
+Felt hat	Войлочная шляпа
+Short tunic (reinforced)	Короткая туника (усиленная)
+Simple headband	Простая повязка на голову
+High boots	Высокие сапоги
+Women's hood	Женский капюшон
+Drowned man's gloves	Перчатки утопленника
+Drowner's hose	Шоссы утопленника
+Water goblin's hose	Шоссы водяного
+Women's hood (style 2)	Женский капюшон (фасон 2)
+Wide straw hat	Широкая соломенная шляпа
+Narrow straw hat	Узкая соломенная шляпа
+Straw hat with ribbon	Соломенная шляпа с лентой
+Tunic	Туника
+Innkeeper tunic	Туника трактирщика
+Jester shoes	Башмаки шута
+Beggar's coat	Кафтан нищего
+Work dress	Рабочее платье
+Simple hose	Простые шоссы
+Beggar's hose	Шоссы нищего
+Work dress (style 2)	Рабочее платье (фасон 2)
+Surcoat	Сюрко
+Miner's tunic	Туника рудокопа
+Leather apron (style 2)	Кожаный фартук (фасон 2)
+Padded collar (reinforced)	Стёганый воротник (усиленный)
+Vagrant's quilted hose	Стёганые шоссы бродяги
+Vagrant's gambeson	Стёганый доспех бродяги
+Mitts	Рукавицы
+Mainz breeching	Майнцский подхвостник
+Prague saddle	Пражское седло
+Executioner's caparison simple	Попона палача, простая
+Wielun breeching	Велюньский подхвостник
+Lavish caftan	Роскошный кафтан
+Riding caftan	Кафтан для верховой езды
+Quilted caftan - black	Стёганый кафтан, чёрный
+Short butcher apron	Короткий фартук мясника
+Innkeeper's shirt	Рубаха трактирщика
+Pickpocket's tunic	Туника карманника
+Working boots	Рабочие сапоги
+Work boots	Рабочие башмаки
+Firm boots	Крепкие сапоги
+Loose hose (Musa)	Свободные шоссы (Муса)
+Short tunic (style 3)	Короткая туника (фасон 3)
+Deer skin	Оленья шкура
+Round cap	Круглая шапка
+Pointy cap	Остроконечная шапка
+Miner's cap	Шапка рудокопа
+Silesian cap	Силезская шапка
+Miner's hat	Шляпа рудокопа
+Burgher coat (Bergov)	Мещанский кафтан (Бергов)
+Burgher coat (Hans)	Мещанский кафтан (Ганс)
+Burgher coat (Hanush)	Мещанский кафтан (Гануш)
+Burgher coat (Jobst Poncho)	Мещанский кафтан (Йошт, пончо)
+Burgher coat (Musa)	Мещанский кафтан (Муса)
+Burgher coat (Oderin)	Мещанский кафтан (Одерин)
+Burgher coat (Ruthard)	Мещанский кафтан (Рутард)
+Burgher coat (Sigismund)	Мещанский кафтан (Сигизмунд)
+Burgher coat (Vavak)	Мещанский кафтан (Вавак)
+Pickpocket's hose	Шоссы карманника
+Simple hood	Простой капюшон
+Miner's hood	Капюшон рудокопа
+Vagrant's hat (style 2)	Шляпа бродяги (фасон 2)
+Travel dress	Дорожное платье
+Noblewoman's cotehardie	Котарди знатной дамы
+Jewish veil	Еврейская вуаль
+Chaperon	Шаперон
+Embroidered shirt	Вышитая рубаха
+Frilled dress	Платье с оборками
+Festive dress	Праздничное платье
+Women's straw hat (style 2)	Женская соломенная шляпа (фасон 2)
+Women's straw hat (style 3)	Женская соломенная шляпа (фасон 3)
+Work dress (style 3)	Рабочее платье (фасон 3)
+Women's hood (heavy)	Женский капюшон (тяжёлый)
+Frilled dress (style 2)	Платье с оборками (фасон 2)
+Common ladies shoes	Простые женские башмаки
+Common ladies shoes (Katherine)	Простые женские башмаки (Катерина)
+Simple bonnet	Простой чепец
+Travel boots	Дорожные сапоги
+Riding boots	Сапоги для верховой езды
+Passionate mushroom-picker's hood	Капюшон заядлого грибника
+Leather gloves	Кожаные перчатки
+Hunting coat	Охотничий кафтан
+Riding gloves (plain)	Перчатки для верховой езды (простые)
+Noble's belt	Панский пояс
+Caparison á la peytral simple	Попона-нагрудник, простая
+Padded coif (reinforced)	Стёганый подшлемник (усиленный)
+Executioner's caparison quilted	Попона палача, стёганая
+Caparison á la crupper simple	Попона на круп, простая
+Fitted coat	Приталенный кафтан
+Padded coif - black (reinforced)	Стёганый подшлемник, чёрный (усиленный)
+Kastenbrust (light)	Кастенбруст (лёгкий)
+Quilted caftan	Стёганый кафтан
+Riding gloves (heavy)	Перчатки для верховой езды (тяжёлые)
+Bohemian cap	Богемская шапка
+Jewish hat	Еврейская шляпа
+Strange strawhat	Странная соломенная шляпа
+Master huntsman's hose	Шоссы старшего егеря
+Miner hose	Шоссы рудокопа
+Colorful festive dress	Цветное праздничное платье
+Ladies shoes	Женские башмаки
+Gartered hose	Шоссы с подвязками
+Burgher's hat	Мещанская шляпа
+Charlie's hat	Шляпа Чарли
+Chamberlain Ulrich's hat	Шляпа камергера Ульриха
+Vagrant's hose	Шоссы бродяги
+Embroidered bonnet	Вышитый чепец
+Master huntsman's hat	Шляпа старшего егеря
+Monk's hood	Монашеский капюшон
+Master huntsman's hat (style 2)	Шляпа старшего егеря (фасон 2)
+Cuman boots	Половецкие сапоги
+Embroidered chaperon	Вышитый шаперон
+Noblewoman's cotehardie (style 2)	Котарди знатной дамы (фасон 2)
+Frilled cap	Шапочка с оборками
+Burgundian hat	Бургундская шляпа
+Simple shoes	Простые башмаки
+Ordinary coat	Обычный кафтан
+Gambeson worn	Стёганый доспех, поношенный
+Worn gambeson	Поношенный стёганый доспех
+Old quilted hose	Старые стёганые шоссы
+Riding boots - high	Сапоги для верховой езды, высокие
+Mended padded leggings	Залатанные стёганые чулки
+Halved caparison crenellated	Попона двухцветная, с зубцами
+Hague breeching	Гаагский подхвостник
+Plain tourney caparison	Простая турнирная попона
+Sharukan bridle	Уздечка Шарукана
+Long gambeson - black	Длинный стёганый доспех, чёрный
+Wanderer's robe	Одеяние странника
+Lord Toth's chaperon	Шаперон пана Тота
+Burgher's hat (style 2)	Мещанская шляпа (фасон 2)
+Frilled colourful dress	Цветное платье с оборками
+Katherine's dress	Платье Катерины
+Rosa's dress	Платье Розы
+Legate's hat	Шляпа легата
+Wanderer's hood	Капюшон странника
+Cleric's hood	Капюшон священника
+Pickpocket's shoes	Башмаки карманника
+Wanderer's hood (style 2)	Капюшон странника (фасон 2)
+Quiet boots	Бесшумные сапоги
+Hunting cap	Охотничья шапка
+Simple veil	Простая вуаль
+Frilled veil (style 2)	Вуаль с оборками (фасон 2)
+Frilled veil (Magdalena)	Вуаль с оборками (Магдалена)
+Coat of arms surcoat	Гербовое сюрко
+Chamberlain Ulrich's hat (light)	Шляпа камергера Ульриха (лёгкая)
+Noble chaperon	Панский шаперон
+St. Hubert's hat	Шляпа святого Губерта
+Rowel spurs	Шпоры с колёсиками
+Hose joined	Сшитые шоссы
+Plain troubadours' hose	Простые шоссы трубадура
+Teutonic lay brothers's surcoat	Сюрко тевтонского брата-мирянина
+Teutonic surcoat	Тевтонское сюрко
+Tournament gambeson	Турнирный стёганый доспех
+Short gambeson	Короткий стёганый доспех
+Gambeson short	Стёганый доспех, короткий
+Noble's quilted hose (style 2)	Панские стёганые шоссы (фасон 2)
+Caparison á la crupper decorated	Попона на круп, украшенная
+Zamur's bridle	Уздечка Замура
+Long gambeson (heavy)	Длинный стёганый доспех (тяжёлый)
+Gambeson long	Стёганый доспех, длинный
+Long gambeson (reinforced)	Длинный стёганый доспех (усиленный)
+Bridle of the Holy Roman Empire	Уздечка Священной Римской империи
+Broad battle coif	Широкий боевой подшлемник
+Tournament padded coif	Турнирный стёганый подшлемник
+Broad battle coif (style 2)	Широкий боевой подшлемник (фасон 2)
+Broad battle coif (style 3)	Широкий боевой подшлемник (фасон 3)
+Broad battle coif (style 4)	Широкий боевой подшлемник (фасон 4)
+Broad battle coif (style 5)	Широкий боевой подшлемник (фасон 5)
+Broad battle coif (style 6)	Широкий боевой подшлемник (фасон 6)
+Broad battle coif (style 7)	Широкий боевой подшлемник (фасон 7)
+Broad battle coif (style 8)	Широкий боевой подшлемник (фасон 8)
+Pickpocket's hat	Шляпа карманника
+Pickpocket's gloves	Перчатки карманника
+Hemmed hood	Капюшон с каймой
+Simple shoes (style 2)	Простые башмаки (фасон 2)
+Knights of the Cross hood	Капюшон крестоносцев
+Riding waffenrock	Ваффенрок для верховой езды
+Cap with peacock feathers	Шапка с павлиньими перьями
+Simple waffenrock	Простой ваффенрок
+Teutonic hood	Тевтонский капюшон
+Monk's hood (style 2)	Монашеский капюшон (фасон 2)
+Jester's disguise	Наряд шута
+Jimbo's costume	Костюм Джимбо
+Tournament waffenrock	Турнирный ваффенрок
+Courtiers boots	Сапоги придворного
+Pointy cap (style 2)	Остроконечная шапка (фасон 2)
+Monk's hood (style 3)	Монашеский капюшон (фасон 3)
+Riding waffenrock (style 2)	Ваффенрок для верховой езды (фасон 2)
+Riding waffenrock (style 3)	Ваффенрок для верховой езды (фасон 3)
+Riding waffenrock (style 4)	Ваффенрок для верховой езды (фасон 4)
+Riding waffenrock (style 5)	Ваффенрок для верховой езды (фасон 5)
+Riding waffenrock (style 6)	Ваффенрок для верховой езды (фасон 6)
+Burgher's shoes	Мещанские башмаки
+Vagrant's shoes	Башмаки бродяги
+Riding waffenrock (style 7)	Ваффенрок для верховой езды (фасон 7)
+Thief's shoes	Воровские башмаки
+Vagrant's coat	Кафтан бродяги
+Merchant's coat	Купеческий кафтан
+Gallant coat	Щегольской кафтан
+Ordinary coat (style 2)	Обычный кафтан (фасон 2)
+Burgher coat (Oderin Armor)	Мещанский кафтан (Одерин, доспех)
+Noble boots	Панские сапоги
+Broad battle coif - black	Широкий боевой подшлемник, чёрный
+Executioner's caparison decorated	Попона палача, украшенная
+Quilted caparison with breeching	Стёганая попона с подхвостником
+Halved caparison decorated	Попона двухцветная, украшенная
+Soldier's saddle	Солдатское седло
+Old gambeson	Старый стёганый доспех
+Long pourpoint	Длинный пурпуэн
+Tournament bridle	Турнирная уздечка
+Capon's gambeson	Стёганый доспех Капона
+Robber baron's aketon	Акетон раубриттера
+Soft shoes	Мягкие башмаки
+Ladies shoes (style 2)	Женские башмаки (фасон 2)
+Master huntsman's gloves	Перчатки старшего егеря
+Soft boots	Мягкие сапоги
+Courtier's hat	Шляпа придворного
+Embroidered coat	Вышитый кафтан
+Thief's tunic	Воровская туника
+Ordinary coat with crest	Обычный кафтан с гербом
+Ordinary Praguers' coat with crest	Обычный пражский кафтан с гербом
+Gartered hose (Capon)	Шоссы с подвязками (Капон)
+Gartered hose (Devil)	Шоссы с подвязками (Чёрт)
+Gartered hose (Sigismund)	Шоссы с подвязками (Сигизмунд)
+Courtier's boots	Сапоги придворного (фасон 2)
+Embroidered hood	Вышитый капюшон
+Pointed shoes	Остроносые башмаки
+Master huntsman's hood	Капюшон старшего егеря
+Burgher's shoes (light)	Мещанские башмаки (лёгкие)
+Hemmed waffenrock	Ваффенрок с каймой
+Crusaders of the Red Star waffenrock	Ваффенрок крестоносцев Красной звезды
+Burgher pourpoint	Мещанский пурпуэн
+Pointed shoes (plain)	Остроносые башмаки (простые)
+Plague hood	Чумной капюшон
+Tied jester's hose	Подвязанные шоссы шута
+Quilted coat	Стёганый кафтан (длинный)
+Gartered hose (plain)	Шоссы с подвязками (простые)
+Teutonic lay brother's waffenrock	Ваффенрок тевтонского брата-мирянина
+Master huntsman's boots	Сапоги старшего егеря
+Noble quilted trousers	Панские стёганые штаны
+Noble's quilted hose (plain)	Панские стёганые шоссы (простые)
+Short aketon	Короткий акетон
+Short aketon (Komar)	Короткий акетон (Комар)
+Short aketon (Kubyenka)	Короткий акетон (Кубенка)
+Short aketon (Lichtenstein)	Короткий акетон (Лихтенштейн)
+Short aketon (Samuel)	Короткий акетон (Самуэль)
+Short aketon (Istvan)	Короткий акетон (Иштван)
+Caparison decorated	Украшенная попона
+Burgher coat (Zachary)	Мещанский кафтан (Захарий)
+Tournament caparison decorated	Турнирная попона, украшенная
+Executioner's caparison with breeching	Попона палача с подхвостником
+Long gambeson (style 4)	Длинный стёганый доспех (фасон 4)
+Tournament caparison quilted	Турнирная попона, стёганая
+Long pourpoint - black	Длинный пурпуэн, чёрный
+House of Polner waffenrock	Ваффенрок дома Польнеров
+Praguers' hemmed waffenrock	Пражский ваффенрок с каймой
+Thief's hood	Воровской капюшон
+Thief's cap	Воровская шапка
+Nobleman's hat	Шляпа дворянина
+Pickpocket's hood	Капюшон карманника
+Embroidered heater coat	Вышитый кафтан с гербовым щитом
+Thief's hose	Воровские шоссы
+Noble gloves	Панские перчатки
+Courtier's hood	Капюшон придворного
+Hungarian spurs	Венгерские шпоры
+Knight's waffenrock	Рыцарский ваффенрок
+Crusaders of the Red Star waffenrock (style 2)	Ваффенрок крестоносцев Красной звезды (фасон 2)
+Abbot's hood	Капюшон аббата
+Capon's hood	Капюшон Капона
+Black hood	Чёрный капюшон
+Legate's hood	Капюшон легата
+Rabbi's hood	Капюшон раввина
+Semine's hood	Капюшон Семина
+Sigismund's hood	Капюшон Сигизмунда
+Abbot's hood (Albik)	Капюшон аббата (Альбик)
+Capon's hood (style 2)	Капюшон Капона (фасон 2)
+Courtier's hose	Шоссы придворного
+Burgher's hood	Мещанский капюшон
+Courtier's pourpoint.	Пурпуэн придворного
+Chaperon with brooch	Шаперон с брошью
+Nimrod's coat	Кафтан Нимрода
+Waffenrock of the Lords of Garbow	Ваффенрок панов из Гарбова
+Quilted hose - dark	Стёганые шоссы, тёмные
+Long pourpoint (style 2)	Длинный пурпуэн (фасон 2)
+Norman saddle	Нормандское седло
+Erik's pourpoint	Пурпуэн Эрика
+Moglen saddle	Моглинское седло
+Praguers' riding waffenrock	Пражский ваффенрок для верховой езды
+Waffenrock of Henry's Forge	Ваффенрок «Кузня Индржиха»
+Teutonic waffenrock	Тевтонский ваффенрок
+Burgher coat (Injured Aulitz)	Мещанский кафтан (раненый Аулиц)
+Burgher coat (Jobst)	Мещанский кафтан (Йошт)
+Noblewoman's cotehardie (style 3)	Котарди знатной дамы (фасон 3)
+Fastened waffenrock	Застёгнутый ваффенрок
+Ornate waffenrock	Нарядный ваффенрок
+Thief's shoes (light)	Воровские башмаки (лёгкие)
+Legate's tunic	Туника легата
+Praguers' waffenrock with buttons	Пражский ваффенрок с пуговицами
+Thief's coat	Воровской кафтан
+Burgher coat (heavy)	Мещанский кафтан (тяжёлый)
+Halved Teutonic waffenrock	Тевтонский ваффенрок, двухцветный
+Legate's hose	Шоссы легата
+Short aketon (style 7)	Короткий акетон (фасон 7)
+Drowner's gambeson	Стёганый доспех утопленника
+Short pourpoint - black	Короткий пурпуэн, чёрный
+Noble gambeson	Панский стёганый доспех
+Lovari saddle	Ловарское седло
+Hungarian saddle	Венгерское седло
+Transylvanian knight's saddle	Трансильванское рыцарское седло
+Reinforced tempered sleeves	Усиленные закалённые рукава
+Kastenbrust (heavy)	Кастенбруст (тяжёлый)
+Burgher coat	Мещанский кафтан
+Painter Vojtiech's cap	Шапка художника Войтеха
+Padded hood	Стёганый капюшон
+Padded hood - black	Стёганый капюшон, чёрный
+Quilted hose	Стёганые шоссы
+Padded chausses	Стёганые чулки
+Noble's quilted hose (reinforced)	Панские стёганые шоссы (усиленные)
+Noble's hood	Панский капюшон
+Legate's gloves	Перчатки легата
+Courtier's coat	Кафтан придворного
+Legate's shoes	Башмаки легата
+Knight's spurs	Рыцарские шпоры
+Brocade hood	Парчовый капюшон
+Patron's coat	Кафтан покровителя
+Tyrol brocade cotehardie	Тирольское парчовое котарди
+Istvan's chaperon	Шаперон Иштвана
+Short pourpoint	Короткий пурпуэн
+Noble's spurs	Панские шпоры
+Bridon saddle	Седло-бридон
+Bravante saddle	Брабантское седло
+Dragon saddle	Драконье седло
+Cracowian saddle	Краковское седло
+Kastenbrust (reinforced)	Кастенбруст (усиленный)

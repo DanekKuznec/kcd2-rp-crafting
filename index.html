@@ -13,29 +13,26 @@
 <div class="wrap">
   <header>
     <h1>Счётная книга кузни</h1>
-    <p class="sub">Выбери раздел, броню или оружие, и добавляй вещи в заказ кнопкой «+». Ниже появится всё сырьё: что сделать заранее, что докупить и план крафта. В одном заказе можно смешивать броню и оружие. Всё запоминается в этом браузере.</p>
+    <p class="sub">Выбери ремесло и добавляй вещи в заказ кнопкой «+». Ниже появится всё сырьё: что сделать заранее, что докупить и план крафта. В одном заказе можно смешивать вещи разных ремёсел. Всё запоминается в этом браузере.</p>
   </header>
 
   <section class="panel" aria-labelledby="ph">
     <div class="row"><h2 id="ph">Цены сырья, гроши</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn go mkfetch" data-col="1" type="button" title="Средняя цена реальных продаж на аукционе KCDRP за 7 дней">Подтянуть: средняя за 7 дней</button><button class="btn go mkfetch" data-col="0" type="button" title="Самый дешёвый лот на аукционе KCDRP сейчас">Подтянуть: минимальная</button><button class="btn" id="reset" type="button">Вернуть цены по умолчанию</button></span></div>
     <p class="hint" style="margin:0 0 8px"><span id="mkfnote"></span> <span id="mknote"></span></p><select id="mkcol" hidden><option value="0">min</option><option value="1" selected>avg</option></select>
-    <div class="pgrid">
-      <div><h3 class="ph3">Бронное дело</h3><div class="prices" id="prices"></div></div>
-      <div><h3 class="ph3">Кузнечное дело</h3><div class="prices" id="prices2"></div></div>
-    </div>
+    <div class="pgrid" id="pgrid"></div>
     <div class="prices" id="pricesm" style="margin-top:10px"></div>
     <details class="more" id="mkcmp" style="margin-top:12px"><summary>Заготовки: крафтить или купить на аукционе</summary>
       <p class="hint" style="margin:6px 0">Впиши цену заготовки на аукционе (или подтяни кнопкой вверху), и видно, что выгоднее: сделать самому из сырья по твоим ценам или купить готовое. Цена за 1 шт.</p>
       <div class="tablebox"><table class="mini"><thead><tr><th class="l">Заготовка</th><th>Крафт, за 1 шт.</th><th>Аукцион, за 1 шт.</th><th class="l">Выгоднее</th></tr></thead><tbody id="mkrows"></tbody></table></div>
     </details>
-    <p class="hint" style="margin:6px 0 0">Сырьё, которое нужно в обоих ремёслах (руда, уголь, шкуры…), есть в обоих окнах, и цена в них общая.</p>
+    <p class="hint" style="margin:6px 0 0">Показано сырьё открытого ремесла. Цена у одного и того же сырья общая во всех ремёслах.</p>
     <div class="derived" id="derived"></div>
   </section>
 
   <div class="layout">
     <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
       <div class="row">
-        <div class="seg" id="secs" role="group" aria-label="Раздел"><button type="button" data-s="a">Броня</button><button type="button" data-s="w">Оружие</button></div>
+        <div class="seg" id="secs" role="group" aria-label="Ремесло"></div>
         <input class="search" id="q" type="search" placeholder="Поиск по названию" aria-label="Поиск предмета"><button class="btn" id="fold" type="button" aria-expanded="true">Свернуть чертежи</button>
       </div>
       <div class="tabs" id="tabs" role="group" aria-label="Уровень"></div>

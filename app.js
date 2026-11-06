@@ -163,7 +163,9 @@ function uc(k) {
 const recalc = () => {
   UC = {};
 };
-const cost = i => (i.m ? uc(i.m) : Object.entries(i.r).reduce((s, [k, n]) => s + n * uc(k), 0) + i.b);
+// i.o — сколько штук даёт один крафт (стрелы, пиво…); себестоимость считаем на 1 шт.
+const cost = i =>
+  i.m ? uc(i.m) : (Object.entries(i.r).reduce((s, [k, n]) => s + n * uc(k), 0) + i.b) / (i.o || 1);
 const DEPTH = {};
 function depth(k) {
   if (k in DEPTH) return DEPTH[k];
@@ -227,15 +229,26 @@ function rawUsed(s) {
   });
   return RAWK.filter(k => out.has(k));
 }
-document.getElementById("prices").innerHTML = rawUsed("a")
-  .map(k => priceField(k, "a_"))
-  .join("");
-document.getElementById("prices2").innerHTML = rawUsed("w")
-  .map(k => priceField(k, "w_"))
-  .join("");
+const SECNAME = Object.fromEntries(DATA.secs.map(([k, n]) => [k, n]));
+const PRICE_TITLE = { a: "Бронное дело", w: "Кузнечное дело" };
+// Цены показываем для открытого ремесла; броня и оружие идут вместе, как раньше.
+// Поля перерисовываются при смене ремесла, поэтому слушаем ввод на контейнерах.
+function renderPrices() {
+  const list = sec === "a" || sec === "w" ? ["a", "w"] : [sec],
+    el = document.getElementById("pgrid");
+  el.innerHTML = list
+    .map(
+      s =>
+        `<div><h3 class="ph3">${esc(PRICE_TITLE[s] || SECNAME[s])}</h3><div class="prices">${rawUsed(s)
+          .map(k => priceField(k, s + "_"))
+          .join("")}</div></div>`,
+    )
+    .join("");
+}
 document.getElementById("pricesm").innerHTML = priceField("markup");
-document.querySelectorAll("[data-p]").forEach(inp =>
-  inp.addEventListener("input", e => {
+["pgrid", "pricesm"].forEach(id =>
+  document.getElementById(id).addEventListener("input", e => {
+    if (!e.target.dataset.p) return;
     const v = parseFloat(e.target.value);
     const k = e.target.dataset.p;
     P[k] = isNaN(v) ? 0 : v;
@@ -262,6 +275,7 @@ document.getElementById("reset").addEventListener("click", () => {
 // ------------------------------------------------------------
 const API_URL = "https://account.kcdroleplay.com/api/ucp/realm?world=ru";
 const API_ID = {
+  ...(DATA.api || {}),
   "good:ore": "Железная руда",
   "good:coal": "Уголь",
   "good:copperore": "Медная руда",
@@ -282,6 +296,12 @@ const API_ID = {
   "good:leather": "кожа",
   "good:padding": "набивка",
   "good:steel": "steel",
+  "good:linen": "льняное полотно",
+  "good:bowstring": "bowstrings",
+  "good:malt": "ячменный солод",
+  "good:charcoalwater": "угольная вода",
+  "good:memorialcoin": "памятные монеты",
+  "good:noose": "верёвки повешенного",
 };
 /** Разбирает ответ API (или его копию с GitHub) в { "Название сырья": [минимальная, средняя за 7 дней] }. */
 function parseRealm(txt) {
@@ -422,6 +442,12 @@ document.querySelectorAll(".mkfetch").forEach(btn =>
 // ============================================================
 // MATMK — как заготовка называется на аукционе (для подстановки цены).
 const MATMK = {
+  linen: ["льняное полотно"],
+  bowstr: ["bowstrings", "тетивы"],
+  malt: ["ячменный солод"],
+  cwater: ["угольная вода"],
+  mcoin: ["памятные монеты"],
+  noose: ["верёвки повешенного"],
   leather: ["кожа"],
   pad: ["набивка"],
   steel: ["стальные бруски", "steel"],
@@ -495,8 +521,9 @@ function needOf() {
     c += cost(i) * q;
     if (i.m) add(i.m, q);
     else {
-      b += i.b * q;
-      Object.entries(i.r).forEach(([k, v]) => add(k, v * q));
+      const crafts = i.o ? Math.ceil(q / i.o) : q;
+      b += i.b * crafts;
+      Object.entries(i.r).forEach(([k, v]) => add(k, v * crafts));
     }
   }
   return { need, n, cost: c, b };
@@ -811,7 +838,10 @@ secs.addEventListener("click", e => {
   renderCatalogNav();
   renderTable();
 });
+secs.innerHTML = DATA.secs.map(([k, n]) => `<button type="button" data-s="${k}">${esc(n)}</button>`).join("");
+if (!SECNAME[sec]) sec = "a";
 function renderCatalogNav() {
+  renderPrices();
   secs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === sec)));
   const its = ITEMS.filter(i => i.s === sec),
     LV = [...new Set(its.map(i => i.l))].sort((a, b) => a - b);
@@ -825,7 +855,10 @@ function renderCatalogNav() {
   document.getElementById("footnote").textContent =
     sec === "a"
       ? "Рецепты со скринов верстака бронника. Сталь: 3 железной руды + 2 угля → 2 бруска. Железо: 2 руды + 1 уголь → 3. Набивка: 3 крапивы + 1 кожа → 2. Кожа: 1 шкура → 2."
-      : "Рецепты со скринов верстака кузнеца, состав как в «Компонентах» панели крафта. Заготовки (железо, лом, крепёж, гарды, навершия, особая сталь) считаются из сырья автоматически.";
+      : sec === "w"
+        ? "Рецепты со скринов верстака кузнеца, состав как в «Компонентах» панели крафта. Заготовки (железо, лом, крепёж, гарды, навершия, особая сталь) считаются из сырья автоматически."
+        : DATA.secs.find(x => x[0] === sec)[2] +
+          " Колонка «Выход» — сколько штук даёт один крафт; себестоимость и цена указаны за 1 шт.";
 }
 tabs.addEventListener("click", e => {
   const b = e.target.closest(".tab");
@@ -859,12 +892,12 @@ function renderTable() {
     i.s === sec &&
     (tab === "all" || String(i.l) === tab) &&
     (cat === "all" || i.c === cat) &&
-    (!query || i.n.toLowerCase().includes(query));
+    (!query || i.n.toLowerCase().includes(query) || (i.en && i.en.toLowerCase().includes(query)));
   let h = "",
     pl = null,
     pc = null;
   const q = Q();
-  const F = FIELDS[sec];
+  const F = FIELDS[sec] || [];
   if (dsort !== "" && !F.some(f => String(f[1]) === dsort)) dsort = "";
   dsortEl.innerHTML =
     `<span class="sortlbl">Сортировать внутри групп:</span><button class="tab" type="button" data-d="">как на верстаке</button>` +
@@ -872,6 +905,7 @@ function renderTable() {
       "",
     ) +
     `<span class="sortlbl sorthint">${cat !== "all" ? "— по всему виду, без учёта уровня" : ""}</span>`;
+  dsortEl.hidden = !F.length;
   dsortEl
     .querySelectorAll(".tab")
     .forEach(b => b.setAttribute("aria-pressed", String(b.dataset.d === dsort)));
@@ -901,8 +935,8 @@ function renderTable() {
     }
     const c = cost(i),
       id = esc(i.id);
-    h += `<tr class="${q[i.id] ? "picked" : ""}"${i.c !== "Материалы" && i.c !== "Детали" ? ` data-tip="${id}"` : ""}><td>${icon(i)}</td><td class="name"><div class="ru" style="font-size:14.5px;color:var(--ink)">${esc(i.n)}</div>${flat ? `<div class="flag">${i.l} ур.</div>` : ""}${i.note ? `<div class="flag">${esc(i.note)}</div>` : ""}</td>
-      <td class="comp">${compText(i)}</td><td class="num res">${i.m ? "<b>" + MAT[i.m].out + "</b>" : "1"}</td>      <td class="num cost">${fmt(c, i.m ? 1 : 0)}</td><td class="num sell">${fmt(c * (1 + P.markup / 100), i.m ? 1 : 0)}</td>
+    h += `<tr class="${q[i.id] ? "picked" : ""}"${FIELDS[i.s] && i.c !== "Материалы" && i.c !== "Детали" ? ` data-tip="${id}"` : ""}><td>${icon(i)}</td><td class="name"><div class="ru" style="font-size:14.5px;color:var(--ink)">${esc(i.n)}</div>${flat ? `<div class="flag">${i.l} ур.</div>` : ""}${i.note ? `<div class="flag">${esc(i.note)}</div>` : ""}</td>
+      <td class="comp">${compText(i)}</td><td class="num res">${i.m ? "<b>" + MAT[i.m].out + "</b>" : i.o ? "<b>" + i.o + "</b>" : "1"}</td>      <td class="num cost">${fmt(c, i.m || i.o ? 1 : 0)}</td><td class="num sell">${fmt(c * (1 + P.markup / 100), i.m || i.o ? 1 : 0)}</td>
       <td><div class="qcell"><input class="qty" data-k="${id}" type="number" min="0" step="1" value="${q[i.id] || ""}" aria-label="Количество: ${esc(i.n)}"><button class="add" type="button" data-k="${id}" aria-label="Добавить: ${esc(i.n)}">+</button></div></td></tr>`;
   });
   tb.innerHTML = h || `<tr><td colspan="7" class="l note">Ничего не найдено.</td></tr>`;
@@ -1049,7 +1083,7 @@ function renderOrder(skip) {
           const i = BYID[id],
             k = esc(id);
           return `<div class="tile" title="${esc(i.n)}: ${fmt(cost(i))} гр.">
-     <span class="lv">${i.l}</span>${icon(i)}<span class="badge">${q[id]}</span><span class="tn">${esc(i.n)}</span>${i.s === "a" && !i.m ? `<input class="var" data-v="${k}" list="varlist" maxlength="40" placeholder="вариант" value="${esc(varOf(id))}" aria-label="Вариант: ${esc(i.n)}">` : ""}
+     <span class="lv">${i.l}</span>${icon(i)}<span class="badge">${q[id]}</span><span class="tn">${esc(i.n)}</span>${(i.s === "a" || i.var) && !i.m ? `<input class="var" data-v="${k}" list="varlist" maxlength="40" placeholder="вариант" value="${esc(varOf(id))}" aria-label="Вариант: ${esc(i.n)}">` : ""}
      <span class="ctl"><button type="button" data-k="${k}" data-d="-1" aria-label="Убрать одну">−</button><button type="button" data-k="${k}" data-d="1" aria-label="Добавить одну">+</button><button type="button" data-k="${k}" data-d="x" aria-label="Убрать из заказа">×</button></span></div>`;
         })
         .join("")}</div>`
