@@ -1,0 +1,342 @@
+0	Padded coif (plain)	Батват (простая версия)
+1	Wreath	Венок
+2	Wreath (light)	Венок (лёгкая версия)
+3	Felt cap	Войлочная шапка
+4	Embroidered hood (heavy)	Вышитый капюшон (тяжёлая версия)
+5	Headscarf	Головной платок
+6	Frilled veil	Головной платок (вуаль)
+7	Crude padded coif	Грубый батват
+8	Women's straw hat	Женская соломенная шляпа
+9	Beggar's hood	Капюшон нищего
+10	Servant's hood	Капюшон слуги
+11	Drowner's hood	Капюшон утопленника
+12	Coif	Койф
+13	Baggy cap	Мешковатый колпак
+14	Work headscarf	Рабочий головной платок
+15	Old straw hat	Старая соломенная шляпа
+16	Quilted vagrant's cap	Стёганая шапка бродяги
+17	Felt cap (style 2)	Фетровая шапка (фасон 2)
+18	Colourful headscarf	Цветной головной платок
+19	Bonnet	Чепец
+20	Padded coif - black (plain)	Чёрный койф (простая версия)
+21	Tall Cuman cap	Высокая половецкая шапка
+22	Women's hood	Женский капюшон
+23	Cuman leather hat	Половецкая кожаная шапка
+24	Simple headband	Простая лента на голову
+25	Work scarf	Рабочий платок
+26	Straw hat with ribbon	Соломенная шляпа с лентой
+27	Narrow straw hat	Соломенная шляпа с узкими полями
+28	Felt hat	Фетровая шляпа
+29	Fur-lined hat	Шапка с меховой подкладкой
+30	Wide straw hat	Широкая соломенная шляпа
+31	Vagrant's hat	Шляпа бродяги
+32	Wanderer's hat	Шляпа странника
+33	Jewish veil	Еврейская вуаль
+34	Women's straw hat (style 2)	Женская соломенная шляпа (фасон 2)
+35	Women's straw hat (style 3)	Женская соломенная шляпа (фасон 3)
+36	Women's hood (heavy)	Женский капюшон (тяжёлая версия)
+37	Miner's hood	Капюшон рудокопа
+38	Passionate mushroom-picker's hood	Капюшон страстного грибника
+39	Pointy cap	Остроконечная шапка
+40	Simple hood	Простой капюшон
+41	Simple bonnet	Простой чепец
+42	Silesian cap	Силезская шапка
+43	Padded coif (reinforced)	Стёганый батват (усиленная версия)
+44	Padded coif - black (reinforced)	Чёрный батват (усиленная версия)
+45	Chaperon	Шаперон
+46	Miner's cap	Шапка рудокопа
+47	Miner's hat	Шапка рудокопа (шляпа)
+48	Vagrant's hat (style 2)	Шляпа бродяги (фасон 2)
+49	Bohemian cap	Богемская шапка
+50	Burgundian hat	Бургундская шляпа
+51	Embroidered chaperon	Вышитый шаперон
+52	Jewish hat	Иудейская шляпа
+53	Monk's hood	Монашеский капюшон
+54	Frilled cap	Оборчатая шапка
+55	Embroidered bonnet	Расшитый чепец
+56	Chamberlain Ulrich's hat	Шаперон камергера Ульриха
+57	Charlie's hat	Шапка Карела
+58	Burgher's hat	Шляпа горожанина
+59	Master huntsman's hat	Шляпа мастера-ловчего
+60	Frilled veil (Magdalena)	Головной платок (Magdalena)
+61	Cleric's hood	Капюшон священника
+62	Wanderer's hood	Капюшон странника
+63	Wanderer's hood (style 2)	Капюшон странника (фасон 2)
+64	Simple veil	Обычная вуаль
+65	Hunting cap	Охотничья шапочка
+66	Noble chaperon	Панский шаперон
+67	Lord Toth's chaperon	Шаперон пана Тота
+68	St. Hubert's hat	Шапка святого Губерта
+69	Burgher's hat (style 2)	Шляпа горожанина (фасон 2)
+70	Legate's hat	Шляпа легата
+71	Knights of the Cross hood	Капюшон рыцарей ордена Креста
+72	Hemmed hood	Капюшон с окантовкой
+73	Pointy cap (style 2)	Остроконечная шапка (фасон 2)
+74	Tournament padded coif	Турнирный батват
+75	Broad battle coif - black	Чёрный широкий боевой койф
+76	Cap with peacock feathers	Шапочка с павлиньими перьями
+77	Broad battle coif	Широкий боевой койф
+78	Broad battle coif (style 2)	Широкий боевой койф (фасон 2)
+79	Broad battle coif (style 3)	Широкий боевой койф (фасон 3)
+80	Pickpocket's hat	Шляпа карманника
+81	Embroidered hood	Вышитый капюшон
+82	Master huntsman's hood	Капюшон мастера-ловчего
+83	Plague hood	Чумной капюшон
+84	Courtier's hat	Шапка придворного
+85	Abbot's hood	Капюшон аббата
+86	Thief's hood	Капюшон вора
+87	Burgher's hood	Капюшон горожанина
+88	Pickpocket's hood	Капюшон карманника
+89	Legate's hood	Капюшон легата
+90	Courtier's hood	Капюшон придворного
+91	Capon's hood	Капюшон Птачека
+92	Rabbi's hood	Капюшон раввина
+93	Semine's hood	Капюшон Семина
+94	Sigismund's hood	Капюшон Сигизмунда
+95	Black hood	Чёрный капюшон
+96	Chaperon with brooch	Шаперон с брошкой
+97	Thief's cap	Шапка вора
+98	Nobleman's hat	Шапка шляхтича
+99	Noble's hood	Панский капюшон
+100	Brocade hood	Парчовый капюшон
+101	Padded hood	Стёганый капюшон
+102	Padded hood - black	Чёрный стёганый капюшон
+103	Istvan's chaperon	Шаперон Иштвана
+104	Painter Vojtiech's cap	Шаперон художника Войцеха
+105	Long gambeson (light)	Длинный гамбезон (лёгкая версия)
+106	Fastened caftan	Кафтан с застёжками
+107	Leather apron	Кожаный фартук
+108	Short tunic	Короткая рубашка
+109	Legate's robe	Мантия легата
+110	Worn tunic	Ношеная туника
+111	Lord's overcoat	Панский жупан
+112	Cuman caftan	Половецкий кафтан
+113	Beggar's shirt	Рубаха нищего
+114	Wanderer's tunic	Рубаха странника
+115	Cleric habit	Ряса священника
+116	Cleric habit (Rabi)	Ряса священника (Rabi)
+117	Cleric habit (style 2)	Ряса священника (фасон 2)
+118	Cleric habit (style 4)	Ряса священника (фасон 4)
+119	Cleric habit (style 5)	Ряса священника (фасон 5)
+120	Padded collar (plain)	Стёганый воротник (простая версия)
+121	Beggar tunic	Туника нищего
+122	Butcher's apron	Фартук мясника
+123	Vagrant's gambeson	Гамбезон бродяги
+124	Riding caftan	Кафтан всадника
+125	Short tunic (reinforced)	Короткая рубашка (усиленная версия)
+126	Beggar's coat	Плащ нищего
+127	Work dress	Рабочее платье
+128	Lavish caftan	Роскошный кафтан
+129	Innkeeper tunic	Рубашка корчмаря
+130	Padded collar (reinforced)	Стёганый воротник (усиленная версия)
+131	Surcoat	Сюрко
+132	Tunic	Туника
+133	Quilted caftan - black	Чёрный стёганый кафтан
+134	Miner's tunic	Шахтёрская рубаха
+135	Noblewoman's cotehardie	Дамское котарди
+136	Burgher coat (Bergov)	Дублет горожанина (Bergov)
+137	Kastenbrust (light)	Кастенбруст (лёгкая версия)
+138	Short tunic (style 3)	Короткая рубашка (фасон 3)
+139	Short butcher apron	Короткий мясницкий фартук
+140	Leather apron (style 2)	Льняной фартук
+141	Hunting coat	Охотничий дублет
+142	Travel dress	Платье путешественницы
+143	Frilled dress	Платье с оборками
+144	Frilled dress (style 2)	Платье с оборками (фасон 2)
+145	Festive dress	Праздничное платье
+146	Fitted coat	Приталенная куртка
+147	Embroidered shirt	Расшитая рубаха
+148	Pickpocket's tunic	Рубаха карманника
+149	Quilted caftan	Стёганый кафтан
+150	Noblewoman's cotehardie (style 2)	Дамское котарди (фасон 2)
+151	Worn gambeson	Ношеный гамбезон
+152	Ordinary coat	Обычный жупан
+153	Strange strawhat	Странная соломенная шляпа
+154	Colorful festive dress	Цветное праздничное платье
+155	Long gambeson - black	Чёрный длинный гамбезон
+156	Gambeson long	Длинный гамбезон
+157	Long gambeson (heavy)	Длинный гамбезон (тяжёлая версия)
+158	Coat of arms surcoat	Жупан с гербом
+159	Wanderer's robe	Жупан странника
+160	Short gambeson	Короткий гамбезон
+161	Katherine's dress	Платье Катерины
+162	Rosa's dress	Платье Розы
+163	Teutonic surcoat	Тевтонский жупан
+164	Tournament gambeson	Турнирный гамбезон
+165	Frilled colourful dress	Цветное платье с оборками
+166	Robber baron's aketon	Акетон раубриттера
+167	Riding waffenrock	Ваффенрок конника
+168	Riding waffenrock (style 2)	Ваффенрок конника (фасон 2)
+169	Riding waffenrock (style 3)	Ваффенрок конника (фасон 3)
+170	Capon's gambeson	Гамбезон Птачека
+171	Long pourpoint	Длинный пурпуэн
+172	Burgher coat (Oderin Armor)	Дублет горожанина (Oderin Armor)
+173	Merchant's coat	Купеческий дублет
+174	Vagrant's coat	Куртка бродяги
+175	Jimbo's costume	Наряд Джимбо
+176	Jester's disguise	Наряд скомороха
+177	Ordinary coat (style 2)	Обычный жупан (фасон 2)
+178	Gallant coat	Плащ кавалера
+179	Simple waffenrock	Простой ваффенрок
+180	Old gambeson	Старый гамбезон
+181	Tournament waffenrock	Турнирный ваффенрок
+182	Crusaders of the Red Star waffenrock	Ваффенрок рыцарей Креста с красной звездой
+183	Hemmed waffenrock	Ваффенрок с каймой
+184	Embroidered coat	Вышитый дублет
+185	Long gambeson (style 4)	Длинный гамбезон (фасон 4)
+186	Burgher coat (Zachary)	Дублет горожанина (Zachary)
+187	Short aketon	Короткий акетон
+188	Short aketon (Istvan)	Короткий акетон (Istvan)
+189	Short aketon (Kubyenka)	Короткий акетон (Kubyenka)
+190	Ordinary coat with crest	Обычный жупан с гербом
+191	Ordinary Praguers' coat with crest	Обычный пражский жупан с гербом
+192	Burgher pourpoint	Пурпуэн горожанина
+193	Thief's tunic	Рубаха вора
+194	Quilted coat	Стёганый плащ
+195	Teutonic lay brother's waffenrock	Тевтонский ваффенрок служки
+196	Long pourpoint - black	Чёрный длинный пурпуэн
+197	Waffenrock of the Lords of Garbow	Ваффенрок панов из Гарбува
+198	House of Polner waffenrock	Ваффенрок Полнеров
+199	Embroidered heater coat	Вышитый гербовый дублет
+200	Long pourpoint (style 2)	Длинный пурпуэн (фасон 2)
+201	Nimrod's coat	Плащ Нимрода
+202	Praguers' hemmed waffenrock	Пражский ваффенрок с каймой
+203	Courtier's pourpoint.	Пурпуэн придворного
+204	Erik's pourpoint	Пурпуэн Эрика
+205	Knight's waffenrock	Рыцарский ваффенрок
+206	Waffenrock of Henry's Forge	Ваффенрок кузницы Индржиха
+207	Fastened waffenrock	Ваффенрок с застёжками
+208	Drowner's gambeson	Гамбезон утопленника
+209	Noblewoman's cotehardie (style 3)	Дамское котарди (фасон 3)
+210	Halved Teutonic waffenrock	Двуцветный тевтонский ваффенрок
+211	Burgher coat (Injured Aulitz)	Дублет горожанина (Injured Aulitz)
+212	Burgher coat (heavy)	Дублет горожанина (тяжёлая версия)
+213	Kastenbrust (heavy)	Кастенбруст (тяжёлая версия)
+214	Short aketon (style 7)	Короткий акетон (фасон 7)
+215	Thief's coat	Куртка вора
+216	Noble gambeson	Панский гамбезон
+217	Praguers' riding waffenrock	Пражский ваффенрок конника
+218	Teutonic waffenrock	Тевтонский ваффенрок
+219	Legate's tunic	Туника легата
+220	Ornate waffenrock	Украшенный ваффенрок
+221	Short pourpoint - black	Чёрный короткий пурпуэн
+222	Kastenbrust (reinforced)	Кастенбруст (усиленная версия)
+223	Short pourpoint	Короткий пурпуэн
+224	Courtier's coat	Куртка придворного
+225	Patron's coat	Плащ мецената
+226	Tyrol brocade cotehardie	Тирольское парчовое котарди
+227	Reinforced tempered sleeves	Закалённые укреплённые рукава
+228	Henry's blacksmith gloves	Кузнечные рукавицы Индро
+229	Hand wrap	Обмотки
+230	Noble gloves (reinforced)	Панские перчатки (усиленная версия)
+231	Thief's gloves	Перчатки вора
+232	Riding gloves (light)	Перчатки всадника (лёгкая версия)
+233	Drowned man's gloves	Перчатки утопленника
+234	Mitts	Рукавицы
+235	Leather gloves	Кожаные перчатки
+236	Riding gloves (heavy)	Перчатки всадника (тяжёлая версия)
+237	Pickpocket's gloves	Перчатки карманника
+238	Master huntsman's gloves	Перчатки мастера-ловчего
+239	Noble gloves	Панские перчатки
+240	Legate's gloves	Перчатки легата
+241	Poleyn	Наколенники
+242	Loose hose	Свободные штаны
+243	Simple hose	Простые штаны
+244	Vagrant's quilted hose	Стёганые штаны бродяги
+245	Water goblin's hose	Штаны водяного
+246	Beggar's hose	Штаны нищего
+247	Drowner's hose	Штаны утопленника
+248	Loose hose (Musa)	Свободные штаны (Musa)
+249	Pickpocket's hose	Штаны карманника
+250	Mended padded leggings	Починенные стёганые портки
+251	Old quilted hose	Старые стёганые штаны
+252	Vagrant's hose	Штаны бродяги
+253	Master huntsman's hose	Штаны мастера-ловчего
+254	Miner hose	Штаны рудокопа
+255	Gartered hose	Штаны с подвязками
+256	Plain troubadours' hose	Простые штаны трубадура
+257	Hose joined	Соединённые штаны
+258	Noble's quilted hose (plain)	Панские стёганые штаны
+259	Tied jester's hose	Связанные штаны скомороха
+260	Gartered hose (Sigismund)	Штаны с подвязками (Sigismund)
+262	Gartered hose (plain)	Штаны с подвязками (простые)
+263	Quilted hose - dark	Тёмные стёганые штаны
+264	Thief's hose	Штаны вора
+265	Courtier's hose	Штаны придворного
+266	Legate's hose	Штаны легата
+267	Padded chausses	Мягкие поножи
+268	Noble's quilted hose (reinforced)	Панские стёганые штаны (усиленная версия)
+269	Quilted hose	Стёганые штаны
+270	Vagrant's boots	Сапоги бродяги
+271	Jester shoes	Башмаки скомороха
+272	High boots	Высокие сапоги
+273	Common ladies shoes	Простые женские башмаки
+274	Common ladies shoes (Katherine)	Простые женские башмаки (Katherine)
+275	Firm boots	Прочные башмаки
+276	Work boots	Рабочие башмаки
+277	Riding boots	Сапоги всадника
+278	Travel boots	Сапоги путника
+279	Working boots	Туфли ремесленника
+280	Riding boots - high	Высокие сапоги всадника
+281	Ladies shoes	Женские башмаки
+282	Cuman boots	Половецкие сапоги
+283	Simple shoes	Простая обувь
+284	Pickpocket's shoes	Башмаки карманника
+285	Quiet boots	Тихие башмаки
+286	Rowel spurs	Шпоры с колёсиками
+287	Vagrant's shoes	Башмаки бродяги
+288	Thief's shoes	Башмаки вора
+290	Burgher's shoes	Обувь горожанина
+291	Noble boots	Панские сапоги
+292	Courtiers boots	Придворные башмаки
+293	Burgher's shoes (light)	Башмаки горожанина (лёгкая версия)
+294	Courtier's boots	Башмаки придворного
+295	Ladies shoes (style 2)	Женские башмаки (фасон 2)
+296	Soft shoes	Мягкие башмаки
+297	Soft boots	Мягкие сапоги
+298	Pointed shoes	Остроносые башмаки
+299	Master huntsman's boots	Сапоги мастера-ловчего
+300	Hungarian spurs	Венгерские шпоры
+301	Thief's shoes (light)	Башмаки вора (лёгкая версия)
+302	Noble's spurs	Панские шпоры
+303	Legate's shoes	Туфли легата
+304	Knight's spurs	Шпоры рыцаря
+306	Hunter's belt	Охотничий пояс
+307	Knight's belt	Рыцарский пояс
+308	Noble's belt	Панский пояс
+309	Soft leather bridle	Мягкая кожаная уздечка
+310	Bridle with plating	Уздечка с заклёпками
+311	Noseband bridle	Уздечка с носовым ремнём
+312	Unicorn chanfron	Шафрон единорога
+313	Wielun breeching	Велюньская упряжь
+314	Mainz breeching	Майнцская упряжь
+316	Prague saddle	Пражское седло
+317	Executioner's caparison simple	Простая попона палача
+318	Caparison á la peytral simple	Простая передняя попона
+319	Caparison á la crupper simple	Простая попона на круп
+320	Executioner's caparison quilted	Стёганая попона палача
+321	Hague breeching	Гаагская упряжь
+322	Halved caparison crenellated	Полупопона с зубцами
+323	Plain tourney caparison	Простая турнирная попона
+324	Sharukan bridle	Шаруканьская уздечка
+325	Zamur's bridle	Уздечка Замура
+326	Bridle of the Holy Roman Empire	Уздечка Священной Римской империи
+327	Caparison á la crupper decorated	Украшенная попона на круп
+328	Soldier's saddle	Воинское седло
+329	Quilted caparison with breeching	Стёганая попона с упряжью
+331	Tournament bridle	Турнирная уздечка
+332	Halved caparison decorated	Украшенная полупопона
+333	Executioner's caparison decorated	Украшенная попона палача
+334	Executioner's caparison with breeching	Попона палача с упряжью
+335	Tournament caparison quilted	Стёганая турнирная попона
+336	Caparison decorated	Украшенная попона
+337	Tournament caparison decorated	Украшенная турнирная попона
+338	Moglen saddle	Могленское седло
+339	Norman saddle	Норманнское седло
+340	Hungarian saddle	Венгерское седло
+341	Lovari saddle	Ловарийское седло
+342	Transylvanian knight's saddle	Трансильванское рыцарское седло
+343	Bravante saddle	Брабантское седло
+344	Bridon saddle	Бридонское седло
+345	Dragon saddle	Драгунское седло
+346	Cracowian saddle	Краковское седло

@@ -11,6 +11,7 @@ D['items']=[i for i in D['items'] if i['s'] in OLD]
 D['raw']=[r for r in D['raw'] if r[0] in {'fe','co','cuo','ag','nug','au','met','hd','nettle','log','antl','agp','exw','resin','shaft','cgold','enam','jasp','acid','shark','borax','dclaw','wfrag','baxe','stres'}]
 for k in list(D['mat']):
     if D['mat'][k].get('src')=='wiki': del D['mat'][k]
+D['icons']={k:v for k,v in D['icons'].items() if not k.startswith('g_')}
 rawk={r[0] for r in D['raw']}
 def key_of(name):
     g=G[name]; k=g[0]
@@ -53,6 +54,18 @@ def cat_b(n):
     return 'Огнестрел и заряды'
 KIND={'Beds':'Кровати','Benches':'Скамьи','Camp':'Лагерь','Chests & cupboards':'Сундуки и шкафы','Comfort':'Уют','Food':'Еда','Games':'Игры','Garden & yard':'Сад и двор','Illicit':'Запретное','Ladders':'Лестницы','Lighting':'Освещение','Ornaments':'Украшения','Seats':'Стулья','Shelves':'Полки','Tables':'Столы','Work & trade':'Работа и торговля'}
 SIZE={'small':'малый','middling':'средний','large':'большой','very large':'очень большой'}
+
+# game names + icons from in-game screenshots (tailoring)
+import base64,io
+from PIL import Image
+GAME={}; GICON={}
+try:
+    U=json.load(open('tess/uniq.json'))
+    for l in open('tr/game_tailoring.tsv',encoding='utf8'):
+        idx,en,ru=l.rstrip('\n').split('\t'); GAME[('t',en)]=ru
+        im=Image.open(f"tess/rows/{U[int(idx)]['k']}_i.png").convert('RGB').resize((72,72),Image.LANCZOS)
+        b=io.BytesIO(); im.save(b,'JPEG',quality=70); GICON[('t',en)]='data:image/jpeg;base64,'+base64.b64encode(b.getvalue()).decode()
+except FileNotFoundError: pass
 CATS={}
 for s,cid,label in SECS:
     items=[]
@@ -61,13 +74,15 @@ for s,cid,label in SECS:
     for k,l in EXIST.get(s,[]):
         items.append({'s':s,'l':l,'c':'Материалы','n':D['mat'][k]['n'],'r':{},'b':0,'m':k,'id':f'{s}:{D["mat"][k]["n"]}'})
     for it in w[cid]['items']:
-        ru=TR[it['n']]
+        ru=GAME.get((s,it['n']),TR[it['n']])
         if s=='t': c=cat_t(it['n'])
         elif s=='b': c=cat_b(it['n'])
         elif s=='cp': c=KIND[it['kind'].split(', ')[0]]
         else: c={'j':'Украшения','al':'Зелья и снадобья','ck':'Еда','br':'Напитки'}[s]
         note=it['n']+(f' · {it["var"]} вар.' if it['var'] else '')+(f' · {SIZE[it["kind"].split(", ")[1]]}' if s=='cp' else '')
         x={'s':s,'l':it['l'],'c':c,'n':ru,'en':it['n'],'note':note,'r':{key_of(n):q for n,q in it['inp'].items()},'b':it['fee'],'id':f'{s}:{ru}'}
+        if (s,it['n']) in GICON:
+            ic='g_'+s+'_'+str(len(D['icons'])); D['icons'][ic]=GICON[(s,it['n'])]; x['ic']=ic
         if it['out']>1: x['o']=it['out']
         if it['var']: x['var']=it['var']
         items.append(x)
@@ -79,6 +94,11 @@ for s,_,_ in SECS: D['cats'][s]=CATS[s]
 D['secs']=[['a','Броня','Рецепты со скринов верстака бронника.'],['w','Оружие','Рецепты со скринов верстака кузнеца.']]+[[s,label,'Рецепты с вики сервера (wiki.kcdroleplay.com), названия переведены с английского и могут не совпадать с игрой слово в слово. Оригинальное название под каждой вещью.'] for s,_,label in SECS]
 # auction ids for new raws + mats
 D['api']={g[2]:g[1] for g in G.values() if g[2] and g[1]}
+seen_ids=set()
+for i in D['items']:
+    if i['id'] in seen_ids and i.get('en'):
+        i['n']=i['n']+' ('+i['en']+')'; i['id']=i['s']+':'+i['n']
+    seen_ids.add(i['id'])
 ids=[i['id'] for i in D['items']]; assert len(ids)==len(set(ids)), [x for x in ids if ids.count(x)>1][:5]
 open(R+'data.js','w').write(head+' '+json.dumps(D,ensure_ascii=False,separators=(',',':'))+';\n')
 from collections import Counter
