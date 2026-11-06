@@ -57,13 +57,18 @@ SIZE={'small':'малый','middling':'средний','large':'большой',
 
 # game names + icons from in-game screenshots (tailoring)
 import base64,io
-from PIL import Image
+from PIL import Image, ImageOps, ImageEnhance
+def unlock_fix(im):
+    # icons of locked recipes are dimmed in game: lift shadows, contrast, colour
+    lut=[min(255,int(255*((x/255)**0.7))) for x in range(256)]*3
+    return ImageEnhance.Color(ImageOps.autocontrast(im.point(lut),cutoff=0.5)).enhance(1.25)
 GAME={}; GICON={}
 try:
     U=json.load(open('tess/uniq.json'))
     for l in open('tr/game_tailoring.tsv',encoding='utf8'):
         idx,en,ru=l.rstrip('\n').split('\t'); GAME[('t',en)]=ru
         im=Image.open(f"tess/rows/{U[int(idx)]['k']}_i.png").convert('RGB').resize((72,72),Image.LANCZOS)
+        if U[int(idx)].get('locked'): im=unlock_fix(im)
         b=io.BytesIO(); im.save(b,'JPEG',quality=70); GICON[('t',en)]='data:image/jpeg;base64,'+base64.b64encode(b.getvalue()).decode()
 except FileNotFoundError: pass
 CATS={}
