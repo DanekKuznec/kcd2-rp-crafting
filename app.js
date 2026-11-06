@@ -658,8 +658,23 @@ document.getElementById("cclear").addEventListener("click", () => {
   renderClientInputs();
   renderOrder();
 });
+// Склад: ресурсы и заготовки открытого ремесла (броня и оружие вместе) + всё, что нужно на текущий заказ.
+function secKeys() {
+  const list = sec === "a" || sec === "w" ? ["a", "w"] : [sec],
+    out = new Set(),
+    walk = k => {
+      out.add(k);
+      if (MAT[k]) Object.keys(MAT[k].inp).forEach(walk);
+    };
+  ITEMS.filter(i => list.includes(i.s)).forEach(i => {
+    if (i.m) walk(i.m);
+    else Object.keys(i.r).forEach(walk);
+  });
+  const tk = treeKeys();
+  return ALLK.filter(k => out.has(k) || tk.has(k));
+}
 function renderStockInputs() {
-  const ks = showAll ? ALLK : visKeys(stock);
+  const ks = showAll ? ALLK : secKeys();
   sb.innerHTML = ks.length
     ? ks
         .map(
@@ -667,7 +682,7 @@ function renderStockInputs() {
             `<div class="pf"><label for="s_${k}">${esc(NAME[k])}${MAT[k] ? ' <span class="rtag">заготовка</span>' : ""}</label><input id="s_${k}" data-s="${k}" type="number" min="0" step="1" inputmode="numeric" value="${stock[k] || ""}"></div>`,
         )
         .join("")
-    : `<span class="hint">Пусто. Добавь вещи в заказ или включи «Показать все ресурсы».</span>`;
+    : `<span class="hint">Пусто. Включи «Показать все ресурсы».</span>`;
 }
 sb.addEventListener("input", e => {
   const k = e.target.dataset.s;
@@ -837,6 +852,7 @@ secs.addEventListener("click", e => {
   save();
   renderCatalogNav();
   renderTable();
+  renderStockInputs();
 });
 secs.innerHTML = DATA.secs.map(([k, n]) => `<button type="button" data-s="${k}">${esc(n)}</button>`).join("");
 if (!SECNAME[sec]) sec = "a";
