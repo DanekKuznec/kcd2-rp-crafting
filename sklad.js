@@ -69,12 +69,15 @@
     S.members = mem || [];
     S.me = S.members.find(m => m.user_id === S.user.id) || { rank: 0, admin: false, name: "", rp_name: "" };
     if (S.me.rank >= 1 || S.me.admin) {
-      const { data: mv, error: e2 } = await sb.from("moves").select("*").order("created_at", { ascending: false }).limit(2000);
+      const { data: mv, error: e2 } = await sb.from("moves").select("*").order("created_at", { ascending: false }).limit(1000);
       S.moves = mv || [];
       const { data: lm } = await sb.from("limits").select("*");
       S.limits = Object.fromEntries((lm || []).map(l => [l.res, l]));
+      // остатки считает база по ВСЕМ записям (вид stock), журнал грузим только последние
+      const { data: st, error: e3 } = await sb.from("stock").select("*");
       S.stock = {};
-      S.moves.forEach(m => (S.stock[m.res] = (S.stock[m.res] || 0) + m.qty));
+      if (!e3 && Array.isArray(st)) st.forEach(r => (S.stock[r.res] = +r.qty || 0));
+      else S.moves.forEach(m => (S.stock[m.res] = (S.stock[m.res] || 0) + m.qty));
       const { data: go } = await sb.from("gorders").select("*").order("created_at", { ascending: false }).limit(200);
       S.gorders = go || [];
       S.err = (e1 || e2 || {}).message || "";
@@ -143,8 +146,8 @@
         .filter(x => x.rank > 0 || x.admin || x.user_id === m.user_id)
         .map(x => `<option value="${x.user_id}" ${x.user_id === m.user_id ? "selected" : ""}>${esc(disp(x))}</option>`)
         .join("")}</select>`;
-    h += `<h3>Журнал</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
-      S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m) : esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-id="${m.id}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
+    h += `<h3>Журнал <span class="hint" style="font-family:inherit;text-transform:none;letter-spacing:0">${S.moves.length >= 1000 ? "последние 1000 записей" : "записей: " + S.moves.length}</span></h3><div class="tablebox sk-jbox"><table class="mini sk-journal"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
+      S.moves.map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m) : esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-id="${m.id}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
     }</tbody></table></div>`;
     // участники: ранги видят все, менять могут управляющий, цехмейстер и старейшина
     const mine = m => m.user_id === S.user.id,
@@ -180,7 +183,7 @@
     } else if (t.dataset.del) {
       if (t.dataset.armed !== "1") {
         t.dataset.armed = "1";
-        t.textContent = "удалить?";
+        t.textContent = "удалить? остаток изменится";
         return;
       }
       const { error } = await sb.from("moves").delete().eq("id", t.dataset.del);
@@ -345,7 +348,24 @@
   }
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
   const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
-  let gArm = "";
+  let gArm = "", gDone = null, gPlan = null, gMsgId = null, gMsgTxt = "", gSendNote = "";
+  const gNoteTxt = g => `Заказ цеха «${g.name || "Заказ"}» · ${(g.note || "").trim()}`.slice(0, 200);
+  // посчитать заказ цеха теми же функциями, что и свой заказ (временно подменяем текущий заказ и склад)
+  function calcG(g, guildStock) {
+    const tmp = newOrder(g.name || "Заказ");
+    tmp.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
+    tmp.manual = +g.manual > 0 ? String(g.manual) : "";
+    const savedO = orders[cur], savedS = stock;
+    orders[cur] = tmp;
+    if (guildStock) stock = guildStock;
+    try {
+      const b = breakdown();
+      return { b, pr: priceOf(b) };
+    } finally {
+      orders[cur] = savedO;
+      stock = savedS;
+    }
+  }
   function gRender() {
     if (!zak) return;
     const ok = S.user && S.me && (S.me.rank >= 1 || S.me.admin);
@@ -379,26 +399,49 @@
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
     let h = `<p class="hint" style="margin:6px 0">Общие заказы цеха: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
-      ${canMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canMove() ? "" : " hidden"}><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить в цех мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
+      ${canMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canMove() ? "" : " hidden"}><input id="g-sendnote" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gSendNote)}" style="flex:1;min-width:120px"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить в цех мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
       <p class="hint" id="g-msg"></p>`;
     const list = S.gorders;
     h += list.length
       ? list
           .map(g => {
-            const items = Object.entries(g.items || {}).map(([id, q]) => `${esc(itemName(id))} ×${num(q)}`).join(", ") || "—";
             const takenMe = g.taken_by === uid,
-              canDel = g.created_by === uid || canApprove();
+              canDel = g.created_by === uid || canApprove(),
+              canNoteG = g.created_by === uid || takenMe || canApprove();
+            let c;
+            try { c = calcG(g); } catch (_) { c = null; }
+            const ids = Object.keys(g.items || {}).filter(id => typeof BYID !== "undefined" && BYID[id]);
+            const tilesH = ids.length
+              ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${num(g.items[id])}</span><span class="tn">${esc(i.n)}</span></div>`; }).join("")}</div>`
+              : '<p class="hint">Вещей нет.</p>';
+            let sumH = "";
+            if (c && c.b.t.n) {
+              const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench, raw = t.cost - bench, pct = t.cost ? Math.round((pr.labor / t.cost) * 100) : 0;
+              sumH = `<div class="sum">
+                <span class="k">Вещей</span><span class="v">${t.n}</span>
+                <span class="k">Материалы</span><span class="v">${fmt(raw)} гр.</span>
+                <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
+                <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
+                <span class="k">Цена заказчику</span><span class="v big pv">${fmt(Math.round(pr.full))} гр.</span></div>`;
+            }
             const btns = [
               g.status === "new" && !g.taken_by && canMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
-              takenMe && g.status === "work" ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Готово</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
+              takenMe && g.status === "work" && gDone !== g.id ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Выполнил</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
               takenMe && g.status === "done" ? `<button class="btn" data-g="reopen" data-id="${g.id}" type="button">Не готово</button>` : "",
               `<button class="btn" data-g="copy" data-id="${g.id}" type="button" title="Создать такой же заказ у себя, чтобы посчитать сырьё">В мои заказы</button>`,
               canDel ? `<button class="btn" data-g="del" data-id="${g.id}" type="button">${gArm === "del" + g.id ? "Точно удалить?" : "Удалить"}</button>` : "",
             ].join("");
+            let doneH = "";
+            if (gDone === g.id && gPlan) {
+              const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
+              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада цеха:" : "Со склада цеха списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе цеха не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p><button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
+            }
             return `<div class="gcard st-${g.status}"><div class="gtop"><b>${esc(g.name || "Заказ")}</b><span class="gst">${ST[g.status]}${g.taken_by ? " · " + esc(who(g.taken_by)) : ""}</span></div>
-              <div class="gitems">${items}</div>
+              ${tilesH}${sumH}
               <div class="hint">от ${esc(who(g.created_by))} · ${when(g.created_at)}${g.due ? " · срок " + esc(g.due) : ""}</div>
-              ${g.note ? `<div class="gnote">${esc(g.note)}</div>` : ""}
+              <div class="gnote">${canNoteG ? `<input class="g-note" data-id="${g.id}" maxlength="300" value="${esc(g.note)}" placeholder="Для кого или номер заказа (нужно, чтобы выполнить)">` : g.note ? esc(g.note) : '<span class="hint">без заметки</span>'}</div>
+              ${gMsgId === g.id && gMsgTxt ? `<p class="warn" style="margin:4px 0">${esc(gMsgTxt)}</p>` : ""}
+              ${doneH}
               <div class="obar">${btns}</div></div>`;
           })
           .join("")
@@ -412,6 +455,17 @@
     try { localStorage.setItem("forge-otab", otab); } catch (_) {}
     gRender();
   });
+  gbox.addEventListener("input", e => {
+    if (e.target.id === "g-sendnote") gSendNote = e.target.value;
+  });
+  gbox.addEventListener("change", async e => {
+    const t = e.target;
+    if (!t.classList.contains("g-note")) return;
+    const { error } = await sb.from("gorders").update({ note: t.value.trim().slice(0, 300) }).eq("id", t.dataset.id);
+    if (error) { gMsgId = +t.dataset.id; gMsgTxt = "Заметка не сохранилась: " + error.message; return load(); }
+    const g = S.gorders.find(x => String(x.id) === t.dataset.id);
+    if (g) g.note = t.value.trim().slice(0, 300);
+  });
   const gMsg = m => { const el = document.getElementById("g-msg"); if (el) el.textContent = m; };
   gbox.addEventListener("click", async e => {
     const b = e.target.closest("button");
@@ -421,8 +475,9 @@
       const o = O();
       const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
       if (!Object.keys(items).length) return gMsg("В твоём заказе нет вещей.");
-      const { error } = await sb.from("gorders").insert({ name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual > 0 ? +o.manual : 0, status: "new", created_by: S.user.id });
       if (error) return gMsg("Не отправилось: " + error.message);
+      gSendNote = "";
       return load();
     }
     const g = S.gorders.find(x => String(x.id) === b.dataset.id);
@@ -431,7 +486,36 @@
     let patch = null;
     if (act === "take") patch = { taken_by: S.user.id, status: "work" };
     if (act === "drop") patch = { taken_by: null, status: "new" };
-    if (act === "done") patch = { status: "done" };
+    gMsgId = null;
+    if (act === "done") {
+      const ni = gbox.querySelector(`.g-note[data-id="${g.id}"]`);
+      if (ni && ni.value.trim() !== (g.note || "")) {
+        const { error } = await sb.from("gorders").update({ note: ni.value.trim().slice(0, 300) }).eq("id", g.id);
+        if (!error) g.note = ni.value.trim().slice(0, 300);
+      }
+      if (!(g.note || "").trim()) {
+        gMsgId = g.id;
+        gMsgTxt = "Сначала впиши в заметку, для кого заказ или его номер.";
+        return gRender();
+      }
+      const c = calcG(g, Object.fromEntries(Object.entries(S.stock).filter(([, v]) => v > 0)));
+      gPlan = { take: [...c.b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...c.b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])], lack: c.b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]) };
+      gDone = g.id;
+      return gRender();
+    }
+    if (act === "done-no") {
+      gDone = gPlan = null;
+      return gRender();
+    }
+    if (act === "done-yes") {
+      if (gPlan && gPlan.take.length) {
+        const note = gNoteTxt(g);
+        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ res: k, qty: -n, note, user_id: S.user.id })));
+        if (error) { gMsgId = g.id; gMsgTxt = "Не списалось: " + error.message; return gRender(); }
+      }
+      gDone = gPlan = null;
+      patch = { status: "done" };
+    }
     if (act === "reopen") patch = { status: "work" };
     if (patch) {
       const { error } = await sb.from("gorders").update(patch).eq("id", g.id);

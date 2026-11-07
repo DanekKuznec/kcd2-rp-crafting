@@ -320,3 +320,10 @@ body{padding-block:12px 90px}
 .gcard .obar{margin-top:6px;flex-wrap:wrap;gap:5px}.gcard .btn{padding:3px 9px;font-size:13px}
 #zakaz.cex > :not(h2):not(.otabs):not(#gord){display:none !important}
 #gord{flex:0 0 auto}
+.gcard .tiles{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin:6px 0}
+.gcard .sum{margin:6px 0;font-size:13.5px}
+.gcard .g-note{width:100%;font:inherit;font-size:13.5px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);margin-top:4px}
+#g-sendnote{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)}
+.gcard .sk-wo-box{margin:6px 0;padding:8px;border:1px dashed var(--line);border-radius:6px}.gcard .sk-wo-box ul{margin:4px 0 6px 18px;padding:0}
+.sk-jbox{max-height:calc(20 * 34px + 34px);overflow-y:auto}
+.sk-journal thead th{position:sticky;top:0;background:var(--paper);z-index:1}
