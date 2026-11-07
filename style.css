@@ -348,3 +348,4 @@ section.view.jfac > section.panel:not(.fjbox){display:none}
 .sk-pd{position:absolute;top:3px;left:6px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:2px}
 .sk-pdx{border:0;background:none;color:var(--muted);cursor:pointer;padding:0 2px;font-size:13px}
 .sk-what{font-size:13px;line-height:1.35}
+.tablebox.sk-jbox,.left .tablebox.sk-jbox{overflow:auto;max-height:calc(20 * 34px + 34px)}
