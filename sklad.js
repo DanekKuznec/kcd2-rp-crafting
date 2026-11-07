@@ -379,7 +379,7 @@
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
     let h = `<p class="hint" style="margin:6px 0">Общие заказы цеха: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
-      <div class="obar"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить в цех мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
+      ${canMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canMove() ? "" : " hidden"}><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить в цех мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
       <p class="hint" id="g-msg"></p>`;
     const list = S.gorders;
     h += list.length
@@ -389,7 +389,7 @@
             const takenMe = g.taken_by === uid,
               canDel = g.created_by === uid || canApprove();
             const btns = [
-              g.status === "new" && !g.taken_by ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
+              g.status === "new" && !g.taken_by && canMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
               takenMe && g.status === "work" ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Готово</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
               takenMe && g.status === "done" ? `<button class="btn" data-g="reopen" data-id="${g.id}" type="button">Не готово</button>` : "",
               `<button class="btn" data-g="copy" data-id="${g.id}" type="button" title="Создать такой же заказ у себя, чтобы посчитать сырьё">В мои заказы</button>`,
@@ -416,6 +416,7 @@
   gbox.addEventListener("click", async e => {
     const b = e.target.closest("button");
     if (!b) return;
+    if (!canMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
     if (b.id === "g-send") {
       const o = O();
       const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
