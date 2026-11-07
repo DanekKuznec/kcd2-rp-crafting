@@ -638,6 +638,62 @@
   }
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
   const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
+  // черновик нового заказа фракции: пока открыта вкладка «Заказ фракции», «+» в рецептах кладёт вещи сюда
+  let gDraft = { name: "", qty: {}, note: "", manual: 0 };
+  try { gDraft = { ...gDraft, ...JSON.parse(localStorage.getItem("forge-gdraft") || "{}") }; } catch (_) {}
+  const saveDraft = () => { try { localStorage.setItem("forge-gdraft", JSON.stringify(gDraft)); } catch (_) {} };
+  const draftOn = () => otab === "cex" && canFacMove();
+  const draftCnt = () => Object.values(gDraft.qty).reduce((a, b) => a + (+b || 0), 0);
+  function setDraft(id, v) {
+    v = Math.max(0, v | 0);
+    if (v) gDraft.qty[id] = v;
+    else delete gDraft.qty[id];
+    saveDraft();
+    syncTable();
+    gRender();
+  }
+  // таблица рецептов показывает количество того заказа, куда сейчас идёт «+»
+  const tbEl = document.getElementById("tb");
+  function syncTable() {
+    if (!tbEl) return;
+    const src = draftOn() ? gDraft.qty : typeof Q === "function" ? Q() : {};
+    tbEl.querySelectorAll("input.qty").forEach(inp => {
+      if (document.activeElement === inp) return;
+      const v = src[inp.dataset.k] || "";
+      if (String(inp.value) !== String(v)) inp.value = v;
+      const tr = inp.closest("tr");
+      if (tr) tr.classList.toggle("picked", !!v);
+    });
+    document.body.classList.toggle("gdraft", draftOn());
+  }
+  if (tbEl) {
+    tbEl.addEventListener(
+      "click",
+      e => {
+        const b = e.target.closest(".add");
+        if (!b || !draftOn()) return;
+        e.stopImmediatePropagation();
+        setDraft(b.dataset.k, (gDraft.qty[b.dataset.k] || 0) + 1);
+      },
+      true,
+    );
+    tbEl.addEventListener(
+      "input",
+      e => {
+        const t = e.target;
+        if (!t.classList.contains("qty") || !draftOn()) return;
+        e.stopImmediatePropagation();
+        const v = Math.max(0, parseInt(t.value) || 0);
+        if (v) gDraft.qty[t.dataset.k] = v;
+        else delete gDraft.qty[t.dataset.k];
+        saveDraft();
+        t.closest("tr").classList.toggle("picked", !!v);
+        gRender();
+      },
+      true,
+    );
+    new MutationObserver(() => { if (draftOn()) syncTable(); }).observe(tbEl, { childList: true });
+  }
   let gArm = "", gDone = null, gPlan = null, gMsgId = null, gMsgTxt = "", gSendNote = "";
   const gNoteTxt = g => `Заказ фракции «${g.name || "Заказ"}» · ${(g.note || "").trim()}`.slice(0, 200);
   // посчитать заказ цеха теми же функциями, что и свой заказ (временно подменяем текущий заказ и склад)
@@ -655,6 +711,24 @@
     } finally {
       orders[cur] = savedO;
     }
+  }
+  function draftHtml(mine, myCnt) {
+    const ids = Object.keys(gDraft.qty).filter(id => BYID[id]).sort((a, b) => BYID[a].s.localeCompare(BYID[b].s) || BYID[a].l - BYID[b].l);
+    let sumH = "";
+    if (ids.length) {
+      try {
+        const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual });
+        const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
+        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}</div>`;
+      } catch (_) {}
+    }
+    return `<div class="gdraft-box"><h3 style="margin:0 0 4px">Новый заказ фракции</h3>
+      <p class="hint" style="margin:0 0 6px">Пока открыта эта вкладка, «+» в рецептах добавляет вещи сюда, а не в твой заказ.</p>
+      <input id="gd-name" maxlength="80" placeholder="Название заказа" value="${esc(gDraft.name)}">
+      ${ids.length ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${gDraft.qty[id]}</span><span class="tn">${esc(i.n)}</span><span class="ctl"><button type="button" data-gd="${esc(id)}" data-d="-1">−</button><button type="button" data-gd="${esc(id)}" data-d="1">+</button><button type="button" data-gd="${esc(id)}" data-d="x">×</button></span></div>`; }).join("")}</div>` : '<div class="empty">Нажми «+» у вещи в рецептах, и она появится здесь.</div>'}
+      ${sumH}
+      <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
+      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length ? "" : "disabled"}>Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
   }
   function gRender() {
     if (!zak) return;
@@ -687,7 +761,7 @@
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
     let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(ofac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
-      ${canFacMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canFacMove() ? "" : " hidden"}><input id="g-sendnote" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gSendNote)}" style="flex:1;min-width:120px"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить во фракцию мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
+      ${canFacMove() ? draftHtml(mine, myCnt) : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}
       <p class="hint" id="g-msg"></p>`;
     const list = S.gorders;
     h += list.length
@@ -744,15 +818,25 @@
     otab = b.dataset.t;
     try { localStorage.setItem("forge-otab", otab); } catch (_) {}
     gRender();
+    syncTable();
   });
   gbox.addEventListener("keydown", e => {
     if (e.key === "Enter" && e.target.classList.contains("g-price")) e.target.blur();
   });
   gbox.addEventListener("input", e => {
+    if (e.target.id === "gd-name") { gDraft.name = e.target.value; saveDraft(); }
+    if (e.target.id === "gd-note") { gDraft.note = e.target.value; saveDraft(); }
     if (e.target.id === "g-sendnote") gSendNote = e.target.value;
   });
   gbox.addEventListener("change", async e => {
     const t = e.target;
+    if (t.id === "gd-price") {
+      let v = Math.max(0, Math.round(+t.value || 0));
+      try { if (Math.round(calcG({ items: gDraft.qty, manual: 0 }).pr.calc) === v) v = 0; } catch (_) {}
+      gDraft.manual = v;
+      saveDraft();
+      return gRender();
+    }
     if (t.classList.contains("g-price")) {
       const g = S.gorders.find(x => String(x.id) === t.dataset.id);
       if (!g) return;
@@ -775,6 +859,39 @@
     const b = e.target.closest("button");
     if (!b) return;
     if (!canFacMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
+    if (b.dataset.gd) {
+      const id = b.dataset.gd, d = b.dataset.d;
+      return setDraft(id, d === "x" ? 0 : (gDraft.qty[id] || 0) + +d);
+    }
+    if (b.id === "gd-preset") { gDraft.manual = 0; saveDraft(); return gRender(); }
+    if (b.id === "gd-clear") {
+      if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Точно очистить?"; return; }
+      gDraft = { name: "", qty: {}, note: "", manual: 0 };
+      saveDraft();
+      syncTable();
+      return gRender();
+    }
+    if (b.id === "gd-mine") {
+      const o = O();
+      gDraft.qty = { ...gDraft.qty };
+      Object.entries(o.qty || {}).forEach(([id, q]) => (gDraft.qty[id] = (gDraft.qty[id] || 0) + q));
+      if (!gDraft.name) gDraft.name = o.name || "";
+      saveDraft();
+      syncTable();
+      return gRender();
+    }
+    if (b.id === "gd-send") {
+      if (b.disabled) return;
+      const items = Object.fromEntries(Object.entries(gDraft.qty).filter(([id, q]) => +q > 0 && BYID[id]));
+      if (!Object.keys(items).length) return gMsg("В заказе нет вещей.");
+      b.disabled = true;
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, status: "new", created_by: S.user.id });
+      if (error) { b.disabled = false; return gMsg("Не отправилось: " + error.message); }
+      gDraft = { name: "", qty: {}, note: "", manual: 0 };
+      saveDraft();
+      syncTable();
+      return load();
+    }
     if (b.id === "g-send") {
       if (b.disabled) return;
       b.disabled = true;
@@ -855,7 +972,8 @@
       switchOrder();
       otab = "my";
       try { localStorage.setItem("forge-otab", otab); } catch (_) {}
-      return gRender();
+      gRender();
+      return syncTable();
     }
     if (act === "del") {
       if (gArm !== "del" + g.id) { gArm = "del" + g.id; return gRender(); }
@@ -886,6 +1004,7 @@
     if ((srcFac && canFacView()) || window.SRC_FAC) applySrc();
     else woRender();
     gRender();
+    syncTable();
   };
 
   // нельзя ждать запросы прямо внутри onAuthStateChange - supabase-js может зависнуть, поэтому через setTimeout

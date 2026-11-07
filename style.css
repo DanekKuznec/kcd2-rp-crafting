@@ -349,3 +349,8 @@ section.view.jfac > section.panel:not(.fjbox){display:none}
 .sk-pdx{border:0;background:none;color:var(--muted);cursor:pointer;padding:0 2px;font-size:13px}
 .sk-what{font-size:13px;line-height:1.35}
 .tablebox.sk-jbox,.left .tablebox.sk-jbox{overflow:auto;max-height:calc(20 * 34px + 34px)}
+.gdraft-box{border:1px solid var(--copper,#b07a3c);border-radius:8px;padding:8px 10px;margin:6px 0 10px;display:flex;flex-direction:column;gap:6px}
+.gdraft-box input#gd-name,.gdraft-box input#gd-note{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)}
+.gdraft-box .tiles{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px}
+.gdraft-box .sum{font-size:13.5px}
+body.gdraft #tb .add{background:var(--copper,#b07a3c);color:#fff;border-color:var(--copper,#b07a3c)}
