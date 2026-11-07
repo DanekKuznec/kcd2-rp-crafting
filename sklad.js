@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", limOpen: false, err: "" };
+  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -75,8 +75,10 @@
       S.limits = Object.fromEntries((lm || []).map(l => [l.res, l]));
       S.stock = {};
       S.moves.forEach(m => (S.stock[m.res] = (S.stock[m.res] || 0) + m.qty));
+      const { data: go } = await sb.from("gorders").select("*").order("created_at", { ascending: false }).limit(200);
+      S.gorders = go || [];
       S.err = (e1 || e2 || {}).message || "";
-    }
+    } else S.gorders = [];
     render();
   }
 
@@ -322,10 +324,141 @@
       setTimeout(() => woRender(), 4000);
     }
   });
+
+  // --- Вкладка «Заказ цеху» в панели заказов (только подтверждённые участники)
+  const zak = document.getElementById("zakaz");
+  let otab = "my";
+  try { otab = localStorage.getItem("forge-otab") || "my"; } catch (_) {}
+  const tabs = document.createElement("div");
+  tabs.className = "seg otabs";
+  tabs.hidden = true;
+  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказ цеху</button>';
+  const gbox = document.createElement("div");
+  gbox.id = "gord";
+  gbox.hidden = true;
+  if (zak) {
+    zak.querySelector("h2").after(tabs);
+    zak.appendChild(gbox);
+  }
+  const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
+  const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
+  let gArm = "";
+  function gRender() {
+    if (!zak) return;
+    const ok = S.user && S.me && (S.me.rank >= 1 || S.me.admin);
+    tabs.hidden = !ok;
+    const t = ok ? otab : "my";
+    tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
+    // кнопка списания со склада цеха прямо в панели заказа
+    let wb = document.getElementById("g-wo");
+    if (!wb && document.getElementById("odel")) {
+      wb = document.createElement("button");
+      wb.id = "g-wo";
+      wb.className = "btn";
+      wb.type = "button";
+      wb.textContent = "Списать со склада цеха";
+      wb.title = "Показать, что возьмётся со склада цеха на этот заказ, и списать после подтверждения";
+      document.getElementById("odel").after(wb);
+      wb.addEventListener("click", () => {
+        const go = document.querySelector('[data-goview="calc"]');
+        if (go) go.click();
+        setTimeout(() => {
+          const b = document.getElementById("sk-wo-go");
+          if (b) { b.click(); document.getElementById("sk-wo").scrollIntoView({ block: "center" }); }
+        }, 50);
+      });
+    }
+    if (wb) wb.hidden = !ok;
+    zak.classList.toggle("cex", t === "cex");
+    gbox.hidden = t !== "cex";
+    if (t !== "cex") return;
+    const mine = typeof O === "function" ? O() : null,
+      myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
+    const uid = S.user.id;
+    let h = `<p class="hint" style="margin:6px 0">Общие заказы цеха: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
+      <div class="obar"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить в цех мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
+      <p class="hint" id="g-msg"></p>`;
+    const list = S.gorders;
+    h += list.length
+      ? list
+          .map(g => {
+            const items = Object.entries(g.items || {}).map(([id, q]) => `${esc(itemName(id))} ×${num(q)}`).join(", ") || "—";
+            const takenMe = g.taken_by === uid,
+              canDel = g.created_by === uid || canApprove();
+            const btns = [
+              g.status === "new" && !g.taken_by ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
+              takenMe && g.status === "work" ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Готово</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
+              takenMe && g.status === "done" ? `<button class="btn" data-g="reopen" data-id="${g.id}" type="button">Не готово</button>` : "",
+              `<button class="btn" data-g="copy" data-id="${g.id}" type="button" title="Создать такой же заказ у себя, чтобы посчитать сырьё">В мои заказы</button>`,
+              canDel ? `<button class="btn" data-g="del" data-id="${g.id}" type="button">${gArm === "del" + g.id ? "Точно удалить?" : "Удалить"}</button>` : "",
+            ].join("");
+            return `<div class="gcard st-${g.status}"><div class="gtop"><b>${esc(g.name || "Заказ")}</b><span class="gst">${ST[g.status]}${g.taken_by ? " · " + esc(who(g.taken_by)) : ""}</span></div>
+              <div class="gitems">${items}</div>
+              <div class="hint">от ${esc(who(g.created_by))} · ${when(g.created_at)}${g.due ? " · срок " + esc(g.due) : ""}</div>
+              ${g.note ? `<div class="gnote">${esc(g.note)}</div>` : ""}
+              <div class="obar">${btns}</div></div>`;
+          })
+          .join("")
+      : '<p class="hint">Заказов цеху пока нет.</p>';
+    gbox.innerHTML = h;
+  }
+  tabs.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    otab = b.dataset.t;
+    try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+    gRender();
+  });
+  const gMsg = m => { const el = document.getElementById("g-msg"); if (el) el.textContent = m; };
+  gbox.addEventListener("click", async e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.id === "g-send") {
+      const o = O();
+      const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
+      if (!Object.keys(items).length) return gMsg("В твоём заказе нет вещей.");
+      const { error } = await sb.from("gorders").insert({ name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), status: "new", created_by: S.user.id });
+      if (error) return gMsg("Не отправилось: " + error.message);
+      return load();
+    }
+    const g = S.gorders.find(x => String(x.id) === b.dataset.id);
+    if (!g) return;
+    const act = b.dataset.g;
+    let patch = null;
+    if (act === "take") patch = { taken_by: S.user.id, status: "work" };
+    if (act === "drop") patch = { taken_by: null, status: "new" };
+    if (act === "done") patch = { status: "done" };
+    if (act === "reopen") patch = { status: "work" };
+    if (patch) {
+      const { error } = await sb.from("gorders").update(patch).eq("id", g.id);
+      if (error) gMsg("Не вышло: " + error.message);
+      return load();
+    }
+    if (act === "copy") {
+      const o = newOrder((g.name || "Заказ цеха").slice(0, 40));
+      o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => typeof BYID === "undefined" || BYID[id]));
+      o.due = g.due || "";
+      orders.push(o);
+      cur = orders.length - 1;
+      save();
+      switchOrder();
+      otab = "my";
+      try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+      return gRender();
+    }
+    if (act === "del") {
+      if (gArm !== "del" + g.id) { gArm = "del" + g.id; return gRender(); }
+      gArm = "";
+      const { error } = await sb.from("gorders").delete().eq("id", g.id);
+      if (error) gMsg("Не удалилось: " + error.message);
+      return load();
+    }
+  });
   const _render = render;
   render = function () {
     _render();
     if (!woCur) woRender();
+    gRender();
   };
 
   // нельзя ждать запросы прямо внутри onAuthStateChange - supabase-js может зависнуть, поэтому через setTimeout
@@ -335,6 +468,7 @@
   sb.channel("sklad")
     .on("postgres_changes", { event: "*", schema: "public", table: "moves" }, () => load())
     .on("postgres_changes", { event: "*", schema: "public", table: "members" }, () => load())
+    .on("postgres_changes", { event: "*", schema: "public", table: "gorders" }, () => load())
     .subscribe();
   load();
   }

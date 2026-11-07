@@ -312,3 +312,11 @@ body{padding-block:12px 90px}
 .sk-pm:hover{background:var(--copper,#b07a3c);color:#fff}
 .sk-lims{margin-top:12px}.sk-lims summary{cursor:pointer;font-family:var(--f-head)}
 .sk-mnote{width:100%;min-width:140px;font:inherit;font-size:13px;padding:2px 6px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink)}.sk-mnote:hover,.sk-mnote:focus{border-color:var(--line);background:var(--field)}
+.otabs{display:flex;flex:0 0 auto;margin:0}.otabs button{flex:1}
+.gcard{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0;background:var(--field)}
+.gcard.st-work{border-left:3px solid var(--copper,#b07a3c)}.gcard.st-done{opacity:.7;border-left:3px solid var(--ok,#6a8f4e)}
+.gtop{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.gst{font-size:12px;color:var(--muted);white-space:nowrap}
+.gitems{font-size:13.5px;margin:3px 0}.gnote{font-size:13px;margin-top:3px}
+.gcard .obar{margin-top:6px;flex-wrap:wrap;gap:5px}.gcard .btn{padding:3px 9px;font-size:13px}
+#zakaz.cex > :not(h2):not(.otabs):not(#gord){display:none !important}
+#gord{flex:0 0 auto}
