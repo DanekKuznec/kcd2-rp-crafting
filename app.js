@@ -106,6 +106,7 @@ const cleanOrders = arr =>
     client: o.client || {},
     done: !!o.done,
     snap: o.snap,
+    facDone: o.facDone || "",
     steps: o.steps || {},
     due: o.due || "",
     pay: o.pay || "no",

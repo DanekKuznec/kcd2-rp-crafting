@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { factions: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -396,7 +396,7 @@
   wo.className = "sk-wo";
   const stockDet = document.getElementById("stock") && document.getElementById("stock").closest("details");
   if (stockDet) stockDet.after(wo);
-  let woCur = null, woArm = false;
+  let woCur = null, woArm = false, woArmKey = "", woArmAt = 0;
   function setSrc(v) {
     srcFac = v;
     try { localStorage.setItem("forge-src", v ? "fac" : "my"); } catch (_) {}
@@ -408,11 +408,16 @@
     window.SRC_FAC = on;
     window.FAC_STOCK = posStock(S.facStock);
     document.body.classList.toggle("srcfac", on);
-    if (typeof renderOrder === "function") renderOrder();
+    const a = document.activeElement,
+      busy = a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.closest("#zakaz, #raschet");
+    if (typeof renderOrder === "function" && !busy) renderOrder();
     else woRender();
   }
   function woRender() {
     const view = canFacView();
+    document.querySelectorAll("#raschet thead th").forEach(th => {
+      if (/^Со склада/.test(th.textContent)) th.textContent = view && srcFac ? "Со склада фракции" : "Со склада";
+    });
     sw.hidden = !view;
     if (!view) {
       if (window.SRC_FAC) {
@@ -441,7 +446,7 @@
       <p style="margin:8px 0 0">${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
       ${canFacMove()
         ? take.length
-          ? `<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? "Точно? Склад фракции изменится" : "Заказ выполнен: списать со склада фракции"}</button><span class="hint" id="sk-wo-msg">В журнал фракции запишется от тебя с заметкой «Заказ «${esc(O().name)}»».</span></div>`
+          ? `${O().facDone || S.ofMoves.some(m => m.note === `Заказ «${O().name}»`.slice(0, 200)) ? `<p class="warn" style="margin:8px 0 0">По заказу «${esc(O().name)}» со склада фракции уже списывали${O().facDone ? " " + when(O().facDone) : ""}. Проверь, чтобы не списать второй раз.</p>` : ""}<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? "Точно? Склад фракции изменится" : "Заказ выполнен: списать со склада фракции"}</button><span class="hint" id="sk-wo-msg">В журнал фракции запишется от тебя с заметкой «Заказ «${esc(O().name)}»».</span></div>`
           : '<p class="hint">Со склада фракции на этот заказ брать нечего.</p>'
         : '<p class="hint">Списывать со склада фракции могут Подмастерье и выше.</p>'}</div>`;
     woCur = { take };
@@ -454,14 +459,22 @@
     if (e.target.id !== "sk-wo-yes" || !woCur || !woCur.take) return;
     if (!woArm) {
       woArm = true;
+      woArmKey = qKey();
+      woArmAt = Date.now();
       e.target.textContent = "Точно? Склад фракции изменится";
       return;
     }
+    if (Date.now() - woArmAt < 500) return; // двойной клик не считаем подтверждением
     woArm = false;
     e.target.disabled = true;
     const take = woCur.take;
     const note = `Заказ «${O().name}»`.slice(0, 200);
+    const o = O();
     const { error } = await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id })));
+    if (!error) {
+      o.facDone = new Date().toISOString();
+      save();
+    }
     if (error) {
       e.target.disabled = false;
       document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
@@ -703,7 +716,7 @@
     renderOrder = function (...a) {
       const r = _ro.apply(this, a);
       try {
-        woArm = false;
+        if (woArmKey !== qKey()) woArm = false;
         woRender();
         if (otab === "cex" && !typing()) gRender();
       } catch (_) {}
