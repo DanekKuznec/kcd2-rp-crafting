@@ -67,7 +67,14 @@
     if (!S.user) return render();
     const { data: mem, error: e1 } = await sb.from("members").select("*").order("created_at");
     S.members = mem || [];
-    S.me = S.members.find(m => m.user_id === S.user.id) || { rank: 0, admin: false, name: "", rp_name: "" };
+    S.me = S.members.find(m => m.user_id === S.user.id);
+    if (!S.me && !e1 && !S.rejoined) {
+      // строки нет (убрали из списка) - снова встаём в очередь на подтверждение
+      S.rejoined = true;
+      await sb.from("members").insert({ user_id: S.user.id });
+      return loadInner();
+    }
+    S.me = S.me || { rank: 0, admin: false, name: "", rp_name: "" };
     if (S.me.rank >= 1 || S.me.admin) {
       const { data: mv, error: e2 } = await sb.from("moves").select("*").order("created_at", { ascending: false }).limit(1000);
       S.moves = mv || [];
@@ -311,6 +318,7 @@
     const id = e.target.id;
     if (id === "sk-wo-go") {
       woCur = woPlan();
+      woCur.key = qKey();
       woRender(woCur);
     } else if (id === "sk-wo-no") {
       woCur = null;
@@ -324,10 +332,14 @@
         document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
         return;
       }
-      wo.innerHTML = `<p class="ok">Списано со склада цеха: ${woCur.take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p>`;
-      woCur = null;
+      const done = `<p class="ok">Списано со склада цеха: ${woCur.take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p>`;
+      woCur = { msg: true };
       await load();
-      setTimeout(() => woRender(), 4000);
+      wo.innerHTML = done;
+      setTimeout(() => {
+        woCur = null;
+        woRender();
+      }, 4000);
     }
   });
 
@@ -434,7 +446,7 @@
             let doneH = "";
             if (gDone === g.id && gPlan) {
               const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
-              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада цеха:" : "Со склада цеха списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе цеха не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p><button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
+              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада цеха:" : "Со склада цеха списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе цеха не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p>${S.moves.some(m => m.note === gNoteTxt(g)) ? '<p class="warn">По этому заказу со склада цеха уже списывали (есть в журнале). Проверь, чтобы не списать второй раз.</p>' : ""}<button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
             }
             return `<div class="gcard st-${g.status}"><div class="gtop"><b>${esc(g.name || "Заказ")}</b><span class="gst">${ST[g.status]}${g.taken_by ? " · " + esc(who(g.taken_by)) : ""}</span></div>
               ${tilesH}${sumH}
@@ -472,6 +484,8 @@
     if (!b) return;
     if (!canMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
     if (b.id === "g-send") {
+      if (b.disabled) return;
+      b.disabled = true;
       const o = O();
       const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
       if (!Object.keys(items).length) return gMsg("В твоём заказе нет вещей.");
@@ -508,13 +522,22 @@
       return gRender();
     }
     if (act === "done-yes") {
+      b.disabled = true;
+      const { error: e1 } = await sb.from("gorders").update({ status: "done" }).eq("id", g.id);
+      if (e1) { gMsgId = g.id; gMsgTxt = "Не вышло: " + e1.message; gDone = gPlan = null; return load(); }
       if (gPlan && gPlan.take.length) {
         const note = gNoteTxt(g);
         const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ res: k, qty: -n, note, user_id: S.user.id })));
-        if (error) { gMsgId = g.id; gMsgTxt = "Не списалось: " + error.message; return gRender(); }
+        if (error) {
+          await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
+          gMsgId = g.id;
+          gMsgTxt = "Не списалось, заказ не отмечен выполненным: " + error.message;
+          gDone = gPlan = null;
+          return load();
+        }
       }
       gDone = gPlan = null;
-      patch = { status: "done" };
+      return load();
     }
     if (act === "reopen") patch = { status: "work" };
     if (patch) {
@@ -542,6 +565,22 @@
       return load();
     }
   });
+  // свой заказ поменялся: обновить кнопку «Отправить в цех» и закрыть устаревший предпросмотр списания
+  const qKey = () => (typeof O === "function" ? JSON.stringify(O().qty) + cur : "");
+  if (typeof renderOrder === "function") {
+    const _ro = renderOrder;
+    renderOrder = function (...a) {
+      const r = _ro.apply(this, a);
+      try {
+        if (woCur && !woCur.msg && woCur.key !== qKey()) {
+          woCur = null;
+          woRender();
+        }
+        if (otab === "cex" && !typing()) gRender();
+      } catch (_) {}
+      return r;
+    };
+  }
   const _render = render;
   render = function () {
     _render();
@@ -553,10 +592,28 @@
   sb.auth.onAuthStateChange(ev => {
     if (ev !== "INITIAL_SESSION") setTimeout(load, 0);
   });
+  // чужие изменения приходят сразу; если человек что-то печатает, обновляем после того, как он выйдет из поля
+  const typing = () => {
+    const a = document.activeElement;
+    return !!a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName) && a.id !== "sk-q" && (root.contains(a) || gbox.contains(a));
+  };
+  let liveT = 0, livePend = false;
+  const liveLoad = () => {
+    clearTimeout(liveT);
+    liveT = setTimeout(() => (typing() ? (livePend = true) : load()), 300);
+  };
+  document.addEventListener("focusout", () =>
+    setTimeout(() => {
+      if (livePend && !typing()) {
+        livePend = false;
+        load();
+      }
+    }, 0),
+  );
   sb.channel("sklad")
-    .on("postgres_changes", { event: "*", schema: "public", table: "moves" }, () => load())
-    .on("postgres_changes", { event: "*", schema: "public", table: "members" }, () => load())
-    .on("postgres_changes", { event: "*", schema: "public", table: "gorders" }, () => load())
+    .on("postgres_changes", { event: "*", schema: "public", table: "moves" }, liveLoad)
+    .on("postgres_changes", { event: "*", schema: "public", table: "members" }, liveLoad)
+    .on("postgres_changes", { event: "*", schema: "public", table: "gorders" }, liveLoad)
     .subscribe();
   load();
   }

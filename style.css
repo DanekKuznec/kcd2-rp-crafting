@@ -327,3 +327,4 @@ body{padding-block:12px 90px}
 .gcard .sk-wo-box{margin:6px 0;padding:8px;border:1px dashed var(--line);border-radius:6px}.gcard .sk-wo-box ul{margin:4px 0 6px 18px;padding:0}
 .sk-jbox{max-height:calc(20 * 34px + 34px);overflow-y:auto}
 .sk-journal thead th{position:sticky;top:0;background:var(--paper);z-index:1}
+@media (max-width:520px){.views{display:flex;flex-wrap:wrap;max-width:100%}.views button{padding:6px 7px}.sk-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}}
