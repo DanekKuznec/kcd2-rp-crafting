@@ -87,6 +87,8 @@
   const disp = m => (m && (m.rp_name || m.name)) || "кто-то";
   const who = id => disp(S.members.find(m => m.user_id === id));
   const canApprove = () => S.me.admin || S.me.rank >= 8;
+  // класть, брать и списывать со склада: Подмастерье (3) и выше
+  const canMove = () => !!(S.user && S.me && (S.me.admin || S.me.rank >= 3));
 
   let render = function () {
     if (!S.user) {
@@ -118,10 +120,10 @@
       return `<div class="sk-tile${st ? "" : " zero"}${full ? " full" : ""}" title="${esc(nm(k))}">
         <span class="sk-cnt ${st < 0 ? "buy" : ""}">×${num(st)}${full ? " ✓" : ""}</span>${resIcon(k)}
         <span class="sk-nm">${esc(nm(k))}</span><span class="sk-sub">${sub || "&nbsp;"}</span>
-        <span class="sk-act"><button type="button" class="sk-pm" data-k="${k}" data-s="-1" title="Взял">−</button><input class="sk-n" data-k="${k}" type="number" min="1" step="1" placeholder="0"><button type="button" class="sk-pm" data-k="${k}" data-s="1" title="Положил">+</button></span></div>`;
+        ${canMove() ? `<span class="sk-act"><button type="button" class="sk-pm" data-k="${k}" data-s="-1" title="Взял">−</button><input class="sk-n" data-k="${k}" type="number" min="1" step="1" placeholder="0"><button type="button" class="sk-pm" data-k="${k}" data-s="1" title="Положил">+</button></span>` : ""}</div>`;
     };
     const grid = (title, ks) => (ks.length ? `<div class="sk-cat">${title}</div><div class="sk-grid">${ks.map(tile).join("")}</div>` : "");
-    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px">${canNote() ? `<input class="search" id="sk-note" placeholder="Заметка к следующей записи (необязательно)" value="${esc(S.note)}" maxlength="200" style="max-width:320px">` : ""}<span class="hint">впиши число и нажми + (положил) или − (взял)</span></div>
+    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px">${canNote() ? `<input class="search" id="sk-note" placeholder="Заметка к следующей записи (необязательно)" value="${esc(S.note)}" maxlength="200" style="max-width:320px">` : ""}<span class="hint">${canMove() ? "впиши число и нажми + (положил) или − (взял)" : "класть и брать со склада могут Подмастерье и выше"}</span></div>
       ${grid("Сырьё", raws)}${grid("Заготовки", mats)}${!raws.length && !mats.length ? '<p class="hint">Ничего не найдено.</p>' : ""}`;
     if (S.me.admin || S.me.rank >= 6) {
       const rowsOf = ks =>
@@ -201,6 +203,7 @@
   };
   const canNote = () => S.me && (S.me.admin || S.me.rank >= 3);
   async function put(k, sign) {
+    if (!canMove()) return;
     const inp = root.querySelector(`.sk-n[data-k="${k}"]`),
       n = Math.floor(+(inp && inp.value));
     if (!(n > 0)) return alertMsg(`Впиши, сколько ${sign > 0 ? "положил" : "взял"} · ${nm(k)}.`);
@@ -291,7 +294,7 @@
     return { take, lack, n: b.t.n };
   }
   function woRender(plan) {
-    const ok = S.user && S.me && (S.me.rank >= 1 || S.me.admin);
+    const ok = canMove();
     if (!ok) return (wo.innerHTML = "");
     if (!plan)
       return (wo.innerHTML = `<button class="btn" id="sk-wo-go" type="button" title="Списать со склада цеха то, что уйдёт на этот заказ">Списать со склада цеха</button>`);
@@ -368,7 +371,7 @@
         }, 50);
       });
     }
-    if (wb) wb.hidden = !ok;
+    if (wb) wb.hidden = !canMove();
     zak.classList.toggle("cex", t === "cex");
     gbox.hidden = t !== "cex";
     if (t !== "cex") return;
