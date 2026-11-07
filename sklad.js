@@ -6,7 +6,9 @@
   const cfg = window.SKLAD || {};
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const nm = k => (typeof NAME !== "undefined" && NAME[k]) || k;
-  const keys = typeof ALLK !== "undefined" ? ALLK : [];
+  // заготовки, которые никто не делает (готовое оружие как основа для улучшения), на склад не идут
+  const made = new Set((typeof ITEMS !== "undefined" ? ITEMS : []).map(i => i.m).filter(Boolean));
+  const keys = (typeof ALLK !== "undefined" ? ALLK : []).filter(k => !(typeof MAT !== "undefined" && MAT[k] && !made.has(k)));
   const num = n => Number(n).toLocaleString("ru-RU");
   const when = t => new Date(t).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
@@ -33,13 +35,14 @@
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
   let dir = 1;
-  const S = { user: null, me: null, members: [], moves: [], stock: {}, q: "", sec: "aw", err: "" };
+  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", sec: "aw", err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   const SECS = [["aw", "Броня и оружие"], ...DATA.secs.filter(([k]) => k !== "a" && k !== "w"), ["all", "Всё"]];
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
       out = new Set(),
       walk = k => {
+        if (MAT[k] && !made.has(k)) return;
         out.add(k);
         if (MAT[k]) Object.keys(MAT[k].inp).forEach(walk);
       };
@@ -69,6 +72,8 @@
     if (S.me.rank >= 1 || S.me.admin) {
       const { data: mv, error: e2 } = await sb.from("moves").select("*").order("created_at", { ascending: false }).limit(2000);
       S.moves = mv || [];
+      const { data: lm } = await sb.from("limits").select("*");
+      S.limits = Object.fromEntries((lm || []).map(l => [l.res, l]));
       S.stock = {};
       S.moves.forEach(m => (S.stock[m.res] = (S.stock[m.res] || 0) + m.qty));
       S.err = (e1 || e2 || {}).message || "";
@@ -82,7 +87,7 @@
   const who = id => disp(S.members.find(m => m.user_id === id));
   const canApprove = () => S.me.admin || S.me.rank >= 8;
 
-  function render() {
+  let render = function () {
     if (!S.user) {
       root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p>Общий склад цеха: кто что положил и взял, остатки по каждому ресурсу.</p><button class="btn go" id="sk-login" type="button">Войти через Discord</button></div>`;
       return;
@@ -111,12 +116,24 @@
     const pick = ks => ks.filter(k => (want.has(k) || (S.stock[k] || 0) !== 0) && (!q || nm(k).toLowerCase().includes(q)));
     const raws = pick(keys.filter(k => !MAT[k])),
       mats = pick(keys.filter(k => MAT[k]));
+    const buyTxt = l => (l && l.buy_min != null ? (l.buy_max != null && +l.buy_max !== +l.buy_min ? `${num(l.buy_min)}-${num(l.buy_max)}` : num(l.buy_min)) + " гр." : "");
     const rowsOf = ks =>
-      ks.map(k => `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}${!want.has(k) ? ' <span class="hint">(другое ремесло)</span>' : ""}</td><td class="num ${S.stock[k] < 0 ? "buy" : S.stock[k] ? "" : "hint"}"><b>${num(S.stock[k] || 0)}</b></td></tr>`).join("");
+      ks
+        .map(k => {
+          const l = S.limits[k],
+            st = S.stock[k] || 0,
+            full = l && l.lim != null && st >= l.lim,
+            limCell = head ? `<input class="sk-lim" data-k="${k}" type="number" min="0" value="${l && l.lim != null ? l.lim : ""}" placeholder="—">` : l && l.lim != null ? num(l.lim) : "—",
+            buyCell = head
+              ? `<input class="sk-bmin" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_min != null ? +l.buy_min : ""}" placeholder="от">-<input class="sk-bmax" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_max != null ? +l.buy_max : ""}" placeholder="до">`
+              : full ? '<span class="hint">не скупаем, лимит</span>' : buyTxt(l) || "—";
+          return `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}${!want.has(k) ? ' <span class="hint">(другое ремесло)</span>' : ""}</td><td class="num ${st < 0 ? "buy" : st ? "" : "hint"}"><b>${num(st)}</b>${full ? ' <span class="ok" title="Лимит набран">✓</span>' : ""}</td><td class="num">${limCell}</td><td class="num">${buyCell}</td></tr>`;
+        })
+        .join("");
     h += `<div class="row" style="gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><select id="sk-sec">${SECS.map(([k, n]) => `<option value="${k}" ${k === S.sec ? "selected" : ""}>${esc(n)}</option>`).join("")}</select><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"></div>
-      <div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Остаток</th></tr></thead><tbody>${
-        raws.length ? `<tr class="cat"><td></td><td colspan="2">Сырьё</td></tr>${rowsOf(raws)}` : ""
-      }${mats.length ? `<tr class="cat"><td></td><td colspan="2">Заготовки</td></tr>${rowsOf(mats)}` : ""}${!raws.length && !mats.length ? `<tr><td colspan="3" class="hint">Ничего не найдено.</td></tr>` : ""}</tbody></table></div>`;
+      <div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Остаток</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${
+        raws.length ? `<tr class="cat"><td></td><td colspan="4">Сырьё</td></tr>${rowsOf(raws)}` : ""
+      }${mats.length ? `<tr class="cat"><td></td><td colspan="4">Заготовки</td></tr>${rowsOf(mats)}` : ""}${!raws.length && !mats.length ? `<tr><td colspan="5" class="hint">Ничего не найдено.</td></tr>` : ""}</tbody></table></div>`;
     // журнал
     h += `<h3>Журнал</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
       S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
@@ -224,11 +241,83 @@
     if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
     if (t.classList.contains("sk-rp")) return upd(t.dataset.u, { rp_name: t.value.trim().slice(0, 60) });
     if (t.classList.contains("sk-adm")) return upd(t.dataset.u, { admin: t.checked });
+    if (t.classList.contains("sk-lim") || t.classList.contains("sk-bmin") || t.classList.contains("sk-bmax")) {
+      const k = t.dataset.k,
+        v = t.value === "" ? null : Math.max(0, +t.value),
+        col = t.classList.contains("sk-lim") ? "lim" : t.classList.contains("sk-bmin") ? "buy_min" : "buy_max";
+      return sb
+        .from("limits")
+        .upsert({ res: k, ...(S.limits[k] ? { lim: S.limits[k].lim, buy_min: S.limits[k].buy_min, buy_max: S.limits[k].buy_max } : {}), [col]: col === "lim" && v != null ? Math.round(v) : v })
+        .then(({ error }) => {
+          if (error) alertMsg("Не сохранилось: " + error.message);
+          load();
+        });
+    }
     if (e.target.id === "sk-sec") {
       S.sec = e.target.value;
       render();
     }
   });
+
+  // --- Кнопка «Списать со склада цеха» в расчёте заказа (только для участников цеха)
+  const woBar = document.getElementById("odone") && document.getElementById("odone").parentElement;
+  const wo = document.createElement("div");
+  wo.id = "sk-wo";
+  wo.className = "sk-wo";
+  if (woBar) woBar.after(wo);
+  function woPlan() {
+    // считаем заказ так, как будто «склад» = склад цеха: сначала берём готовые заготовки, потом сырьё
+    const saved = stock;
+    stock = Object.fromEntries(Object.entries(S.stock).filter(([, v]) => v > 0));
+    let b;
+    try {
+      b = breakdown();
+    } finally {
+      stock = saved;
+    }
+    const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
+    const lack = b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]);
+    return { take, lack, n: b.t.n };
+  }
+  function woRender(plan) {
+    const ok = S.user && S.me && (S.me.rank >= 1 || S.me.admin);
+    if (!ok) return (wo.innerHTML = "");
+    if (!plan)
+      return (wo.innerHTML = `<button class="btn" id="sk-wo-go" type="button" title="Списать со склада цеха то, что уйдёт на этот заказ">Списать со склада цеха</button>`);
+    const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
+    wo.innerHTML = plan.take.length
+      ? `<div class="panel sk-wo-box"><b>Списать со склада цеха на заказ «${esc(O().name)}»:</b><ul>${li(plan.take)}</ul>${plan.lack.length ? `<p class="hint">На складе цеха не хватает, нужно докупить или взять своё:</p><ul class="hint">${li(plan.lack)}</ul>` : ""}<button class="btn go" id="sk-wo-yes" type="button">Подтвердить списание</button> <button class="btn" id="sk-wo-no" type="button">Отмена</button> <span class="hint" id="sk-wo-msg"></span></div>`
+      : `<div class="panel sk-wo-box"><p>${plan.n ? "На складе цеха нет ничего из того, что нужно на этот заказ." : "В заказе пока нет вещей."}</p><button class="btn" id="sk-wo-no" type="button">Закрыть</button></div>`;
+  }
+  let woCur = null;
+  wo.addEventListener("click", async e => {
+    const id = e.target.id;
+    if (id === "sk-wo-go") {
+      woCur = woPlan();
+      woRender(woCur);
+    } else if (id === "sk-wo-no") {
+      woCur = null;
+      woRender();
+    } else if (id === "sk-wo-yes" && woCur) {
+      e.target.disabled = true;
+      const note = `Заказ «${O().name}»`.slice(0, 200);
+      const { error } = await sb.from("moves").insert(woCur.take.map(([k, n]) => ({ res: k, qty: -n, note })));
+      if (error) {
+        e.target.disabled = false;
+        document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
+        return;
+      }
+      wo.innerHTML = `<p class="ok">Списано со склада цеха: ${woCur.take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p>`;
+      woCur = null;
+      await load();
+      setTimeout(() => woRender(), 4000);
+    }
+  });
+  const _render = render;
+  render = function () {
+    _render();
+    if (!woCur) woRender();
+  };
 
   // нельзя ждать запросы прямо внутри onAuthStateChange - supabase-js может зависнуть, поэтому через setTimeout
   sb.auth.onAuthStateChange(ev => {
