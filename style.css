@@ -334,3 +334,9 @@ body.srcfac #odone,body.srcfac #oundo,body.srcfac #odonenote{display:none!import
 #raschet details:has(#stock){}
 body.srcfac #raschet details:has(> #stock){display:none}
 .sk-wo-box .ic{width:28px;height:28px;min-width:28px}
+section.view.jfac > section.panel:not(.fjbox){display:none}
+.fj-list{margin-top:10px;max-height:70vh;overflow-y:auto;border-top:1px solid var(--line)}
+.fj-row{display:grid;grid-template-columns:92px 1fr auto auto;gap:4px 10px;align-items:start;padding:6px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.fj-d{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.fj-it{color:var(--muted);font-size:12.5px}.fj-p{text-align:right;font-family:var(--f-num);white-space:nowrap}
+@media (max-width:520px){.fj-row{grid-template-columns:1fr auto}.fj-d{grid-column:1/-1}}

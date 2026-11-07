@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { factions: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -126,12 +126,15 @@
       }
       const { data: go } = await sb.from("gorders").select("*").eq("faction", OF).order("created_at", { ascending: false }).limit(200);
       S.gorders = go || [];
+      const { data: fj } = await sb.from("fjournal").select("*").eq("faction", OF).order("created_at", { ascending: false }).limit(500);
+      S.fj = fj || [];
       if (OF !== F) {
         const { data: fm } = await sb.from("moves").select("id,note").eq("faction", OF).order("created_at", { ascending: false }).limit(1000);
         S.ofMoves = fm || [];
       } else S.ofMoves = S.moves;
     } else {
       S.facStock = {};
+      S.fj = [];
       S.gorders = [];
       S.ofMembers = [];
       S.ofMoves = [];
@@ -414,6 +417,7 @@
     else woRender();
   }
   function woRender() {
+    fjRender();
     const view = canFacView();
     document.querySelectorAll("#raschet thead th").forEach(th => {
       if (/^Со склада/.test(th.textContent)) th.textContent = view && srcFac ? "Со склада фракции" : "Со склада";
@@ -451,6 +455,77 @@
         : '<p class="hint">Списывать со склада фракции могут Подмастерье и выше.</p>'}</div>`;
     woCur = { take };
   }
+  // --- Вкладка «Журнал»: личный журнал или журнал своей фракции (тот же переключатель, что в расчёте)
+  async function addFJ(r) {
+    if (!OF) return;
+    await sb.from("fjournal").insert({ faction: OF, created_by: S.user.id, note: "", ...r });
+  }
+  const jview = document.querySelector('section.view[data-v="journal"]');
+  const jsw = document.createElement("div");
+  jsw.className = "seg srcsw";
+  jsw.hidden = true;
+  const fjBox = document.createElement("section");
+  fjBox.className = "panel fjbox";
+  fjBox.hidden = true;
+  if (jview) {
+    jview.prepend(jsw);
+    jview.appendChild(fjBox);
+  }
+  let fjPer = "month", fjArm = "";
+  const inPerF = t => {
+    if (fjPer === "all") return true;
+    const d = new Date(t), now = new Date();
+    now.setHours(0, 0, 0, 0);
+    if (fjPer === "week") {
+      const st = new Date(now);
+      st.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      return d >= st;
+    }
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  };
+  function fjRender() {
+    const view = canFacView(), on = view && srcFac;
+    jsw.hidden = !view;
+    if (jview) jview.classList.toggle("jfac", on);
+    fjBox.hidden = !on;
+    if (!view) return;
+    jsw.innerHTML = `<button type="button" data-src="my" aria-pressed="${!on}">Личный журнал</button><button type="button" data-src="fac" aria-pressed="${on}">Журнал фракции «${esc(ofac().name)}»</button>`;
+    if (!on) return;
+    const rs = S.fj.filter(r => inPerF(r.created_at)),
+      sum = f => rs.reduce((a, r) => a + (+r[f] || 0), 0),
+      cnt = rs.reduce((a, r) => a + (r.items || []).reduce((x, i) => x + (+i.q || 0), 0), 0);
+    fjBox.innerHTML = `<div class="row"><h2 style="margin:0">Журнал фракции</h2><div class="seg" id="fjper">${[["week", "Неделя"], ["month", "Месяц"], ["all", "Всё время"]].map(([k, n]) => `<button type="button" data-p="${k}" aria-pressed="${k === fjPer}">${n}</button>`).join("")}</div></div>
+      <div class="derived" style="margin-top:10px"><span>Заказов: <b>${rs.length}</b></span><span>Выручка: <b>${fmt(sum("price"))} гр.</b></span><span>За работу: <b>${fmt(sum("labor"))} гр.</b></span><span>Вещей: <b>${fmt(cnt)}</b></span></div>
+      <div class="fj-list">${
+        rs.length
+          ? rs
+              .map(
+                r => `<div class="fj-row"><span class="fj-d">${when(r.created_at)}</span><span class="fj-m"><b>${esc(r.name || "Заказ")}</b> <span class="hint">· ${esc(ofWho(r.created_by))}${r.note ? " · " + esc(r.note) : ""}</span><br><span class="fj-it">${(r.items || []).map(i => `${esc(i.n)} ×${num(i.q)}`).join(", ")}</span></span><span class="fj-p">${fmt(r.price)} гр.<br><span class="hint">работа ${fmt(r.labor)}</span></span>${canApproveOF() ? `<button class="linkbtn" data-fjdel="${r.id}" type="button" title="Удалить запись">${fjArm === String(r.id) ? "точно?" : "×"}</button>` : ""}</div>`,
+              )
+              .join("")
+          : '<p class="hint">Пока пусто. Запись появляется, когда заказ выполнен со склада фракции или заказ фракции отмечен «Выполнил».</p>'
+      }</div>`;
+  }
+  jsw.addEventListener("click", e => {
+    const b = e.target.closest("button[data-src]");
+    if (b) setSrc(b.dataset.src === "fac");
+  });
+  fjBox.addEventListener("click", async e => {
+    const p = e.target.closest("#fjper button");
+    if (p) {
+      fjPer = p.dataset.p;
+      return fjRender();
+    }
+    const d = e.target.dataset.fjdel;
+    if (!d) return;
+    if (fjArm !== d) {
+      fjArm = d;
+      return fjRender();
+    }
+    fjArm = "";
+    await sb.from("fjournal").delete().eq("id", d);
+    load();
+  });
   sw.addEventListener("click", e => {
     const b = e.target.closest("button[data-src]");
     if (b) setSrc(b.dataset.src === "fac");
@@ -470,10 +545,16 @@
     const take = woCur.take;
     const note = `Заказ «${O().name}»`.slice(0, 200);
     const o = O();
+    let jr = null;
+    try {
+      const b = breakdown(), pr = priceOf(b);
+      jr = { name: (o.name || "Заказ").slice(0, 80), items: sortedIds().map(id => ({ n: BYID[id].n, q: Q()[id] })), price: Math.round(pr.price), labor: Math.round(pr.labor) };
+    } catch (_) {}
     const { error } = await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id })));
     if (!error) {
       o.facDone = new Date().toISOString();
       save();
+      if (jr) await addFJ(jr);
     }
     if (error) {
       e.target.disabled = false;
@@ -696,6 +777,10 @@
           return load();
         }
       }
+      try {
+        const c = calcG(g);
+        await addFJ({ name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price: Math.round(c.pr.full), labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+      } catch (_) {}
       gDone = gPlan = null;
       return load();
     }
@@ -776,6 +861,7 @@
     .on("postgres_changes", { event: "*", schema: "public", table: "moves" }, liveLoad)
     .on("postgres_changes", { event: "*", schema: "public", table: "members" }, liveLoad)
     .on("postgres_changes", { event: "*", schema: "public", table: "gorders" }, liveLoad)
+    .on("postgres_changes", { event: "*", schema: "public", table: "fjournal" }, liveLoad)
     .subscribe();
   load();
   }
