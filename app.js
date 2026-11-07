@@ -552,7 +552,9 @@ function breakdown(bare) {
   const t = needOf(),
     need = { ...t.need },
     C = k => (bare ? 0 : cl ? cl[k] || 0 : O().client[k] || 0),
-    S = k => (bare || cl ? 0 : stock[k] || 0);
+    // склад для расчёта: личный или склад фракции (переключатель в расчёте, его ведёт sklad.js)
+    SS = window.SRC_FAC && window.FAC_STOCK ? window.FAC_STOCK : stock,
+    S = k => (bare || cl ? 0 : SS[k] || 0);
   const take = (n, k) => {
     const c = Math.min(C(k), n),
       s = Math.min(S(k), n - c);

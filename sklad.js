@@ -51,6 +51,13 @@
   let F = "kutna";
   try { F = localStorage.getItem("forge-faction") || "kutna"; } catch (_) {}
   const fac = () => S.factions.find(x => x.id === F) || { id: F, name: F, secs: [] };
+  let OF = null; // своя фракция человека
+  const ofac = () => S.factions.find(x => x.id === OF) || { id: OF, name: OF || "", secs: [] };
+  const ofNick = () => !!(S.myFac && (S.myFac.rp_name || "").trim());
+  const canFacView = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 1 || S.admin));
+  const canFacMove = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 3 || S.admin));
+  const canApproveOF = () => !!(S.admin || (S.myFac && S.myFac.rank >= 8));
+  const ofWho = id => disp((S.ofMembers || []).find(m => m.user_id === id));
   const AWcache = {};
   const facRes = () => {
     const secs = fac().secs || [];
@@ -84,27 +91,52 @@
     const { data: ss } = await sb.auth.getSession();
     S.user = ss && ss.session && ss.session.user;
     if (!S.user) return render();
+    // своя фракция у человека одна: по ней идут заказ фракции и списание в расчёте
+    const { data: mine } = await sb.from("members").select("*").eq("user_id", S.user.id);
+    S.admin = (mine || []).some(m => m.admin);
+    S.myFac = (mine || [])[0] || null;
+    OF = S.myFac ? S.myFac.faction : null;
     const { data: mem, error: e1 } = await sb.from("members").select("*").eq("faction", F).order("created_at");
-    const { data: adm } = await sb.from("members").select("faction").eq("user_id", S.user.id).eq("admin", true);
-    S.admin = !!(adm && adm.length);
     S.members = mem || [];
     S.me = S.members.find(m => m.user_id === S.user.id);
     S.joined = !!S.me;
     S.me = S.me ? { ...S.me, admin: S.admin } : { rank: 0, admin: S.admin, name: "", rp_name: "" };
+    const getStock = async f => {
+      const { data: st, error } = await sb.from("stock").select("*").eq("faction", f);
+      const o = {};
+      if (!error && Array.isArray(st)) st.forEach(r => (o[r.res] = +r.qty || 0));
+      return o;
+    };
     if (S.me.rank >= 1 || S.me.admin) {
       const { data: mv, error: e2 } = await sb.from("moves").select("*").eq("faction", F).order("created_at", { ascending: false }).limit(1000);
       S.moves = mv || [];
       const { data: lm } = await sb.from("limits").select("*").eq("faction", F);
       S.limits = Object.fromEntries((lm || []).map(l => [l.res, l]));
       // остатки считает база по ВСЕМ записям (вид stock), журнал грузим только последние
-      const { data: st, error: e3 } = await sb.from("stock").select("*").eq("faction", F);
-      S.stock = {};
-      if (!e3 && Array.isArray(st)) st.forEach(r => (S.stock[r.res] = +r.qty || 0));
-      else S.moves.forEach(m => (S.stock[m.res] = (S.stock[m.res] || 0) + m.qty));
-      const { data: go } = await sb.from("gorders").select("*").eq("faction", F).order("created_at", { ascending: false }).limit(200);
-      S.gorders = go || [];
+      S.stock = await getStock(F);
       S.err = (e1 || e2 || {}).message || "";
-    } else S.gorders = [];
+    }
+    // своя фракция: склад для расчёта, участники для имён, заказы фракции
+    if (OF && canFacView()) {
+      S.facStock = OF === F && (S.me.rank >= 1 || S.me.admin) ? S.stock : await getStock(OF);
+      if (OF === F) S.ofMembers = S.members;
+      else {
+        const { data: om } = await sb.from("members").select("*").eq("faction", OF);
+        S.ofMembers = om || [];
+      }
+      const { data: go } = await sb.from("gorders").select("*").eq("faction", OF).order("created_at", { ascending: false }).limit(200);
+      S.gorders = go || [];
+      if (OF !== F) {
+        const { data: fm } = await sb.from("moves").select("id,note").eq("faction", OF).order("created_at", { ascending: false }).limit(1000);
+        S.ofMoves = fm || [];
+      } else S.ofMoves = S.moves;
+    } else {
+      S.facStock = {};
+      S.gorders = [];
+      S.ofMembers = [];
+      S.ofMoves = [];
+    }
+    window.FAC_STOCK = S.facStock;
     render();
   }
 
@@ -115,7 +147,7 @@
   const canApprove = () => S.me.admin || S.me.rank >= 8;
   // класть, брать и списывать со склада: Подмастерье (3) и выше
   const hasNick = () => !!(S.me && (S.me.rp_name || "").trim());
-  const canMove = () => !!(S.user && S.me && hasNick() && (S.me.admin || S.me.rank >= 3));
+  const canMove = () => !!(S.user && S.me && (S.me.admin || (hasNick() && S.me.rank >= 3)));
 
   const facTabs = () =>
     S.factions.length > 0
@@ -128,8 +160,13 @@
     }
     const head = canApprove(),
       ok = S.me.rank >= 1 || S.me.admin;
-    let h = facTabs() + `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад фракции · ${esc(fac().name)}</h2><span class="hint">${S.joined ? `${esc(disp(S.me))} · ${S.me.rank ? RANKS[S.me.rank] : "ждёт подтверждения"}` : "не во фракции"} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
-    if (!S.joined || !(S.me.rp_name || "").trim()) {
+    let h = facTabs() + `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад фракции · ${esc(fac().name)}</h2><span class="hint">${S.joined ? `${esc(disp(S.me))} · ${S.me.rank ? RANKS[S.me.rank] : "ждёт подтверждения"}` : S.admin ? "смотришь как управляющий" : "не во фракции"} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
+    if (!S.joined && S.myFac && !S.admin) {
+      h += `<p>Ты состоишь во фракции «${esc(ofac().name)}». Состоять можно только в одной фракции, поэтому склад «${esc(fac().name)}» тебе недоступен.</p></div>`;
+      root.innerHTML = h;
+      return;
+    }
+    if ((!S.joined && !S.admin) || (S.joined && !(S.me.rp_name || "").trim())) {
       h += `<form id="sk-nick" class="sk-form" autocomplete="off"><p style="margin:0 0 6px;width:100%">${S.joined ? "Сначала впиши свой игровой ник, как у персонажа на сервере." : `Чтобы войти в склад фракции «${esc(fac().name)}», впиши свой игровой ник, как у персонажа на сервере, и подай заявку.`} Ник увидят во фракции, по нему тебя подтвердят.</p>
         <label>Игровой ник<input id="sk-nick-in" maxlength="60" required placeholder="например: Данек Врана" style="width:260px"></label>
         <button class="btn go" type="submit">${S.joined ? "Сохранить" : "Подать заявку"}</button><span class="hint" id="sk-msg"></span></form></div>`;
@@ -333,64 +370,110 @@
   });
   root.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("sk-lims")) S.limOpen = e.target.open; }, true);
 
-  // --- Кнопка «Списать со склада фракции» в расчёте заказа (только для участников цеха)
-  const woBar = document.getElementById("odone") && document.getElementById("odone").parentElement;
+  // --- Расчёт заказа: какой склад учитывать - личный или склад своей фракции
+  // breakdown() в app.js берёт window.FAC_STOCK, когда window.SRC_FAC = true
+  const posStock = o => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v > 0));
+  function withStock(st, fn) {
+    const a = window.SRC_FAC, b = window.FAC_STOCK;
+    window.SRC_FAC = !!st;
+    window.FAC_STOCK = st || b;
+    try {
+      return fn();
+    } finally {
+      window.SRC_FAC = a;
+      window.FAC_STOCK = b;
+    }
+  }
+  let srcFac = false;
+  try { srcFac = localStorage.getItem("forge-src") === "fac"; } catch (_) {}
+  const sw = document.createElement("div");
+  sw.className = "seg srcsw";
+  sw.hidden = true;
+  const rh = document.getElementById("rh");
+  if (rh) rh.after(sw);
   const wo = document.createElement("div");
   wo.id = "sk-wo";
   wo.className = "sk-wo";
-  if (woBar) woBar.after(wo);
-  function woPlan() {
-    // считаем заказ так, как будто «склад» = склад цеха: сначала берём готовые заготовки, потом сырьё
-    const saved = stock;
-    stock = Object.fromEntries(Object.entries(S.stock).filter(([, v]) => v > 0));
-    let b;
-    try {
-      b = breakdown();
-    } finally {
-      stock = saved;
-    }
-    const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
-    const lack = b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]);
-    return { take, lack, n: b.t.n };
+  const stockDet = document.getElementById("stock") && document.getElementById("stock").closest("details");
+  if (stockDet) stockDet.after(wo);
+  let woCur = null, woArm = false;
+  function setSrc(v) {
+    srcFac = v;
+    try { localStorage.setItem("forge-src", v ? "fac" : "my"); } catch (_) {}
+    woArm = false;
+    applySrc();
   }
-  function woRender(plan) {
-    const ok = canMove();
-    if (!ok) return (wo.innerHTML = "");
-    if (!plan)
-      return (wo.innerHTML = `<button class="btn" id="sk-wo-go" type="button" title="Списать со склада фракции то, что уйдёт на этот заказ">Списать со склада фракции</button>`);
-    const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
-    wo.innerHTML = plan.take.length
-      ? `<div class="panel sk-wo-box"><b>Списать со склада фракции на заказ «${esc(O().name)}»:</b><ul>${li(plan.take)}</ul>${plan.lack.length ? `<p class="hint">На складе фракции не хватает, нужно докупить или взять своё:</p><ul class="hint">${li(plan.lack)}</ul>` : ""}<button class="btn go" id="sk-wo-yes" type="button">Подтвердить списание</button> <button class="btn" id="sk-wo-no" type="button">Отмена</button> <span class="hint" id="sk-wo-msg"></span></div>`
-      : `<div class="panel sk-wo-box"><p>${plan.n ? "На складе фракции нет ничего из того, что нужно на этот заказ." : "В заказе пока нет вещей."}</p><button class="btn" id="sk-wo-no" type="button">Закрыть</button></div>`;
+  function applySrc() {
+    const on = srcFac && canFacView();
+    window.SRC_FAC = on;
+    window.FAC_STOCK = posStock(S.facStock);
+    document.body.classList.toggle("srcfac", on);
+    if (typeof renderOrder === "function") renderOrder();
+    else woRender();
   }
-  let woCur = null;
-  wo.addEventListener("click", async e => {
-    const id = e.target.id;
-    if (id === "sk-wo-go") {
-      woCur = woPlan();
-      woCur.key = qKey();
-      woRender(woCur);
-    } else if (id === "sk-wo-no") {
-      woCur = null;
-      woRender();
-    } else if (id === "sk-wo-yes" && woCur) {
-      e.target.disabled = true;
-      const note = `Заказ «${O().name}»`.slice(0, 200);
-      const { error } = await sb.from("moves").insert(woCur.take.map(([k, n]) => ({ faction: F, res: k, qty: -n, note })));
-      if (error) {
-        e.target.disabled = false;
-        document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
-        return;
+  function woRender() {
+    const view = canFacView();
+    sw.hidden = !view;
+    if (!view) {
+      if (window.SRC_FAC) {
+        window.SRC_FAC = false;
+        document.body.classList.remove("srcfac");
       }
-      const done = `<p class="ok">Списано со склада фракции: ${woCur.take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p>`;
-      woCur = { msg: true };
-      await load();
-      wo.innerHTML = done;
-      setTimeout(() => {
-        woCur = null;
-        woRender();
-      }, 4000);
+      return (wo.innerHTML = "");
     }
+    const on = srcFac;
+    sw.innerHTML = `<button type="button" data-src="my" aria-pressed="${!on}">Личный склад</button><button type="button" data-src="fac" aria-pressed="${on}">Склад фракции «${esc(ofac().name)}»</button>`;
+    if (!on) return (wo.innerHTML = "");
+    if (woCur && woCur.msg) return (wo.innerHTML = woCur.msg);
+    const b = breakdown();
+    if (!b.t.n) return (wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 6px">Склад фракции «${esc(ofac().name)}»</h3><p class="hint">В заказе пока нет вещей.</p></div>`);
+    const have = k => S.facStock[k] || 0;
+    const row = (k, need, c, s, lack, mid) =>
+      `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}${mid ? ' <span class="rtag">заготовка</span>' : ""}</td><td class="num">${num(need)}</td><td class="num hint">${c ? num(c) : ""}</td><td class="num">${num(have(k))}</td><td class="num"><b>${s ? num(s) : "—"}</b></td><td class="l ${lack ? "buy" : "ok"}">${lack ? (mid ? `сделать ${num(lack)}` : `не хватает ${num(lack)}`) : "✓ хватает"}</td></tr>`;
+    const mids = b.mid.map(m => row(m.k, m.need, m.c, m.s, m.make, true)).join("");
+    const raws = b.rows.map(r => row(r.k, r.all, r.c, r.s, r.buy, false)).join("");
+    const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
+    const short = b.rows.filter(r => r.buy > 0).length;
+    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>
+      <p class="hint" style="margin:0 0 8px">Что нужно на заказ, сколько возьмётся со склада фракции и хватает ли. Сначала идёт сырьё заказчика, потом склад фракции. Готовые заготовки со склада уменьшают число крафтов.</p>
+      <div class="tablebox"><table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
+      ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
+      <p style="margin:8px 0 0">${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
+      ${canFacMove()
+        ? take.length
+          ? `<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? "Точно? Склад фракции изменится" : "Заказ выполнен: списать со склада фракции"}</button><span class="hint" id="sk-wo-msg">В журнал фракции запишется от тебя с заметкой «Заказ «${esc(O().name)}»».</span></div>`
+          : '<p class="hint">Со склада фракции на этот заказ брать нечего.</p>'
+        : '<p class="hint">Списывать со склада фракции могут Подмастерье и выше.</p>'}</div>`;
+    woCur = { take };
+  }
+  sw.addEventListener("click", e => {
+    const b = e.target.closest("button[data-src]");
+    if (b) setSrc(b.dataset.src === "fac");
+  });
+  wo.addEventListener("click", async e => {
+    if (e.target.id !== "sk-wo-yes" || !woCur || !woCur.take) return;
+    if (!woArm) {
+      woArm = true;
+      e.target.textContent = "Точно? Склад фракции изменится";
+      return;
+    }
+    woArm = false;
+    e.target.disabled = true;
+    const take = woCur.take;
+    const note = `Заказ «${O().name}»`.slice(0, 200);
+    const { error } = await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id })));
+    if (error) {
+      e.target.disabled = false;
+      document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
+      return;
+    }
+    woCur = { msg: `<div class="panel sk-wo-box"><p class="ok" style="margin:0">Списано со склада фракции: ${take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p></div>` };
+    woRender();
+    await load();
+    setTimeout(() => {
+      woCur = null;
+      applySrc();
+    }, 4000);
   });
 
   // --- Вкладка «Заказ цеху» в панели заказов (только подтверждённые участники)
@@ -417,20 +500,20 @@
     const tmp = newOrder(g.name || "Заказ");
     tmp.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
     tmp.manual = +g.manual > 0 ? String(g.manual) : "";
-    const savedO = orders[cur], savedS = stock;
+    const savedO = orders[cur];
     orders[cur] = tmp;
-    if (guildStock) stock = guildStock;
     try {
-      const b = breakdown();
-      return { b, pr: priceOf(b) };
+      return withStock(guildStock || null, () => {
+        const b = breakdown();
+        return { b, pr: priceOf(b) };
+      });
     } finally {
       orders[cur] = savedO;
-      stock = savedS;
     }
   }
   function gRender() {
     if (!zak) return;
-    const ok = S.user && S.me && hasNick() && (S.me.rank >= 1 || S.me.admin);
+    const ok = canFacView();
     tabs.hidden = !ok;
     const t = ok ? otab : "my";
     tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
@@ -441,35 +524,33 @@
       wb.id = "g-wo";
       wb.className = "btn";
       wb.type = "button";
-      wb.textContent = "Списать со склада фракции";
-      wb.title = "Показать, что возьмётся со склада фракции на этот заказ, и списать после подтверждения";
+      wb.textContent = "Склад фракции";
+      wb.title = "Открыть расчёт по складу своей фракции: что нужно, сколько спишется и хватает ли";
       document.getElementById("odel").after(wb);
       wb.addEventListener("click", () => {
         const go = document.querySelector('[data-goview="calc"]');
         if (go) go.click();
-        setTimeout(() => {
-          const b = document.getElementById("sk-wo-go");
-          if (b) { b.click(); document.getElementById("sk-wo").scrollIntoView({ block: "center" }); }
-        }, 50);
+        setSrc(true);
+        setTimeout(() => wo.scrollIntoView({ block: "start" }), 50);
       });
     }
-    if (wb) wb.hidden = !canMove();
+    if (wb) wb.hidden = !canFacView();
     zak.classList.toggle("cex", t === "cex");
     gbox.hidden = t !== "cex";
     if (t !== "cex") return;
     const mine = typeof O === "function" ? O() : null,
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
-    let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(fac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
-      ${canMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canMove() ? "" : " hidden"}><input id="g-sendnote" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gSendNote)}" style="flex:1;min-width:120px"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить во фракцию мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
+    let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(ofac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
+      ${canFacMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canFacMove() ? "" : " hidden"}><input id="g-sendnote" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gSendNote)}" style="flex:1;min-width:120px"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить во фракцию мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
       <p class="hint" id="g-msg"></p>`;
     const list = S.gorders;
     h += list.length
       ? list
           .map(g => {
             const takenMe = g.taken_by === uid,
-              canDel = g.created_by === uid || canApprove(),
-              canNoteG = g.created_by === uid || takenMe || canApprove();
+              canDel = g.created_by === uid || canApproveOF(),
+              canNoteG = g.created_by === uid || takenMe || canApproveOF();
             let c;
             try { c = calcG(g); } catch (_) { c = null; }
             const ids = Object.keys(g.items || {}).filter(id => typeof BYID !== "undefined" && BYID[id]);
@@ -487,7 +568,7 @@
                 <span class="k">Цена заказчику</span><span class="v big pv">${fmt(Math.round(pr.full))} гр.</span></div>`;
             }
             const btns = [
-              g.status === "new" && !g.taken_by && canMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
+              g.status === "new" && !g.taken_by && canFacMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
               takenMe && g.status === "work" && gDone !== g.id ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Выполнил</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
               takenMe && g.status === "done" ? `<button class="btn" data-g="reopen" data-id="${g.id}" type="button">Не готово</button>` : "",
               `<button class="btn" data-g="copy" data-id="${g.id}" type="button" title="Создать такой же заказ у себя, чтобы посчитать сырьё">В мои заказы</button>`,
@@ -496,11 +577,11 @@
             let doneH = "";
             if (gDone === g.id && gPlan) {
               const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
-              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада фракции:" : "Со склада фракции списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе фракции не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p>${S.moves.some(m => m.note === gNoteTxt(g)) ? '<p class="warn">По этому заказу со склада фракции уже списывали (есть в журнале). Проверь, чтобы не списать второй раз.</p>' : ""}<button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
+              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада фракции:" : "Со склада фракции списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе фракции не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p>${S.ofMoves.some(m => m.note === gNoteTxt(g)) ? '<p class="warn">По этому заказу со склада фракции уже списывали (есть в журнале). Проверь, чтобы не списать второй раз.</p>' : ""}<button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
             }
-            return `<div class="gcard st-${g.status}"><div class="gtop"><b>${esc(g.name || "Заказ")}</b><span class="gst">${ST[g.status]}${g.taken_by ? " · " + esc(who(g.taken_by)) : ""}</span></div>
+            return `<div class="gcard st-${g.status}"><div class="gtop"><b>${esc(g.name || "Заказ")}</b><span class="gst">${ST[g.status]}${g.taken_by ? " · " + esc(ofWho(g.taken_by)) : ""}</span></div>
               ${tilesH}${sumH}
-              <div class="hint">от ${esc(who(g.created_by))} · ${when(g.created_at)}${g.due ? " · срок " + esc(g.due) : ""}</div>
+              <div class="hint">от ${esc(ofWho(g.created_by))} · ${when(g.created_at)}${g.due ? " · срок " + esc(g.due) : ""}</div>
               <div class="gnote">${canNoteG ? `<input class="g-note" data-id="${g.id}" maxlength="300" value="${esc(g.note)}" placeholder="Для кого или номер заказа (нужно, чтобы выполнить)">` : g.note ? esc(g.note) : '<span class="hint">без заметки</span>'}</div>
               ${gMsgId === g.id && gMsgTxt ? `<p class="warn" style="margin:4px 0">${esc(gMsgTxt)}</p>` : ""}
               ${doneH}
@@ -532,14 +613,14 @@
   gbox.addEventListener("click", async e => {
     const b = e.target.closest("button");
     if (!b) return;
-    if (!canMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
+    if (!canFacMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
     if (b.id === "g-send") {
       if (b.disabled) return;
       b.disabled = true;
       const o = O();
       const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
       if (!Object.keys(items).length) return gMsg("В твоём заказе нет вещей.");
-      const { error } = await sb.from("gorders").insert({ faction: F, name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual > 0 ? +o.manual : 0, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual > 0 ? +o.manual : 0, status: "new", created_by: S.user.id });
       if (error) return gMsg("Не отправилось: " + error.message);
       gSendNote = "";
       return load();
@@ -562,7 +643,7 @@
         gMsgTxt = "Сначала впиши в заметку, для кого заказ или его номер.";
         return gRender();
       }
-      const c = calcG(g, Object.fromEntries(Object.entries(S.stock).filter(([, v]) => v > 0)));
+      const c = calcG(g, Object.fromEntries(Object.entries(S.facStock).filter(([, v]) => v > 0)));
       gPlan = { take: [...c.b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...c.b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])], lack: c.b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]) };
       gDone = g.id;
       return gRender();
@@ -577,7 +658,7 @@
       if (e1) { gMsgId = g.id; gMsgTxt = "Не вышло: " + e1.message; gDone = gPlan = null; return load(); }
       if (gPlan && gPlan.take.length) {
         const note = gNoteTxt(g);
-        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ faction: F, res: k, qty: -n, note, user_id: S.user.id })));
+        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id })));
         if (error) {
           await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
           gMsgId = g.id;
@@ -622,10 +703,8 @@
     renderOrder = function (...a) {
       const r = _ro.apply(this, a);
       try {
-        if (woCur && !woCur.msg && woCur.key !== qKey()) {
-          woCur = null;
-          woRender();
-        }
+        woArm = false;
+        woRender();
         if (otab === "cex" && !typing()) gRender();
       } catch (_) {}
       return r;
@@ -634,7 +713,9 @@
   const _render = render;
   render = function () {
     _render();
-    if (!woCur) woRender();
+    // склад фракции поменялся (или права) - пересчитать заказ, если он считается по складу фракции
+    if ((srcFac && canFacView()) || window.SRC_FAC) applySrc();
+    else woRender();
     gRender();
   };
 

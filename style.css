@@ -329,3 +329,8 @@ body{padding-block:12px 90px}
 .sk-journal thead th{position:sticky;top:0;background:var(--paper);z-index:1}
 @media (max-width:520px){.views{display:flex;flex-wrap:wrap;max-width:100%}.views button{padding:6px 7px}.sk-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}}
 .sk-facs{margin:0 0 10px}
+.srcsw{margin:0 0 12px}
+body.srcfac #odone,body.srcfac #oundo,body.srcfac #odonenote{display:none!important}
+#raschet details:has(#stock){}
+body.srcfac #raschet details:has(> #stock){display:none}
+.sk-wo-box .ic{width:28px;height:28px;min-width:28px}
