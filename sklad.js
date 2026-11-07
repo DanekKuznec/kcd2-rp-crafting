@@ -28,8 +28,8 @@
     if (!S.user) return render();
     const { data: mem, error: e1 } = await sb.from("members").select("*").order("created_at");
     S.members = mem || [];
-    S.me = S.members.find(m => m.user_id === S.user.id) || { role: "pending", name: "" };
-    if (S.me.role === "member" || S.me.role === "head") {
+    S.me = S.members.find(m => m.user_id === S.user.id) || { rank: 0, admin: false, name: "", rp_name: "" };
+    if (S.me.rank >= 1 || S.me.admin) {
       const { data: mv, error: e2 } = await sb.from("moves").select("*").order("created_at", { ascending: false }).limit(2000);
       S.moves = mv || [];
       S.stock = {};
@@ -39,19 +39,22 @@
     render();
   }
 
-  const who = id => (S.members.find(m => m.user_id === id) || {}).name || "кто-то";
-  const ROLE = { head: "глава цеха", member: "участник", pending: "ждёт подтверждения" };
+  // Ранги цеха как в игре. 0 - нет доступа (ждёт подтверждения).
+  const RANKS = ["нет доступа", "Батрак", "Ученик", "Подмастерье", "Старший Подмастерье", "Мастер Кузнец", "Цеховой Мастер", "Цеховой Писарь", "Цеховой Старейшина", "Цехмейстер"];
+  const disp = m => (m && (m.rp_name || m.name)) || "кто-то";
+  const who = id => disp(S.members.find(m => m.user_id === id));
+  const canApprove = () => S.me.admin || S.me.rank >= 8;
 
   function render() {
     if (!S.user) {
       root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p>Общий склад цеха: кто что положил и взял, остатки по каждому ресурсу.</p><button class="btn go" id="sk-login" type="button">Войти через Discord</button></div>`;
       return;
     }
-    const head = S.me.role === "head",
-      ok = head || S.me.role === "member";
-    let h = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад цеха</h2><span class="hint">${esc(S.me.name || "без ника")} · ${ROLE[S.me.role] || S.me.role} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
+    const head = canApprove(),
+      ok = S.me.rank >= 1 || S.me.admin;
+    let h = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад цеха</h2><span class="hint">${esc(disp(S.me))} · ${S.me.rank ? RANKS[S.me.rank] : "ждёт подтверждения"} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
     if (!ok) {
-      h += `<p>Ты вошёл, но глава цеха ещё не подтвердил доступ. Напиши ему, он нажмёт «Подтвердить» у твоего ника.</p></div>`;
+      h += `<p>Ты вошёл как <b>${esc(S.me.name || "без ника")}</b>, но доступ ещё не подтвердили. Напиши цехмейстеру или цеховому старейшине, они выдадут ранг.</p></div>`;
       root.innerHTML = h;
       return;
     }
@@ -80,14 +83,23 @@
     h += `<h3>Журнал</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
       S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
     }</tbody></table></div>`;
-    // участники (для главы)
-    if (head) {
-      h += `<h3>Участники</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Ник</th><th class="l">Роль</th><th></th></tr></thead><tbody>${S.members
-        .map(m => `<tr><td class="l">${esc(m.name || "без ника")}${m.user_id === S.user.id ? " (ты)" : ""}</td><td class="l ${m.role === "pending" ? "warn" : ""}">${ROLE[m.role]}</td><td class="l">${
-          m.user_id === S.user.id ? "" : `${m.role === "pending" ? `<button class="btn" data-role="member" data-u="${m.user_id}" type="button">Подтвердить</button>` : ""}${m.role === "member" ? `<button class="btn" data-role="head" data-u="${m.user_id}" type="button">Сделать главой</button>` : ""}${m.role === "head" ? `<button class="btn" data-role="member" data-u="${m.user_id}" type="button">Снять главу</button>` : ""}<button class="btn" data-role="pending" data-u="${m.user_id}" type="button">${m.role === "pending" ? "Отказать" : "Закрыть доступ"}</button>`
-        }</td></tr>`)
-        .join("")}</tbody></table></div>`;
-    }
+    // участники: ранги видят все, менять могут управляющий, цехмейстер и старейшина
+    const mine = m => m.user_id === S.user.id,
+      editable = m => S.me.admin || (head && !mine(m) && !m.admin && m.rank <= S.me.rank),
+      maxRank = S.me.admin ? 9 : S.me.rank;
+    const list = [...S.members].sort((a, b) => (a.rank === 0) - (b.rank === 0) || b.rank - a.rank || disp(a).localeCompare(disp(b), "ru"));
+    const pend = list.filter(m => m.rank === 0 && !m.admin);
+    h += `<h3>Участники${head && pend.length ? ` <span class="warn">· ждут подтверждения: ${pend.length}</span>` : ""}</h3>
+      <div class="tablebox"><table class="mini"><thead><tr><th class="l">Персонаж</th><th class="l">Discord</th><th class="l">Ранг</th>${S.me.admin ? '<th class="l">Управление сайтом</th>' : ""}</tr></thead><tbody>${list
+      .map(m => {
+        const nameCell = mine(m) || editable(m) ? `<input class="sk-rp" data-u="${m.user_id}" value="${esc(m.rp_name)}" placeholder="имя персонажа">` : esc(m.rp_name || "—");
+        const rankCell = editable(m)
+          ? `<select class="sk-rank" data-u="${m.user_id}">${RANKS.map((r, i) => (i <= maxRank || i === m.rank ? `<option value="${i}" ${i === m.rank ? "selected" : ""}>${i ? i + " · " + r : "нет доступа"}</option>` : "")).join("")}</select>`
+          : `<span class="${m.rank ? "" : "warn"}">${m.rank ? m.rank + " · " + RANKS[m.rank] : "ждёт подтверждения"}</span>`;
+        const adm = S.me.admin ? `<td class="l">${mine(m) ? "да (ты)" : `<label class="hint"><input type="checkbox" class="sk-adm" data-u="${m.user_id}" ${m.admin ? "checked" : ""}> да</label> <button class="linkbtn" data-kick="${m.user_id}" type="button" title="Удалить из списка">убрать</button>`}</td>` : "";
+        return `<tr><td class="l">${nameCell}${mine(m) ? ' <span class="hint">(ты)</span>' : ""}</td><td class="l hint">${esc(m.name || "")}</td><td class="l">${rankCell}</td>${adm}</tr>`;
+      })
+      .join("")}</tbody></table></div>`;
     root.innerHTML = h + "</div>";
   }
 
@@ -116,8 +128,13 @@
       const { error } = await sb.from("moves").delete().eq("id", t.dataset.del);
       if (error) alertMsg(error.message);
       load();
-    } else if (t.dataset.role) {
-      const { error } = await sb.from("members").update({ role: t.dataset.role }).eq("user_id", t.dataset.u);
+    } else if (t.dataset.kick) {
+      if (t.dataset.armed !== "1") {
+        t.dataset.armed = "1";
+        t.textContent = "точно убрать?";
+        return;
+      }
+      const { error } = await sb.from("members").delete().eq("user_id", t.dataset.kick);
       if (error) alertMsg(error.message);
       load();
     }
@@ -159,7 +176,16 @@
       q.setSelectionRange(pos, pos);
     }
   });
+  const upd = async (u, patch) => {
+    const { error } = await sb.from("members").update(patch).eq("user_id", u);
+    if (error) alertMsg("Не сохранилось: " + error.message);
+    load();
+  };
   root.addEventListener("change", e => {
+    const t = e.target;
+    if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
+    if (t.classList.contains("sk-rp")) return upd(t.dataset.u, { rp_name: t.value.trim().slice(0, 60) });
+    if (t.classList.contains("sk-adm")) return upd(t.dataset.u, { admin: t.checked });
     if (e.target.id === "sk-all") {
       S.all = e.target.checked;
       render();

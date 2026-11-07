@@ -81,3 +81,13 @@ exception when others then null; end $$;
 do $$ begin
   alter publication supabase_realtime add table public.members;
 exception when others then null; end $$;
+
+-- ===== Обновление 7 ноября: ранги цеха вместо ролей =====
+-- Ранги 0..9 (0 = нет доступа), отдельный флаг admin - управление сайтом.
+-- Одобрять и менять ранги могут: admin, ранг 9 (Цехмейстер), ранг 8 (Цеховой Старейшина).
+-- Они не могут: трогать ранги выше своего, менять свой ранг, выдавать admin, трогать admin.
+alter table public.members add column if not exists rank integer not null default 0 check (rank between 0 and 9);
+alter table public.members add column if not exists admin boolean not null default false;
+alter table public.members add column if not exists rp_name text not null default '';
+-- (функции private.my_rank, private.is_admin, private.can_approve, триггер private.members_guard
+--  и политики members_update, members_admin_delete, moves_read/insert/delete - см. миграцию sklad_ranks в Supabase)
