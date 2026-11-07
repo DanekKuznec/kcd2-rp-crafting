@@ -449,8 +449,8 @@
       ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
       <p style="margin:8px 0 0">${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
       ${canFacMove()
-        ? take.length
-          ? `${O().facDone || S.ofMoves.some(m => m.note === `Заказ «${O().name}»`.slice(0, 200)) ? `<p class="warn" style="margin:8px 0 0">По заказу «${esc(O().name)}» со склада фракции уже списывали${O().facDone ? " " + when(O().facDone) : ""}. Проверь, чтобы не списать второй раз.</p>` : ""}<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? "Точно? Склад фракции изменится" : "Заказ выполнен: списать со склада фракции"}</button><span class="hint" id="sk-wo-msg">В журнал фракции запишется от тебя с заметкой «Заказ «${esc(O().name)}»».</span></div>`
+        ? true
+          ? `${O().facDone || S.ofMoves.some(m => m.note === `Заказ «${O().name}»`.slice(0, 200)) ? `<p class="warn" style="margin:8px 0 0">Заказ «${esc(O().name)}» уже отмечали выполненным по складу фракции${O().facDone ? " " + when(O().facDone) : ""}. Проверь, чтобы не списать второй раз.</p>` : ""}<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? (take.length ? "Точно? Склад фракции изменится" : "Точно? Запишется в журнал фракции") : take.length ? "Заказ выполнен: списать со склада фракции" : "Заказ выполнен: записать в журнал фракции"}</button><span class="hint" id="sk-wo-msg">${take.length ? `Спишется от тебя с заметкой «Заказ «${esc(O().name)}»», заказ попадёт в журнал фракции.` : "Со склада фракции брать нечего, заказ просто попадёт в журнал фракции."}</span></div>`
           : '<p class="hint">Со склада фракции на этот заказ брать нечего.</p>'
         : '<p class="hint">Списывать со склада фракции могут Подмастерье и выше.</p>'}</div>`;
     woCur = { take };
@@ -536,7 +536,7 @@
       woArm = true;
       woArmKey = qKey();
       woArmAt = Date.now();
-      e.target.textContent = "Точно? Склад фракции изменится";
+      e.target.textContent = woCur.take.length ? "Точно? Склад фракции изменится" : "Точно? Запишется в журнал фракции";
       return;
     }
     if (Date.now() - woArmAt < 500) return; // двойной клик не считаем подтверждением
@@ -550,7 +550,7 @@
       const b = breakdown(), pr = priceOf(b);
       jr = { name: (o.name || "Заказ").slice(0, 80), items: sortedIds().map(id => ({ n: BYID[id].n, q: Q()[id] })), price: Math.round(pr.price), labor: Math.round(pr.labor) };
     } catch (_) {}
-    const { error } = await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id })));
+    const { error } = take.length ? await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id }))) : { error: null };
     if (!error) {
       o.facDone = new Date().toISOString();
       save();
@@ -561,7 +561,7 @@
       document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
       return;
     }
-    woCur = { msg: `<div class="panel sk-wo-box"><p class="ok" style="margin:0">Списано со склада фракции: ${take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p></div>` };
+    woCur = { msg: `<div class="panel sk-wo-box"><p class="ok" style="margin:0">${take.length ? `Списано со склада фракции: ${take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}. ` : ""}Заказ записан в журнал фракции.</p></div>` };
     woRender();
     await load();
     setTimeout(() => {
@@ -779,7 +779,8 @@
       }
       try {
         const c = calcG(g);
-        await addFJ({ name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price: Math.round(c.pr.full), labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+        if (!S.fj.some(r => r.gid === g.id))
+          await addFJ({ gid: g.id, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price: Math.round(c.pr.full), labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
       } catch (_) {}
       gDone = gPlan = null;
       return load();
