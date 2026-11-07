@@ -563,7 +563,8 @@
           .map(g => {
             const takenMe = g.taken_by === uid,
               canDel = g.created_by === uid || canApproveOF(),
-              canNoteG = g.created_by === uid || takenMe || canApproveOF();
+              canNoteG = g.created_by === uid || takenMe || canApproveOF(),
+              canPrice = g.created_by === uid || canApproveOF();
             let c;
             try { c = calcG(g); } catch (_) { c = null; }
             const ids = Object.keys(g.items || {}).filter(id => typeof BYID !== "undefined" && BYID[id]);
@@ -578,7 +579,8 @@
                 <span class="k">Материалы</span><span class="v">${fmt(raw)} гр.</span>
                 <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
-                <span class="k">Цена заказчику</span><span class="v big pv">${fmt(Math.round(pr.full))} гр.</span></div>`;
+                <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
+                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}</div>`;
             }
             const btns = [
               g.status === "new" && !g.taken_by && canFacMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
@@ -611,11 +613,25 @@
     try { localStorage.setItem("forge-otab", otab); } catch (_) {}
     gRender();
   });
+  gbox.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.classList.contains("g-price")) e.target.blur();
+  });
   gbox.addEventListener("input", e => {
     if (e.target.id === "g-sendnote") gSendNote = e.target.value;
   });
   gbox.addEventListener("change", async e => {
     const t = e.target;
+    if (t.classList.contains("g-price")) {
+      const g = S.gorders.find(x => String(x.id) === t.dataset.id);
+      if (!g) return;
+      let v = Math.max(0, Math.round(+t.value || 0));
+      // цена совпала с расчётной - значит своей цены нет
+      try { if (Math.round(calcG({ ...g, manual: 0 }).pr.calc) === v) v = 0; } catch (_) {}
+      const { error } = await sb.from("gorders").update({ manual: v }).eq("id", g.id);
+      if (error) { gMsgId = g.id; gMsgTxt = "Цена не сохранилась: " + error.message; }
+      else g.manual = v;
+      return load();
+    }
     if (!t.classList.contains("g-note")) return;
     const { error } = await sb.from("gorders").update({ note: t.value.trim().slice(0, 300) }).eq("id", t.dataset.id);
     if (error) { gMsgId = +t.dataset.id; gMsgTxt = "Заметка не сохранилась: " + error.message; return load(); }
@@ -684,6 +700,7 @@
       return load();
     }
     if (act === "reopen") patch = { status: "work" };
+    if (act === "preset") patch = { manual: 0 };
     if (patch) {
       const { error } = await sb.from("gorders").update(patch).eq("id", g.id);
       if (error) gMsg("Не вышло: " + error.message);
@@ -693,6 +710,7 @@
       const o = newOrder((g.name || "Заказ фракции").slice(0, 40));
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => typeof BYID === "undefined" || BYID[id]));
       o.due = g.due || "";
+      if (+g.manual > 0) o.manual = String(g.manual);
       orders.push(o);
       cur = orders.length - 1;
       save();
