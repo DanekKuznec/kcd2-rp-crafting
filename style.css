@@ -340,3 +340,11 @@ section.view.jfac > section.panel:not(.fjbox){display:none}
 .fj-d{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
 .fj-it{color:var(--muted);font-size:12.5px}.fj-p{text-align:right;font-family:var(--f-num);white-space:nowrap}
 @media (max-width:520px){.fj-row{grid-template-columns:1fr auto}.fj-d{grid-column:1/-1}}
+.sk-pbar{position:sticky;top:0;z-index:5;margin:8px 0;padding:8px 10px;border:1px solid var(--copper,#b07a3c);border-radius:8px;background:var(--paper);box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.sk-plist{font-size:13.5px;line-height:1.4;min-width:0}
+.sk-pbar .obar{flex-wrap:wrap;gap:6px}
+#sk-note{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);min-width:240px}
+.sk-tile.pend{border-color:var(--copper,#b07a3c);box-shadow:0 0 0 1px var(--copper,#b07a3c) inset}
+.sk-pd{position:absolute;top:3px;left:6px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:2px}
+.sk-pdx{border:0;background:none;color:var(--muted);cursor:pointer;padding:0 2px;font-size:13px}
+.sk-what{font-size:13px;line-height:1.35}

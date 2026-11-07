@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { factions: [], fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -197,13 +197,14 @@
         lim = l && l.lim != null ? +l.lim : null,
         full = lim != null && st >= lim,
         sub = [lim != null ? `лимит ${num(lim)}` : "", full ? "не скупаем" : buyTxt(l) ? "скуп " + buyTxt(l) : ""].filter(Boolean).join(" · ");
-      return `<div class="sk-tile${st ? "" : " zero"}${full ? " full" : ""}" title="${esc(nm(k))}">
+      const pd = S.pend[k] || 0;
+      return `<div class="sk-tile${st ? "" : " zero"}${full ? " full" : ""}${pd ? " pend" : ""}" title="${esc(nm(k))}">${pd ? `<span class="sk-pd ${pd > 0 ? "ok" : "buy"}">${pd > 0 ? "+" : "−"}${num(Math.abs(pd))}<button type="button" class="sk-pdx" data-k="${k}" title="Убрать из записи">×</button></span>` : ""}
         <span class="sk-cnt ${st < 0 ? "buy" : ""}">×${num(st)}${full ? " ✓" : ""}</span>${resIcon(k)}
         <span class="sk-nm">${esc(nm(k))}</span><span class="sk-sub">${sub || "&nbsp;"}</span>
         ${canMove() ? `<span class="sk-act"><button type="button" class="sk-pm" data-k="${k}" data-s="-1" title="Взял">−</button><input class="sk-n" data-k="${k}" type="number" min="1" step="1" placeholder="0"><button type="button" class="sk-pm" data-k="${k}" data-s="1" title="Положил">+</button></span>` : ""}</div>`;
     };
     const grid = (title, ks) => (ks.length ? `<div class="sk-cat">${title}</div><div class="sk-grid">${ks.map(tile).join("")}</div>` : "");
-    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px">${canNote() ? `<input class="search" id="sk-note" placeholder="Заметка к следующей записи (необязательно)" value="${esc(S.note)}" maxlength="200" style="max-width:320px">` : ""}<span class="hint">${canMove() ? "впиши число и нажми + (положил) или − (взял)" : "класть и брать со склада могут Подмастерье и выше"}</span></div>
+    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"><span class="hint">${canMove() ? "впиши число на плитках, нажми + (положил) или − (взял), потом «Записать» сверху" : "класть и брать со склада могут Подмастерье и выше"}</span></div>${pendBar()}
       ${grid("Сырьё", raws)}${grid("Заготовки", mats)}${!raws.length && !mats.length ? '<p class="hint">Ничего не найдено.</p>' : ""}`;
     if (S.me.admin || S.me.rank >= 6) {
       const rowsOf = ks =>
@@ -218,13 +219,30 @@
     const rankOf = u => (S.members.find(x => x.user_id === u) || { rank: 0 }).rank;
     const noteEditable = m => S.me.admin || (S.me.rank >= 3 && rankOf(m.user_id) <= S.me.rank);
     // журнал: чистить и менять «кто» могут цехмейстер, старейшина и управляющий
-    const whoSel = m =>
-      `<select class="sk-who" data-id="${m.id}">${S.members.some(x => x.user_id === m.user_id) ? "" : `<option selected>${esc(who(m.user_id))}</option>`}${[...S.members]
+    // записи одним блоком (одна кнопка «Записать» или одно списание) показываем одной строкой
+    const groups = () => {
+      const out = [], at = {};
+      S.moves.forEach(m => {
+        if (m.batch && at[m.batch]) return at[m.batch].push(m);
+        const g = [m];
+        if (m.batch) at[m.batch] = g;
+        out.push(g);
+      });
+      return out;
+    };
+    const whoSel = (m, ids) =>
+      `<select class="sk-who" data-ids="${ids}">${S.members.some(x => x.user_id === m.user_id) ? "" : `<option selected>${esc(who(m.user_id))}</option>`}${[...S.members]
         .filter(x => x.rank > 0 || x.admin || x.user_id === m.user_id)
         .map(x => `<option value="${x.user_id}" ${x.user_id === m.user_id ? "selected" : ""}>${esc(disp(x))}</option>`)
         .join("")}</select>`;
     h += `<h3>Журнал <span class="hint" style="font-family:inherit;text-transform:none;letter-spacing:0">${S.moves.length >= 1000 ? "последние 1000 записей" : "записей: " + S.moves.length}</span></h3><div class="tablebox sk-jbox"><table class="mini sk-journal"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
-      S.moves.map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m) : esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-id="${m.id}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
+      groups()
+        .map(g => {
+          g.sort((x, y) => (y.qty > 0) - (x.qty > 0) || x.id - y.id);
+          const m = g[0], ids = g.map(x => x.id).join(",");
+          return `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m, ids) : esc(who(m.user_id))}</td><td class="l sk-what">${g.map(x => `<span class="${x.qty > 0 ? "ok" : "buy"}">${x.qty > 0 ? "положил" : "взял"} ${num(Math.abs(x.qty))} · ${esc(nm(x.res))}</span>`).join("<br>")}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-ids="${ids}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${ids}" type="button" title="Удалить запись${g.length > 1 ? " целиком" : ""}. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`;
+        })
+        .join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
     }</tbody></table></div>`;
     // участники: ранги видят все, менять могут управляющий, цехмейстер и старейшина
     const mine = m => m.user_id === S.user.id,
@@ -252,7 +270,7 @@
       if (t.dataset.fac === F) return;
       F = t.dataset.fac;
       try { localStorage.setItem("forge-faction", F); } catch (_) {}
-      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "" });
+      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "", pend: {} });
       woCur = null; gDone = gPlan = null;
       root.innerHTML = facTabs() + `<div class="panel"><p class="hint">Загружаю…</p></div>`;
       return load();
@@ -266,13 +284,23 @@
       render();
     } else if (t.classList.contains("sk-pm")) {
       put(t.dataset.k, +t.dataset.s);
+    } else if (t.classList.contains("sk-pdx")) {
+      delete S.pend[t.dataset.k];
+      lowArmed = false;
+      render();
+    } else if (t.id === "sk-save") {
+      savePend();
+    } else if (t.id === "sk-pclear") {
+      S.pend = {};
+      lowArmed = false;
+      render();
     } else if (t.dataset.del) {
       if (t.dataset.armed !== "1") {
         t.dataset.armed = "1";
         t.textContent = "удалить? остаток изменится";
         return;
       }
-      const { error } = await sb.from("moves").delete().eq("id", t.dataset.del);
+      const { error } = await sb.from("moves").delete().in("id", t.dataset.del.split(","));
       if (error) alertMsg(error.message);
       load();
     } else if (t.dataset.kick) {
@@ -291,27 +319,49 @@
     if (el) el.textContent = m;
   };
   const canNote = () => S.me && (S.me.admin || S.me.rank >= 3);
-  async function put(k, sign) {
+  const newBatch = () => "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  // плитка: число + «+»/«−» только добавляет в запись; записывается всё разом кнопкой «Записать»
+  function put(k, sign) {
     if (!canMove()) return;
     const inp = root.querySelector(`.sk-n[data-k="${k}"]`),
       n = Math.floor(+(inp && inp.value));
     if (!(n > 0)) return alertMsg(`Впиши, сколько ${sign > 0 ? "положил" : "взял"} · ${nm(k)}.`);
-    if (sign < 0 && (S.stock[k] || 0) < n && !confirmLow(k, n)) return;
-    const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
-    const { error } = await sb.from("moves").insert({ faction: F, res: k, qty: sign * n, note });
-    if (error) return alertMsg("Не записалось: " + error.message);
-    lowArmed = "";
-    S.note = "";
-    await load();
-    alertMsg(`Записано: ${sign > 0 ? "положил" : "взял"} ${n} · ${nm(k)}`);
+    S.pend[k] = sign * n;
+    lowArmed = false;
+    render();
+    const nx = root.querySelector(`.sk-n[data-k="${k}"]`);
+    if (nx) nx.focus();
   }
-  let lowArmed = "";
-  function confirmLow(k, n) {
-    const tag = k + n;
-    if (lowArmed === tag) return true;
-    lowArmed = tag;
-    alertMsg(`На складе только ${num(S.stock[k] || 0)} · ${nm(k)}. Нажми − ещё раз, если всё верно.`);
-    return false;
+  const pendList = () => Object.entries(S.pend).filter(([, v]) => v);
+  function pendBar() {
+    const l = pendList();
+    if (!l.length || !canMove()) return "";
+    const ins = l.filter(([, v]) => v > 0), outs = l.filter(([, v]) => v < 0);
+    const txt = a => a.map(([k, v]) => `${num(Math.abs(v))} · ${esc(nm(k))}`).join(", ");
+    return `<div class="sk-pbar"><div class="sk-plist">${ins.length ? `<span class="ok">Положил:</span> ${txt(ins)}` : ""}${ins.length && outs.length ? "<br>" : ""}${outs.length ? `<span class="buy">Взял:</span> ${txt(outs)}` : ""}</div>
+      <div class="obar">${canNote() ? `<input id="sk-note" placeholder="Заметка к записи, например: 751 грош со своих" value="${esc(S.note)}" maxlength="200">` : ""}<button class="btn go" id="sk-save" type="button">${lowArmed ? "Точно записать?" : `Записать (${l.length})`}</button><button class="btn" id="sk-pclear" type="button">Отмена</button></div></div>`;
+  }
+  let lowArmed = false, saving = false;
+  async function savePend() {
+    const l = pendList();
+    if (!l.length || saving) return;
+    const low = l.filter(([k, v]) => v < 0 && (S.stock[k] || 0) < -v);
+    if (low.length && !lowArmed) {
+      lowArmed = true;
+      render();
+      return alertMsg(`На складе меньше, чем берёшь: ${low.map(([k]) => `${nm(k)} (есть ${num(S.stock[k] || 0)})`).join(", ")}. Нажми «Записать» ещё раз, если всё верно.`);
+    }
+    saving = true;
+    const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
+    const batch = newBatch();
+    const { error } = await sb.from("moves").insert(l.map(([k, v]) => ({ faction: F, res: k, qty: v, note, batch })));
+    saving = false;
+    if (error) return alertMsg("Не записалось: " + error.message);
+    S.pend = {};
+    S.note = "";
+    lowArmed = false;
+    await load();
+    alertMsg(`Записано одним блоком: ${l.length} поз.`);
   }
   root.addEventListener("input", e => {
     if (e.target.id === "sk-note") S.note = e.target.value;
@@ -333,12 +383,12 @@
     const t = e.target;
     if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
     if (t.classList.contains("sk-mnote"))
-      return sb.from("moves").update({ note: t.value.trim().slice(0, 200) }).eq("id", t.dataset.id).then(({ error }) => {
+      return sb.from("moves").update({ note: t.value.trim().slice(0, 200) }).in("id", t.dataset.ids.split(",")).then(({ error }) => {
         if (error) alertMsg("Не сохранилось: " + error.message);
         load();
       });
     if (t.classList.contains("sk-who"))
-      return sb.from("moves").update({ user_id: t.value }).eq("id", t.dataset.id).then(({ error }) => {
+      return sb.from("moves").update({ user_id: t.value }).in("id", t.dataset.ids.split(",")).then(({ error }) => {
         if (error) alertMsg("Не сохранилось: " + error.message);
         load();
       });
@@ -369,6 +419,7 @@
     load();
   });
   root.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.id === "sk-note") return savePend();
     if (e.key === "Enter" && e.target.classList.contains("sk-n")) put(e.target.dataset.k, e.shiftKey ? -1 : 1);
   });
   root.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("sk-lims")) S.limOpen = e.target.open; }, true);
@@ -544,13 +595,13 @@
     e.target.disabled = true;
     const take = woCur.take;
     const note = `Заказ «${O().name}»`.slice(0, 200);
-    const o = O();
+    const o = O(), wb = newBatch();
     let jr = null;
     try {
       const b = breakdown(), pr = priceOf(b);
       jr = { name: (o.name || "Заказ").slice(0, 80), items: sortedIds().map(id => ({ n: BYID[id].n, q: Q()[id] })), price: Math.round(pr.price), labor: Math.round(pr.labor) };
     } catch (_) {}
-    const { error } = take.length ? await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id }))) : { error: null };
+    const { error } = take.length ? await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id, batch: wb }))) : { error: null };
     if (!error) {
       o.facDone = new Date().toISOString();
       save();
@@ -768,7 +819,8 @@
       if (e1) { gMsgId = g.id; gMsgTxt = "Не вышло: " + e1.message; gDone = gPlan = null; return load(); }
       if (gPlan && gPlan.take.length) {
         const note = gNoteTxt(g);
-        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id })));
+        const gb = newBatch();
+        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id, batch: gb })));
         if (error) {
           await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
           gMsgId = g.id;
