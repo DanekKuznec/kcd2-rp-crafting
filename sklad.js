@@ -34,10 +34,8 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  let dir = 1;
-  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", sec: "aw", err: "" };
+  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
-  const SECS = [["aw", "Броня и оружие"], ...DATA.secs.filter(([k]) => k !== "a" && k !== "w"), ["all", "Всё"]];
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
       out = new Set(),
@@ -49,11 +47,12 @@
     ITEMS.filter(i => sec === "all" || list.includes(i.s)).forEach(i => (i.m ? walk(i.m) : Object.keys(i.r).forEach(walk)));
     return out;
   }
+  const AW = secRes("aw");
   const MATITEM = {};
   ITEMS.forEach(i => i.m && !MATITEM[i.m] && (MATITEM[i.m] = i));
-  const RICON = DATA.ricon || {};
+  const RICON = window.FORGE_RICON || {};
   const resIcon = k =>
-    MATITEM[k] ? icon(MATITEM[k]) : RICON[k] && DATA.icons[RICON[k]] ? `<img class="ic" src="${DATA.icons[RICON[k]]}" alt="" loading="lazy">` : icon({ n: nm(k) });
+    MATITEM[k] ? icon(MATITEM[k]) : RICON[k] ? `<img class="ic" src="${RICON[k]}" alt="" loading="lazy">` : icon({ n: nm(k) });
 
   async function load() {
     try {
@@ -101,39 +100,37 @@
       return;
     }
     if (S.err) h += `<p class="warn">${esc(S.err)}</p>`;
-    // запись
-    h += `<form class="sk-form" id="sk-form" autocomplete="off">
-      <label>Ресурс<input id="sk-res" list="sk-list" placeholder="начни вводить название" required></label>
-      <label>Сколько<input id="sk-qty" type="number" min="1" step="1" required></label>
-      <span class="seg sk-dir" role="group" aria-label="Что сделал"><button type="button" data-d="1" aria-pressed="${dir > 0}">Положил</button><button type="button" data-d="-1" aria-pressed="${dir < 0}">Взял</button></span>
-      <label class="sk-note">Заметка<input id="sk-note" placeholder="например: на заказ Яна"></label>
-      <button class="btn go" type="submit">Записать</button>
-      <datalist id="sk-list">${keys.map(k => `<option value="${esc(nm(k))}">`).join("")}</datalist>
-    </form><p class="hint" id="sk-msg"></p>`;
-    // остатки: все ресурсы выбранного ремесла (даже нулевые) + всё, что лежит на складе
-    const want = secRes(S.sec);
+    h += `<p class="hint" id="sk-msg"></p>`;
+    // остатки: только то, что идёт в рецепты брони и оружия
     const q = S.q.trim().toLowerCase();
-    const pick = ks => ks.filter(k => (want.has(k) || (S.stock[k] || 0) !== 0) && (!q || nm(k).toLowerCase().includes(q)));
+    const pick = ks => ks.filter(k => AW.has(k) && (!q || nm(k).toLowerCase().includes(q)));
     const raws = pick(keys.filter(k => !MAT[k])),
       mats = pick(keys.filter(k => MAT[k]));
     const buyTxt = l => (l && l.buy_min != null ? (l.buy_max != null && +l.buy_max !== +l.buy_min ? `${num(l.buy_min)}-${num(l.buy_max)}` : num(l.buy_min)) + " гр." : "");
-    const rowsOf = ks =>
-      ks
-        .map(k => {
-          const l = S.limits[k],
-            st = S.stock[k] || 0,
-            full = l && l.lim != null && st >= l.lim,
-            limCell = head ? `<input class="sk-lim" data-k="${k}" type="number" min="0" value="${l && l.lim != null ? l.lim : ""}" placeholder="—">` : l && l.lim != null ? num(l.lim) : "—",
-            buyCell = head
-              ? `<input class="sk-bmin" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_min != null ? +l.buy_min : ""}" placeholder="от">-<input class="sk-bmax" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_max != null ? +l.buy_max : ""}" placeholder="до">`
-              : full ? '<span class="hint">не скупаем, лимит</span>' : buyTxt(l) || "—";
-          return `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}${!want.has(k) ? ' <span class="hint">(другое ремесло)</span>' : ""}</td><td class="num ${st < 0 ? "buy" : st ? "" : "hint"}"><b>${num(st)}</b>${full ? ' <span class="ok" title="Лимит набран">✓</span>' : ""}</td><td class="num">${limCell}</td><td class="num">${buyCell}</td></tr>`;
-        })
-        .join("");
-    h += `<div class="row" style="gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><select id="sk-sec">${SECS.map(([k, n]) => `<option value="${k}" ${k === S.sec ? "selected" : ""}>${esc(n)}</option>`).join("")}</select><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"></div>
-      <div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Остаток</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${
-        raws.length ? `<tr class="cat"><td></td><td colspan="4">Сырьё</td></tr>${rowsOf(raws)}` : ""
-      }${mats.length ? `<tr class="cat"><td></td><td colspan="4">Заготовки</td></tr>${rowsOf(mats)}` : ""}${!raws.length && !mats.length ? `<tr><td colspan="5" class="hint">Ничего не найдено.</td></tr>` : ""}</tbody></table></div>`;
+    const tile = k => {
+      const l = S.limits[k],
+        st = S.stock[k] || 0,
+        lim = l && l.lim != null ? +l.lim : null,
+        full = lim != null && st >= lim,
+        sub = [lim != null ? `лимит ${num(lim)}` : "", full ? "не скупаем" : buyTxt(l) ? "скуп " + buyTxt(l) : ""].filter(Boolean).join(" · ");
+      return `<div class="sk-tile${st ? "" : " zero"}${full ? " full" : ""}" title="${esc(nm(k))}">
+        <span class="sk-cnt ${st < 0 ? "buy" : ""}">×${num(st)}${full ? " ✓" : ""}</span>${resIcon(k)}
+        <span class="sk-nm">${esc(nm(k))}</span><span class="sk-sub">${sub || "&nbsp;"}</span>
+        <span class="sk-act"><button type="button" class="sk-pm" data-k="${k}" data-s="-1" title="Взял">−</button><input class="sk-n" data-k="${k}" type="number" min="1" step="1" placeholder="0"><button type="button" class="sk-pm" data-k="${k}" data-s="1" title="Положил">+</button></span></div>`;
+    };
+    const grid = (title, ks) => (ks.length ? `<div class="sk-cat">${title}</div><div class="sk-grid">${ks.map(tile).join("")}</div>` : "");
+    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"><span class="hint">впиши число и нажми + (положил) или − (взял)</span></div>
+      ${grid("Сырьё", raws)}${grid("Заготовки", mats)}${!raws.length && !mats.length ? '<p class="hint">Ничего не найдено.</p>' : ""}`;
+    if (S.me.admin || S.me.rank >= 6) {
+      const rowsOf = ks =>
+        ks
+          .map(k => {
+            const l = S.limits[k];
+            return `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}</td><td class="num"><input class="sk-lim" data-k="${k}" type="number" min="0" value="${l && l.lim != null ? l.lim : ""}" placeholder="—"></td><td class="num"><input class="sk-bmin" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_min != null ? +l.buy_min : ""}" placeholder="от">-<input class="sk-bmax" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_max != null ? +l.buy_max : ""}" placeholder="до"></td></tr>`;
+          })
+          .join("");
+      h += `<details class="sk-lims"${S.limOpen ? " open" : ""}><summary>Лимиты и цены скупки</summary><div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${rowsOf([...raws, ...mats])}</tbody></table></div></details>`;
+    }
     // журнал
     h += `<h3>Журнал</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
       S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
@@ -158,10 +155,6 @@
     root.innerHTML = h + "</div>";
   }
 
-  const keyOf = txt => {
-    const t = txt.trim().toLowerCase();
-    return keys.find(k => nm(k).toLowerCase() === t) || null;
-  };
   root.addEventListener("click", async e => {
     const t = e.target;
     if (t.id === "sk-login") {
@@ -171,9 +164,8 @@
       await sb.auth.signOut();
       S.user = null;
       render();
-    } else if (t.closest(".sk-dir button")) {
-      dir = +t.dataset.d;
-      root.querySelectorAll(".sk-dir button").forEach(b => b.setAttribute("aria-pressed", String(b === t)));
+    } else if (t.classList.contains("sk-pm")) {
+      put(t.dataset.k, +t.dataset.s);
     } else if (t.dataset.del) {
       if (t.dataset.armed !== "1") {
         t.dataset.armed = "1";
@@ -198,27 +190,23 @@
     const el = document.getElementById("sk-msg");
     if (el) el.textContent = m;
   };
-  root.addEventListener("submit", async e => {
-    if (e.target.id !== "sk-form") return;
-    e.preventDefault();
-    const k = keyOf(document.getElementById("sk-res").value),
-      n = Math.floor(+document.getElementById("sk-qty").value),
-      note = document.getElementById("sk-note").value.trim().slice(0, 200);
-    if (!k) return alertMsg("Такого ресурса нет в списке. Выбери из подсказок.");
-    if (!(n > 0)) return alertMsg("Укажи количество.");
-    if (dir < 0 && (S.stock[k] || 0) < n && !confirmLow(k, n)) return;
-    const { error } = await sb.from("moves").insert({ res: k, qty: dir * n, note });
+  async function put(k, sign) {
+    const inp = root.querySelector(`.sk-n[data-k="${k}"]`),
+      n = Math.floor(+(inp && inp.value));
+    if (!(n > 0)) return alertMsg(`Впиши, сколько ${sign > 0 ? "положил" : "взял"} · ${nm(k)}.`);
+    if (sign < 0 && (S.stock[k] || 0) < n && !confirmLow(k, n)) return;
+    const { error } = await sb.from("moves").insert({ res: k, qty: sign * n, note: "" });
     if (error) return alertMsg("Не записалось: " + error.message);
-    alertMsg(`Записано: ${dir > 0 ? "положил" : "взял"} ${n} · ${nm(k)}`);
+    lowArmed = "";
     await load();
-    document.getElementById("sk-res").focus();
-  });
+    alertMsg(`Записано: ${sign > 0 ? "положил" : "взял"} ${n} · ${nm(k)}`);
+  }
   let lowArmed = "";
   function confirmLow(k, n) {
     const tag = k + n;
     if (lowArmed === tag) return true;
     lowArmed = tag;
-    alertMsg(`На складе только ${num(S.stock[k] || 0)} · ${nm(k)}. Нажми «Записать» ещё раз, если всё верно.`);
+    alertMsg(`На складе только ${num(S.stock[k] || 0)} · ${nm(k)}. Нажми − ещё раз, если всё верно.`);
     return false;
   }
   root.addEventListener("input", e => {
@@ -253,11 +241,11 @@
           load();
         });
     }
-    if (e.target.id === "sk-sec") {
-      S.sec = e.target.value;
-      render();
-    }
   });
+  root.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.classList.contains("sk-n")) put(e.target.dataset.k, e.shiftKey ? -1 : 1);
+  });
+  root.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("sk-lims")) S.limOpen = e.target.open; }, true);
 
   // --- Кнопка «Списать со склада цеха» в расчёте заказа (только для участников цеха)
   const woBar = document.getElementById("odone") && document.getElementById("odone").parentElement;
