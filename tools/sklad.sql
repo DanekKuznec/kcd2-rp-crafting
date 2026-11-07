@@ -12,7 +12,7 @@ create table if not exists public.members (
 -- Движения по складу: плюс - положили, минус - взяли.
 create table if not exists public.moves (
   id bigint generated always as identity primary key,
-  user_id uuid not null default auth.uid() references auth.users on delete set null,
+  user_id uuid default auth.uid() references auth.users on delete set null,
   res text not null,
   qty integer not null check (qty <> 0),
   note text not null default '',
@@ -24,11 +24,15 @@ create index if not exists moves_created_idx on public.moves (created_at desc);
 create or replace view public.stock with (security_invoker = true) as
   select res, sum(qty)::integer as qty from public.moves group by res;
 
--- Кто какой роли (функция обходит RLS, чтобы правила не зацикливались).
-create or replace function public.my_role() returns text
+-- Кто какой роли (функция обходит RLS, чтобы правила не зацикливались; лежит вне API).
+create schema if not exists private;
+grant usage on schema private to authenticated;
+create or replace function private.my_role() returns text
   language sql stable security definer set search_path = public as $$
-  select coalesce((select role from public.members where user_id = auth.uid()), 'none')
+  select coalesce((select role from public.members where user_id = (select auth.uid())), 'none')
 $$;
+revoke execute on function private.my_role() from public, anon;
+grant execute on function private.my_role() to authenticated;
 
 -- При первом входе создаём участника с ником из Discord.
 create or replace function public.handle_new_user() returns trigger
@@ -41,6 +45,7 @@ begin
   on conflict (user_id) do nothing;
   return new;
 end $$;
+revoke execute on function public.handle_new_user() from anon, authenticated, public;
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -53,21 +58,21 @@ drop policy if exists members_read on public.members;
 create policy members_read on public.members for select to authenticated using (true);
 drop policy if exists members_head_update on public.members;
 create policy members_head_update on public.members for update to authenticated
-  using (public.my_role() = 'head') with check (public.my_role() = 'head');
+  using ((select private.my_role()) = 'head') with check ((select private.my_role()) = 'head');
 drop policy if exists members_head_delete on public.members;
 create policy members_head_delete on public.members for delete to authenticated
-  using (public.my_role() = 'head');
+  using ((select private.my_role()) = 'head');
 
 -- moves: видят и пишут только подтверждённые участники; пишут только от своего имени; удаляет только глава.
 drop policy if exists moves_read on public.moves;
 create policy moves_read on public.moves for select to authenticated
-  using (public.my_role() in ('member', 'head'));
+  using ((select private.my_role()) in ('member', 'head'));
 drop policy if exists moves_insert on public.moves;
 create policy moves_insert on public.moves for insert to authenticated
-  with check (public.my_role() in ('member', 'head') and user_id = auth.uid());
+  with check ((select private.my_role()) in ('member', 'head') and user_id = (select auth.uid()));
 drop policy if exists moves_head_delete on public.moves;
 create policy moves_head_delete on public.moves for delete to authenticated
-  using (public.my_role() = 'head');
+  using ((select private.my_role()) = 'head');
 
 -- Живое обновление у всех открытых страниц.
 do $$ begin
