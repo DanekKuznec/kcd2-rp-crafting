@@ -1,4 +1,4 @@
-// Склад цеха: общий для участников, вход через Discord, данные в Supabase.
+// Склад фракции: общий для участников, вход через Discord, данные в Supabase.
 // Таблицы и права - tools/sklad.sql. Остатки = сумма движений (положил +, взял -).
 (() => {
   const root = document.getElementById("sklad");
@@ -13,11 +13,11 @@
   const when = t => new Date(t).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
   if (!cfg.url || !cfg.key) {
-    root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="hint">Склад ещё не подключён. Нужно завести базу Supabase и вписать её адрес в <code>sklad-config.js</code>.</p></div>`;
+    root.innerHTML = `<div class="panel"><h2>Склад фракции</h2><p class="hint">Склад ещё не подключён. Нужно завести базу Supabase и вписать её адрес в <code>sklad-config.js</code>.</p></div>`;
     return;
   }
-  const fail = msg => (root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="warn">${esc(msg)}</p><p class="hint">Обнови страницу (Ctrl+F5). Если не помогло - скинь скрин этого сообщения.</p></div>`);
-  root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="hint">Загружаю склад…</p></div>`;
+  const fail = msg => (root.innerHTML = `<div class="panel"><h2>Склад фракции</h2><p class="warn">${esc(msg)}</p><p class="hint">Обнови страницу (Ctrl+F5). Если не помогло - скинь скрин этого сообщения.</p></div>`);
+  root.innerHTML = `<div class="panel"><h2>Склад фракции</h2><p class="hint">Загружаю склад…</p></div>`;
   // библиотека Supabase: основной адрес в index.html, запасной - отсюда
   const lib = () =>
     window.supabase
@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -47,7 +47,21 @@
     ITEMS.filter(i => sec === "all" || list.includes(i.s)).forEach(i => (i.m ? walk(i.m) : Object.keys(i.r).forEach(walk)));
     return out;
   }
-  const AW = secRes("aw");
+  // фракции: у каждой свой склад, участники и заказы
+  let F = "kutna";
+  try { F = localStorage.getItem("forge-faction") || "kutna"; } catch (_) {}
+  const fac = () => S.factions.find(x => x.id === F) || { id: F, name: F, secs: [] };
+  const AWcache = {};
+  const facRes = () => {
+    const secs = fac().secs || [];
+    const key = secs.join(",") || "all";
+    if (!AWcache[key]) {
+      const out = new Set();
+      (secs.length ? secs : ["all"]).forEach(sc => secRes(sc).forEach(k => out.add(k)));
+      AWcache[key] = out;
+    }
+    return AWcache[key];
+  };
   const MATITEM = {};
   ITEMS.forEach(i => i.m && !MATITEM[i.m] && (MATITEM[i.m] = i));
   const RICON = window.FORGE_RICON || {};
@@ -62,30 +76,32 @@
     }
   }
   async function loadInner() {
+    if (!S.factions.length) {
+      const { data: fs } = await sb.from("factions").select("*").order("sort");
+      S.factions = fs || [];
+      if (S.factions.length && !S.factions.some(x => x.id === F)) F = S.factions[0].id;
+    }
     const { data: ss } = await sb.auth.getSession();
     S.user = ss && ss.session && ss.session.user;
     if (!S.user) return render();
-    const { data: mem, error: e1 } = await sb.from("members").select("*").order("created_at");
+    const { data: mem, error: e1 } = await sb.from("members").select("*").eq("faction", F).order("created_at");
+    const { data: adm } = await sb.from("members").select("faction").eq("user_id", S.user.id).eq("admin", true);
+    S.admin = !!(adm && adm.length);
     S.members = mem || [];
     S.me = S.members.find(m => m.user_id === S.user.id);
-    if (!S.me && !e1 && !S.rejoined) {
-      // строки нет (убрали из списка) - снова встаём в очередь на подтверждение
-      S.rejoined = true;
-      await sb.from("members").insert({ user_id: S.user.id });
-      return loadInner();
-    }
-    S.me = S.me || { rank: 0, admin: false, name: "", rp_name: "" };
+    S.joined = !!S.me;
+    S.me = S.me ? { ...S.me, admin: S.admin } : { rank: 0, admin: S.admin, name: "", rp_name: "" };
     if (S.me.rank >= 1 || S.me.admin) {
-      const { data: mv, error: e2 } = await sb.from("moves").select("*").order("created_at", { ascending: false }).limit(1000);
+      const { data: mv, error: e2 } = await sb.from("moves").select("*").eq("faction", F).order("created_at", { ascending: false }).limit(1000);
       S.moves = mv || [];
-      const { data: lm } = await sb.from("limits").select("*");
+      const { data: lm } = await sb.from("limits").select("*").eq("faction", F);
       S.limits = Object.fromEntries((lm || []).map(l => [l.res, l]));
       // остатки считает база по ВСЕМ записям (вид stock), журнал грузим только последние
-      const { data: st, error: e3 } = await sb.from("stock").select("*");
+      const { data: st, error: e3 } = await sb.from("stock").select("*").eq("faction", F);
       S.stock = {};
       if (!e3 && Array.isArray(st)) st.forEach(r => (S.stock[r.res] = +r.qty || 0));
       else S.moves.forEach(m => (S.stock[m.res] = (S.stock[m.res] || 0) + m.qty));
-      const { data: go } = await sb.from("gorders").select("*").order("created_at", { ascending: false }).limit(200);
+      const { data: go } = await sb.from("gorders").select("*").eq("faction", F).order("created_at", { ascending: false }).limit(200);
       S.gorders = go || [];
       S.err = (e1 || e2 || {}).message || "";
     } else S.gorders = [];
@@ -101,24 +117,28 @@
   const hasNick = () => !!(S.me && (S.me.rp_name || "").trim());
   const canMove = () => !!(S.user && S.me && hasNick() && (S.me.admin || S.me.rank >= 3));
 
+  const facTabs = () =>
+    S.factions.length > 0
+      ? `<div class="seg sk-facs" role="tablist" aria-label="Фракция">${S.factions.map(x => `<button type="button" data-fac="${esc(x.id)}" aria-pressed="${x.id === F}">${esc(x.name)}</button>`).join("")}</div>`
+      : "";
   let render = function () {
     if (!S.user) {
-      root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p>Общий склад цеха: кто что положил и взял, остатки по каждому ресурсу.</p><button class="btn go" id="sk-login" type="button">Войти через Discord</button></div>`;
+      root.innerHTML = facTabs() + `<div class="panel"><h2>Склад фракции · ${esc(fac().name)}</h2><p>Общий склад фракции: кто что положил и взял, остатки по каждому ресурсу. У каждой фракции свой склад, свои участники и свой вход.</p><button class="btn go" id="sk-login" type="button">Войти через Discord</button></div>`;
       return;
     }
     const head = canApprove(),
       ok = S.me.rank >= 1 || S.me.admin;
-    let h = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад цеха</h2><span class="hint">${esc(disp(S.me))} · ${S.me.rank ? RANKS[S.me.rank] : "ждёт подтверждения"} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
-    if (!(S.me.rp_name || "").trim() && S.members.some(m => m.user_id === S.user.id)) {
-      h += `<form id="sk-nick" class="sk-form" autocomplete="off"><p style="margin:0 0 6px;width:100%">Сначала впиши свой игровой ник, как у персонажа на сервере. Его увидят в цехе, по нему тебя подтвердят.</p>
+    let h = facTabs() + `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад фракции · ${esc(fac().name)}</h2><span class="hint">${S.joined ? `${esc(disp(S.me))} · ${S.me.rank ? RANKS[S.me.rank] : "ждёт подтверждения"}` : "не во фракции"} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
+    if (!S.joined || !(S.me.rp_name || "").trim()) {
+      h += `<form id="sk-nick" class="sk-form" autocomplete="off"><p style="margin:0 0 6px;width:100%">${S.joined ? "Сначала впиши свой игровой ник, как у персонажа на сервере." : `Чтобы войти в склад фракции «${esc(fac().name)}», впиши свой игровой ник, как у персонажа на сервере, и подай заявку.`} Ник увидят во фракции, по нему тебя подтвердят.</p>
         <label>Игровой ник<input id="sk-nick-in" maxlength="60" required placeholder="например: Данек Врана" style="width:260px"></label>
-        <button class="btn go" type="submit">Сохранить</button><span class="hint" id="sk-msg"></span></form></div>`;
+        <button class="btn go" type="submit">${S.joined ? "Сохранить" : "Подать заявку"}</button><span class="hint" id="sk-msg"></span></form></div>`;
       root.innerHTML = h;
       setTimeout(() => { const i = document.getElementById("sk-nick-in"); if (i) i.focus(); }, 0);
       return;
     }
     if (!ok) {
-      h += `<p>Ты вошёл как <b>${esc(disp(S.me))}</b>${S.me.name && S.me.rp_name ? ` (Discord: ${esc(S.me.name)})` : ""}, но доступ ещё не подтвердили. Напиши цехмейстеру или цеховому старейшине, они выдадут ранг.</p></div>`;
+      h += `<p>Ты вошёл как <b>${esc(disp(S.me))}</b>${S.me.name && S.me.rp_name ? ` (Discord: ${esc(S.me.name)})` : ""}, но доступ ещё не подтвердили. Напиши главе фракции, тебе выдадут ранг.</p></div>`;
       root.innerHTML = h;
       return;
     }
@@ -126,6 +146,7 @@
     h += `<p class="hint" id="sk-msg"></p>`;
     // остатки: только то, что идёт в рецепты брони и оружия
     const q = S.q.trim().toLowerCase();
+    const AW = facRes();
     const pick = ks => ks.filter(k => AW.has(k) && (!q || nm(k).toLowerCase().includes(q)));
     const raws = pick(keys.filter(k => !MAT[k])),
       mats = pick(keys.filter(k => MAT[k]));
@@ -187,6 +208,15 @@
 
   root.addEventListener("click", async e => {
     const t = e.target;
+    if (t.dataset.fac) {
+      if (t.dataset.fac === F) return;
+      F = t.dataset.fac;
+      try { localStorage.setItem("forge-faction", F); } catch (_) {}
+      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "" });
+      woCur = null; gDone = gPlan = null;
+      root.innerHTML = facTabs() + `<div class="panel"><p class="hint">Загружаю…</p></div>`;
+      return load();
+    }
     if (t.id === "sk-login") {
       try { localStorage.setItem("forge-view", "sklad"); } catch (_) {}
       await sb.auth.signInWithOAuth({ provider: "discord", options: { redirectTo: location.origin + location.pathname } });
@@ -211,7 +241,7 @@
         t.textContent = "точно убрать?";
         return;
       }
-      const { error } = await sb.from("members").delete().eq("user_id", t.dataset.kick);
+      const { error } = await sb.from("members").delete().eq("faction", F).eq("user_id", t.dataset.kick);
       if (error) alertMsg(error.message);
       load();
     }
@@ -228,7 +258,7 @@
     if (!(n > 0)) return alertMsg(`Впиши, сколько ${sign > 0 ? "положил" : "взял"} · ${nm(k)}.`);
     if (sign < 0 && (S.stock[k] || 0) < n && !confirmLow(k, n)) return;
     const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
-    const { error } = await sb.from("moves").insert({ res: k, qty: sign * n, note });
+    const { error } = await sb.from("moves").insert({ faction: F, res: k, qty: sign * n, note });
     if (error) return alertMsg("Не записалось: " + error.message);
     lowArmed = "";
     S.note = "";
@@ -255,7 +285,7 @@
     }
   });
   const upd = async (u, patch) => {
-    const { error } = await sb.from("members").update(patch).eq("user_id", u);
+    const { error } = await sb.from("members").update(patch).eq("faction", F).eq("user_id", u);
     if (error) alertMsg("Не сохранилось: " + error.message);
     load();
   };
@@ -280,7 +310,7 @@
         col = t.classList.contains("sk-lim") ? "lim" : t.classList.contains("sk-bmin") ? "buy_min" : "buy_max";
       return sb
         .from("limits")
-        .upsert({ res: k, ...(S.limits[k] ? { lim: S.limits[k].lim, buy_min: S.limits[k].buy_min, buy_max: S.limits[k].buy_max } : {}), [col]: col === "lim" && v != null ? Math.round(v) : v })
+        .upsert({ faction: F, res: k, ...(S.limits[k] ? { lim: S.limits[k].lim, buy_min: S.limits[k].buy_min, buy_max: S.limits[k].buy_max } : {}), [col]: col === "lim" && v != null ? Math.round(v) : v }, { onConflict: "faction,res" })
         .then(({ error }) => {
           if (error) alertMsg("Не сохранилось: " + error.message);
           load();
@@ -292,7 +322,9 @@
     e.preventDefault();
     const v = document.getElementById("sk-nick-in").value.trim().replace(/\s+/g, " ").slice(0, 60);
     if (v.length < 2) return alertMsg("Ник слишком короткий.");
-    const { error } = await sb.from("members").update({ rp_name: v }).eq("user_id", S.user.id);
+    const { error } = S.joined
+      ? await sb.from("members").update({ rp_name: v }).eq("faction", F).eq("user_id", S.user.id)
+      : await sb.from("members").insert({ faction: F, user_id: S.user.id, rp_name: v });
     if (error) return alertMsg("Не сохранилось: " + error.message);
     load();
   });
@@ -301,7 +333,7 @@
   });
   root.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("sk-lims")) S.limOpen = e.target.open; }, true);
 
-  // --- Кнопка «Списать со склада цеха» в расчёте заказа (только для участников цеха)
+  // --- Кнопка «Списать со склада фракции» в расчёте заказа (только для участников цеха)
   const woBar = document.getElementById("odone") && document.getElementById("odone").parentElement;
   const wo = document.createElement("div");
   wo.id = "sk-wo";
@@ -325,11 +357,11 @@
     const ok = canMove();
     if (!ok) return (wo.innerHTML = "");
     if (!plan)
-      return (wo.innerHTML = `<button class="btn" id="sk-wo-go" type="button" title="Списать со склада цеха то, что уйдёт на этот заказ">Списать со склада цеха</button>`);
+      return (wo.innerHTML = `<button class="btn" id="sk-wo-go" type="button" title="Списать со склада фракции то, что уйдёт на этот заказ">Списать со склада фракции</button>`);
     const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
     wo.innerHTML = plan.take.length
-      ? `<div class="panel sk-wo-box"><b>Списать со склада цеха на заказ «${esc(O().name)}»:</b><ul>${li(plan.take)}</ul>${plan.lack.length ? `<p class="hint">На складе цеха не хватает, нужно докупить или взять своё:</p><ul class="hint">${li(plan.lack)}</ul>` : ""}<button class="btn go" id="sk-wo-yes" type="button">Подтвердить списание</button> <button class="btn" id="sk-wo-no" type="button">Отмена</button> <span class="hint" id="sk-wo-msg"></span></div>`
-      : `<div class="panel sk-wo-box"><p>${plan.n ? "На складе цеха нет ничего из того, что нужно на этот заказ." : "В заказе пока нет вещей."}</p><button class="btn" id="sk-wo-no" type="button">Закрыть</button></div>`;
+      ? `<div class="panel sk-wo-box"><b>Списать со склада фракции на заказ «${esc(O().name)}»:</b><ul>${li(plan.take)}</ul>${plan.lack.length ? `<p class="hint">На складе фракции не хватает, нужно докупить или взять своё:</p><ul class="hint">${li(plan.lack)}</ul>` : ""}<button class="btn go" id="sk-wo-yes" type="button">Подтвердить списание</button> <button class="btn" id="sk-wo-no" type="button">Отмена</button> <span class="hint" id="sk-wo-msg"></span></div>`
+      : `<div class="panel sk-wo-box"><p>${plan.n ? "На складе фракции нет ничего из того, что нужно на этот заказ." : "В заказе пока нет вещей."}</p><button class="btn" id="sk-wo-no" type="button">Закрыть</button></div>`;
   }
   let woCur = null;
   wo.addEventListener("click", async e => {
@@ -344,13 +376,13 @@
     } else if (id === "sk-wo-yes" && woCur) {
       e.target.disabled = true;
       const note = `Заказ «${O().name}»`.slice(0, 200);
-      const { error } = await sb.from("moves").insert(woCur.take.map(([k, n]) => ({ res: k, qty: -n, note })));
+      const { error } = await sb.from("moves").insert(woCur.take.map(([k, n]) => ({ faction: F, res: k, qty: -n, note })));
       if (error) {
         e.target.disabled = false;
         document.getElementById("sk-wo-msg").textContent = "Не списалось: " + error.message;
         return;
       }
-      const done = `<p class="ok">Списано со склада цеха: ${woCur.take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p>`;
+      const done = `<p class="ok">Списано со склада фракции: ${woCur.take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.</p>`;
       woCur = { msg: true };
       await load();
       wo.innerHTML = done;
@@ -368,7 +400,7 @@
   const tabs = document.createElement("div");
   tabs.className = "seg otabs";
   tabs.hidden = true;
-  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказ цеху</button>';
+  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказ фракции</button>';
   const gbox = document.createElement("div");
   gbox.id = "gord";
   gbox.hidden = true;
@@ -379,7 +411,7 @@
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
   const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
   let gArm = "", gDone = null, gPlan = null, gMsgId = null, gMsgTxt = "", gSendNote = "";
-  const gNoteTxt = g => `Заказ цеха «${g.name || "Заказ"}» · ${(g.note || "").trim()}`.slice(0, 200);
+  const gNoteTxt = g => `Заказ фракции «${g.name || "Заказ"}» · ${(g.note || "").trim()}`.slice(0, 200);
   // посчитать заказ цеха теми же функциями, что и свой заказ (временно подменяем текущий заказ и склад)
   function calcG(g, guildStock) {
     const tmp = newOrder(g.name || "Заказ");
@@ -402,15 +434,15 @@
     tabs.hidden = !ok;
     const t = ok ? otab : "my";
     tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
-    // кнопка списания со склада цеха прямо в панели заказа
+    // кнопка списания со склада фракции прямо в панели заказа
     let wb = document.getElementById("g-wo");
     if (!wb && document.getElementById("odel")) {
       wb = document.createElement("button");
       wb.id = "g-wo";
       wb.className = "btn";
       wb.type = "button";
-      wb.textContent = "Списать со склада цеха";
-      wb.title = "Показать, что возьмётся со склада цеха на этот заказ, и списать после подтверждения";
+      wb.textContent = "Списать со склада фракции";
+      wb.title = "Показать, что возьмётся со склада фракции на этот заказ, и списать после подтверждения";
       document.getElementById("odel").after(wb);
       wb.addEventListener("click", () => {
         const go = document.querySelector('[data-goview="calc"]');
@@ -428,8 +460,8 @@
     const mine = typeof O === "function" ? O() : null,
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
-    let h = `<p class="hint" style="margin:6px 0">Общие заказы цеха: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
-      ${canMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canMove() ? "" : " hidden"}><input id="g-sendnote" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gSendNote)}" style="flex:1;min-width:120px"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить в цех мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
+    let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(fac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
+      ${canMove() ? "" : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}<div class="obar"${canMove() ? "" : " hidden"}><input id="g-sendnote" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gSendNote)}" style="flex:1;min-width:120px"><button class="btn go" id="g-send" type="button" ${myCnt ? "" : "disabled"} title="${myCnt ? "" : "Сначала набери вещи в своём заказе"}">Отправить во фракцию мой заказ${mine && myCnt ? ` «${esc(mine.name)}»` : ""}</button></div>
       <p class="hint" id="g-msg"></p>`;
     const list = S.gorders;
     h += list.length
@@ -464,7 +496,7 @@
             let doneH = "";
             if (gDone === g.id && gPlan) {
               const li = a => a.map(([k, n]) => `<li>${esc(nm(k))}: <b>${num(n)}</b></li>`).join("");
-              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада цеха:" : "Со склада цеха списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе цеха не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p>${S.moves.some(m => m.note === gNoteTxt(g)) ? '<p class="warn">По этому заказу со склада цеха уже списывали (есть в журнале). Проверь, чтобы не списать второй раз.</p>' : ""}<button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
+              doneH = `<div class="sk-wo-box"><b>${gPlan.take.length ? "Спишется со склада фракции:" : "Со склада фракции списывать нечего."}</b>${gPlan.take.length ? `<ul>${li(gPlan.take)}</ul>` : ""}${gPlan.lack.length ? `<p class="hint">На складе фракции не хватало, это ты брал своё или докупал:</p><ul class="hint">${li(gPlan.lack)}</ul>` : ""}<p class="hint">В журнал запишется от тебя с заметкой «${esc(gNoteTxt(g))}».</p>${S.moves.some(m => m.note === gNoteTxt(g)) ? '<p class="warn">По этому заказу со склада фракции уже списывали (есть в журнале). Проверь, чтобы не списать второй раз.</p>' : ""}<button class="btn go" data-g="done-yes" data-id="${g.id}" type="button">Подтвердить выполнение</button> <button class="btn" data-g="done-no" data-id="${g.id}" type="button">Отмена</button></div>`;
             }
             return `<div class="gcard st-${g.status}"><div class="gtop"><b>${esc(g.name || "Заказ")}</b><span class="gst">${ST[g.status]}${g.taken_by ? " · " + esc(who(g.taken_by)) : ""}</span></div>
               ${tilesH}${sumH}
@@ -475,7 +507,7 @@
               <div class="obar">${btns}</div></div>`;
           })
           .join("")
-      : '<p class="hint">Заказов цеху пока нет.</p>';
+      : '<p class="hint">Заказов фракции пока нет.</p>';
     gbox.innerHTML = h;
   }
   tabs.addEventListener("click", e => {
@@ -507,7 +539,7 @@
       const o = O();
       const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
       if (!Object.keys(items).length) return gMsg("В твоём заказе нет вещей.");
-      const { error } = await sb.from("gorders").insert({ name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual > 0 ? +o.manual : 0, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: F, name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual > 0 ? +o.manual : 0, status: "new", created_by: S.user.id });
       if (error) return gMsg("Не отправилось: " + error.message);
       gSendNote = "";
       return load();
@@ -545,7 +577,7 @@
       if (e1) { gMsgId = g.id; gMsgTxt = "Не вышло: " + e1.message; gDone = gPlan = null; return load(); }
       if (gPlan && gPlan.take.length) {
         const note = gNoteTxt(g);
-        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ res: k, qty: -n, note, user_id: S.user.id })));
+        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ faction: F, res: k, qty: -n, note, user_id: S.user.id })));
         if (error) {
           await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
           gMsgId = g.id;
@@ -564,7 +596,7 @@
       return load();
     }
     if (act === "copy") {
-      const o = newOrder((g.name || "Заказ цеха").slice(0, 40));
+      const o = newOrder((g.name || "Заказ фракции").slice(0, 40));
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => typeof BYID === "undefined" || BYID[id]));
       o.due = g.due || "";
       orders.push(o);

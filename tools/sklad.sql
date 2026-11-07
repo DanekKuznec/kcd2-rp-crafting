@@ -91,3 +91,12 @@ alter table public.members add column if not exists admin boolean not null defau
 alter table public.members add column if not exists rp_name text not null default '';
 -- (функции private.my_rank, private.is_admin, private.can_approve, триггер private.members_guard
 --  и политики members_update, members_admin_delete, moves_read/insert/delete - см. миграцию sklad_ranks в Supabase)
+
+-- ===== Обновление 7 ноября: фракции =====
+-- Таблица public.factions (id, name, secs - какие ремёсла показывать на складе, sort).
+-- Во всех таблицах (members, moves, limits, gorders) есть колонка faction; права проверяются внутри фракции:
+-- private.rank_in(faction), private.can_approve_in(faction). Флаг admin действует во всех фракциях.
+-- В каждую фракцию человек вступает отдельно: вписывает ник и ждёт подтверждения.
+-- Добавить фракцию:
+--   insert into public.factions (id, name, secs, sort) values ('brew', 'Пивовары Кутна-Горы', '{br}', 2);
+-- (полный текст - миграция factions в Supabase)
