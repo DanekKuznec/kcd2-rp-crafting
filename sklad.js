@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", limOpen: false, err: "" };
+  const S = { user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -119,7 +119,7 @@
         <span class="sk-act"><button type="button" class="sk-pm" data-k="${k}" data-s="-1" title="Взял">−</button><input class="sk-n" data-k="${k}" type="number" min="1" step="1" placeholder="0"><button type="button" class="sk-pm" data-k="${k}" data-s="1" title="Положил">+</button></span></div>`;
     };
     const grid = (title, ks) => (ks.length ? `<div class="sk-cat">${title}</div><div class="sk-grid">${ks.map(tile).join("")}</div>` : "");
-    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"><span class="hint">впиши число и нажми + (положил) или − (взял)</span></div>
+    h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px">${canNote() ? `<input class="search" id="sk-note" placeholder="Заметка к следующей записи (необязательно)" value="${esc(S.note)}" maxlength="200" style="max-width:320px">` : ""}<span class="hint">впиши число и нажми + (положил) или − (взял)</span></div>
       ${grid("Сырьё", raws)}${grid("Заготовки", mats)}${!raws.length && !mats.length ? '<p class="hint">Ничего не найдено.</p>' : ""}`;
     if (S.me.admin || S.me.rank >= 6) {
       const rowsOf = ks =>
@@ -131,6 +131,8 @@
           .join("");
       h += `<details class="sk-lims"${S.limOpen ? " open" : ""}><summary>Лимиты и цены скупки</summary><div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${rowsOf([...raws, ...mats])}</tbody></table></div></details>`;
     }
+    const rankOf = u => (S.members.find(x => x.user_id === u) || { rank: 0 }).rank;
+    const noteEditable = m => S.me.admin || (S.me.rank >= 3 && rankOf(m.user_id) <= S.me.rank);
     // журнал: чистить и менять «кто» могут цехмейстер, старейшина и управляющий
     const whoSel = m =>
       `<select class="sk-who" data-id="${m.id}">${S.members.some(x => x.user_id === m.user_id) ? "" : `<option selected>${esc(who(m.user_id))}</option>`}${[...S.members]
@@ -138,7 +140,7 @@
         .map(x => `<option value="${x.user_id}" ${x.user_id === m.user_id ? "selected" : ""}>${esc(disp(x))}</option>`)
         .join("")}</select>`;
     h += `<h3>Журнал</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
-      S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m) : esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
+      S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m) : esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-id="${m.id}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
     }</tbody></table></div>`;
     // участники: ранги видят все, менять могут управляющий, цехмейстер и старейшина
     const mine = m => m.user_id === S.user.id,
@@ -195,14 +197,17 @@
     const el = document.getElementById("sk-msg");
     if (el) el.textContent = m;
   };
+  const canNote = () => S.me && (S.me.admin || S.me.rank >= 3);
   async function put(k, sign) {
     const inp = root.querySelector(`.sk-n[data-k="${k}"]`),
       n = Math.floor(+(inp && inp.value));
     if (!(n > 0)) return alertMsg(`Впиши, сколько ${sign > 0 ? "положил" : "взял"} · ${nm(k)}.`);
     if (sign < 0 && (S.stock[k] || 0) < n && !confirmLow(k, n)) return;
-    const { error } = await sb.from("moves").insert({ res: k, qty: sign * n, note: "" });
+    const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
+    const { error } = await sb.from("moves").insert({ res: k, qty: sign * n, note });
     if (error) return alertMsg("Не записалось: " + error.message);
     lowArmed = "";
+    S.note = "";
     await load();
     alertMsg(`Записано: ${sign > 0 ? "положил" : "взял"} ${n} · ${nm(k)}`);
   }
@@ -215,6 +220,7 @@
     return false;
   }
   root.addEventListener("input", e => {
+    if (e.target.id === "sk-note") S.note = e.target.value;
     if (e.target.id === "sk-q") {
       S.q = e.target.value;
       const pos = e.target.selectionStart;
@@ -232,6 +238,11 @@
   root.addEventListener("change", e => {
     const t = e.target;
     if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
+    if (t.classList.contains("sk-mnote"))
+      return sb.from("moves").update({ note: t.value.trim().slice(0, 200) }).eq("id", t.dataset.id).then(({ error }) => {
+        if (error) alertMsg("Не сохранилось: " + error.message);
+        load();
+      });
     if (t.classList.contains("sk-who"))
       return sb.from("moves").update({ user_id: t.value }).eq("id", t.dataset.id).then(({ error }) => {
         if (error) alertMsg("Не сохранилось: " + error.message);

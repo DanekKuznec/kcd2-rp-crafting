@@ -311,3 +311,4 @@ body{padding-block:12px 90px}
 .sk-pm{width:24px;border:1px solid var(--line);border-radius:5px;background:var(--copper-soft);color:var(--ink);font-weight:700;cursor:pointer;padding:0}
 .sk-pm:hover{background:var(--copper,#b07a3c);color:#fff}
 .sk-lims{margin-top:12px}.sk-lims summary{cursor:pointer;font-family:var(--f-head)}
+.sk-mnote{width:100%;min-width:140px;font:inherit;font-size:13px;padding:2px 6px;border:1px solid transparent;border-radius:5px;background:transparent;color:var(--ink)}.sk-mnote:hover,.sk-mnote:focus{border-color:var(--line);background:var(--field)}
