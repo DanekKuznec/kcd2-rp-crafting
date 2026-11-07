@@ -288,3 +288,9 @@ body{padding-block:12px 90px}
 .noprice{font-size:11.5px;color:var(--warn);line-height:1.3;margin-top:1px}
 .mtog{font:inherit;font-size:13px;width:22px;height:22px;padding:0;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--copper);cursor:pointer;vertical-align:middle}
 .mtog:hover{border-color:var(--copper)}
+
+.sk-form{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px}
+.sk-form label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}
+.sk-form input{font:inherit;font-size:15px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)}
+.sk-form #sk-res{width:240px}.sk-form #sk-qty{width:90px}.sk-note input{width:220px}
+.sk-dir button{font-size:14px}

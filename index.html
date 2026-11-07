@@ -26,6 +26,7 @@
       <button type="button" role="tab" data-view="book" aria-selected="true">Рецепты</button>
       <button type="button" role="tab" data-view="calc" aria-selected="false">Расчёт заказа</button>
       <button type="button" role="tab" data-view="journal" aria-selected="false">Журнал</button>
+      <button type="button" role="tab" data-view="sklad" aria-selected="false">Склад цеха</button>
       <button type="button" role="tab" data-view="data" aria-selected="false">Данные</button>
     </nav>
   </div>
@@ -93,6 +94,7 @@
     <div class="tablebox"><table class="mini"><thead><tr><th class="l">Дата</th><th class="l">Заказ</th><th class="l">Вещи</th><th>Сумма</th><th>За работу</th><th></th></tr></thead><tbody id="jlist"></tbody></table></div>
   </section>
     </section>
+    <section class="view" data-v="sklad" hidden><div id="sklad"></div></section>
     <section class="view" data-v="data" hidden>
     <section class="panel" aria-labelledby="dh">
     <h2 id="dh">Данные</h2>
@@ -146,5 +148,8 @@
 <script src="data.js?v=20261107i"></script>
 <script src="app.js?v=20261107i"></script>
 <script src="layout.js?v=20261107i"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script src="sklad-config.js?v=20261107i"></script>
+<script src="sklad.js?v=20261107i"></script>
 </body>
 </html>
