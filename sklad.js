@@ -14,17 +14,54 @@
     root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="hint">Склад ещё не подключён. Нужно завести базу Supabase и вписать её адрес в <code>sklad-config.js</code>.</p></div>`;
     return;
   }
-  if (!window.supabase) {
-    root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="warn">Не загрузилась библиотека для склада. Проверь интернет и обнови страницу.</p></div>`;
-    return;
-  }
+  const fail = msg => (root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="warn">${esc(msg)}</p><p class="hint">Обнови страницу (Ctrl+F5). Если не помогло - скинь скрин этого сообщения.</p></div>`);
+  root.innerHTML = `<div class="panel"><h2>Склад цеха</h2><p class="hint">Загружаю склад…</p></div>`;
+  // библиотека Supabase: основной адрес в index.html, запасной - отсюда
+  const lib = () =>
+    window.supabase
+      ? Promise.resolve()
+      : new Promise((ok, no) => {
+          const sc = document.createElement("script");
+          sc.src = "https://unpkg.com/@supabase/supabase-js@2.49.4/dist/umd/supabase.js";
+          sc.onload = ok;
+          sc.onerror = () => no(new Error("не загрузилась библиотека склада (supabase-js)"));
+          document.head.appendChild(sc);
+        });
+  lib()
+    .then(start)
+    .catch(e => fail("Склад не запустился: " + (e && e.message)));
+  function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
   let dir = 1;
-  const S = { user: null, me: null, members: [], moves: [], stock: {}, q: "", all: false, err: "" };
+  const S = { user: null, me: null, members: [], moves: [], stock: {}, q: "", sec: "aw", err: "" };
+  // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
+  const SECS = [["aw", "Броня и оружие"], ...DATA.secs.filter(([k]) => k !== "a" && k !== "w"), ["all", "Всё"]];
+  function secRes(sec) {
+    const list = sec === "aw" ? ["a", "w"] : [sec],
+      out = new Set(),
+      walk = k => {
+        out.add(k);
+        if (MAT[k]) Object.keys(MAT[k].inp).forEach(walk);
+      };
+    ITEMS.filter(i => sec === "all" || list.includes(i.s)).forEach(i => (i.m ? walk(i.m) : Object.keys(i.r).forEach(walk)));
+    return out;
+  }
+  const MATITEM = {};
+  ITEMS.forEach(i => i.m && !MATITEM[i.m] && (MATITEM[i.m] = i));
+  const RICON = DATA.ricon || {};
+  const resIcon = k =>
+    MATITEM[k] ? icon(MATITEM[k]) : RICON[k] && DATA.icons[RICON[k]] ? `<img class="ic" src="${DATA.icons[RICON[k]]}" alt="" loading="lazy">` : icon({ n: nm(k) });
 
   async function load() {
-    const { data: u } = await sb.auth.getUser();
-    S.user = u && u.user;
+    try {
+      await loadInner();
+    } catch (e) {
+      fail("Ошибка склада: " + (e && e.message));
+    }
+  }
+  async function loadInner() {
+    const { data: ss } = await sb.auth.getSession();
+    S.user = ss && ss.session && ss.session.user;
     if (!S.user) return render();
     const { data: mem, error: e1 } = await sb.from("members").select("*").order("created_at");
     S.members = mem || [];
@@ -68,17 +105,18 @@
       <button class="btn go" type="submit">Записать</button>
       <datalist id="sk-list">${keys.map(k => `<option value="${esc(nm(k))}">`).join("")}</datalist>
     </form><p class="hint" id="sk-msg"></p>`;
-    // остатки
-    const ks = Object.keys(S.stock).filter(k => S.all || S.stock[k] !== 0);
-    const all = S.all ? [...new Set([...keys.filter(k => !MAT[k]), ...ks])] : ks;
+    // остатки: все ресурсы выбранного ремесла (даже нулевые) + всё, что лежит на складе
+    const want = secRes(S.sec);
     const q = S.q.trim().toLowerCase();
-    const rows = all
-      .filter(k => !q || nm(k).toLowerCase().includes(q))
-      .sort((a, b) => nm(a).localeCompare(nm(b), "ru"));
-    h += `<div class="row" style="gap:10px;align-items:center;margin-top:14px"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"><label class="hint"><input type="checkbox" id="sk-all" ${S.all ? "checked" : ""}> показать всё сырьё</label></div>
-      <div class="tablebox"><table class="mini"><thead><tr><th class="l">Ресурс</th><th>Остаток</th></tr></thead><tbody>${
-        rows.length ? rows.map(k => `<tr><td class="l">${esc(nm(k))}</td><td class="num ${S.stock[k] < 0 ? "buy" : ""}"><b>${num(S.stock[k] || 0)}</b></td></tr>`).join("") : `<tr><td colspan="2" class="hint">Пока пусто.</td></tr>`
-      }</tbody></table></div>`;
+    const pick = ks => ks.filter(k => (want.has(k) || (S.stock[k] || 0) !== 0) && (!q || nm(k).toLowerCase().includes(q)));
+    const raws = pick(keys.filter(k => !MAT[k])),
+      mats = pick(keys.filter(k => MAT[k]));
+    const rowsOf = ks =>
+      ks.map(k => `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}${!want.has(k) ? ' <span class="hint">(другое ремесло)</span>' : ""}</td><td class="num ${S.stock[k] < 0 ? "buy" : S.stock[k] ? "" : "hint"}"><b>${num(S.stock[k] || 0)}</b></td></tr>`).join("");
+    h += `<div class="row" style="gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><select id="sk-sec">${SECS.map(([k, n]) => `<option value="${k}" ${k === S.sec ? "selected" : ""}>${esc(n)}</option>`).join("")}</select><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"></div>
+      <div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Остаток</th></tr></thead><tbody>${
+        raws.length ? `<tr class="cat"><td></td><td colspan="2">Сырьё</td></tr>${rowsOf(raws)}` : ""
+      }${mats.length ? `<tr class="cat"><td></td><td colspan="2">Заготовки</td></tr>${rowsOf(mats)}` : ""}${!raws.length && !mats.length ? `<tr><td colspan="3" class="hint">Ничего не найдено.</td></tr>` : ""}</tbody></table></div>`;
     // журнал
     h += `<h3>Журнал</h3><div class="tablebox"><table class="mini"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
       S.moves.slice(0, 200).map(m => `<tr><td class="l">${when(m.created_at)}</td><td class="l">${esc(who(m.user_id))}</td><td class="l ${m.qty > 0 ? "ok" : "buy"}">${m.qty > 0 ? "положил" : "взял"} ${num(Math.abs(m.qty))} · ${esc(nm(m.res))}</td><td class="l hint">${esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${m.id}" type="button" title="Удалить запись (ошибка)">×</button></td>` : ""}</tr>`).join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
@@ -186,16 +224,20 @@
     if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
     if (t.classList.contains("sk-rp")) return upd(t.dataset.u, { rp_name: t.value.trim().slice(0, 60) });
     if (t.classList.contains("sk-adm")) return upd(t.dataset.u, { admin: t.checked });
-    if (e.target.id === "sk-all") {
-      S.all = e.target.checked;
+    if (e.target.id === "sk-sec") {
+      S.sec = e.target.value;
       render();
     }
   });
 
-  sb.auth.onAuthStateChange(() => load());
+  // нельзя ждать запросы прямо внутри onAuthStateChange - supabase-js может зависнуть, поэтому через setTimeout
+  sb.auth.onAuthStateChange(ev => {
+    if (ev !== "INITIAL_SESSION") setTimeout(load, 0);
+  });
   sb.channel("sklad")
     .on("postgres_changes", { event: "*", schema: "public", table: "moves" }, () => load())
     .on("postgres_changes", { event: "*", schema: "public", table: "members" }, () => load())
     .subscribe();
   load();
+  }
 })();

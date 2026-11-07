@@ -294,3 +294,6 @@ body{padding-block:12px 90px}
 .sk-form input{font:inherit;font-size:15px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink)}
 .sk-form #sk-res{width:240px}.sk-form #sk-qty{width:90px}.sk-note input{width:220px}
 .sk-dir button{font-size:14px}
+.sk-stock td:first-child{width:44px}
+.sk-stock .ic{width:34px;height:34px;min-width:34px}
+.sk-stock tr.cat td{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);background:var(--copper-soft)}
