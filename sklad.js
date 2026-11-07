@@ -98,7 +98,8 @@
   const who = id => disp(S.members.find(m => m.user_id === id));
   const canApprove = () => S.me.admin || S.me.rank >= 8;
   // класть, брать и списывать со склада: Подмастерье (3) и выше
-  const canMove = () => !!(S.user && S.me && (S.me.admin || S.me.rank >= 3));
+  const hasNick = () => !!(S.me && (S.me.rp_name || "").trim());
+  const canMove = () => !!(S.user && S.me && hasNick() && (S.me.admin || S.me.rank >= 3));
 
   let render = function () {
     if (!S.user) {
@@ -108,8 +109,16 @@
     const head = canApprove(),
       ok = S.me.rank >= 1 || S.me.admin;
     let h = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Склад цеха</h2><span class="hint">${esc(disp(S.me))} · ${S.me.rank ? RANKS[S.me.rank] : "ждёт подтверждения"} <button class="linkbtn" id="sk-out" type="button">выйти</button></span></div>`;
+    if (!(S.me.rp_name || "").trim() && S.members.some(m => m.user_id === S.user.id)) {
+      h += `<form id="sk-nick" class="sk-form" autocomplete="off"><p style="margin:0 0 6px;width:100%">Сначала впиши свой игровой ник, как у персонажа на сервере. Его увидят в цехе, по нему тебя подтвердят.</p>
+        <label>Игровой ник<input id="sk-nick-in" maxlength="60" required placeholder="например: Данек Врана" style="width:260px"></label>
+        <button class="btn go" type="submit">Сохранить</button><span class="hint" id="sk-msg"></span></form></div>`;
+      root.innerHTML = h;
+      setTimeout(() => { const i = document.getElementById("sk-nick-in"); if (i) i.focus(); }, 0);
+      return;
+    }
     if (!ok) {
-      h += `<p>Ты вошёл как <b>${esc(S.me.name || "без ника")}</b>, но доступ ещё не подтвердили. Напиши цехмейстеру или цеховому старейшине, они выдадут ранг.</p></div>`;
+      h += `<p>Ты вошёл как <b>${esc(disp(S.me))}</b>${S.me.name && S.me.rp_name ? ` (Discord: ${esc(S.me.name)})` : ""}, но доступ ещё не подтвердили. Напиши цехмейстеру или цеховому старейшине, они выдадут ранг.</p></div>`;
       root.innerHTML = h;
       return;
     }
@@ -278,6 +287,15 @@
         });
     }
   });
+  root.addEventListener("submit", async e => {
+    if (e.target.id !== "sk-nick") return;
+    e.preventDefault();
+    const v = document.getElementById("sk-nick-in").value.trim().replace(/\s+/g, " ").slice(0, 60);
+    if (v.length < 2) return alertMsg("Ник слишком короткий.");
+    const { error } = await sb.from("members").update({ rp_name: v }).eq("user_id", S.user.id);
+    if (error) return alertMsg("Не сохранилось: " + error.message);
+    load();
+  });
   root.addEventListener("keydown", e => {
     if (e.key === "Enter" && e.target.classList.contains("sk-n")) put(e.target.dataset.k, e.shiftKey ? -1 : 1);
   });
@@ -380,7 +398,7 @@
   }
   function gRender() {
     if (!zak) return;
-    const ok = S.user && S.me && (S.me.rank >= 1 || S.me.admin);
+    const ok = S.user && S.me && hasNick() && (S.me.rank >= 1 || S.me.admin);
     tabs.hidden = !ok;
     const t = ok ? otab : "my";
     tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
