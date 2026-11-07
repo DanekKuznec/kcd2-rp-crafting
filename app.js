@@ -1161,7 +1161,6 @@ function renderOrder(skip) {
   if (skip !== "s") renderStockInputs();
   renderBreakdown(b);
   renderDone(b);
-  renderPlan(b);
 }
 document.getElementById("tiles").addEventListener("input", e => {
   const t = e.target;
@@ -1199,6 +1198,11 @@ const howText = r => {
         .join(" + ")}) → ${fmt(r.crafts * m.out)}`
     : "не нужно";
 };
+// раскрытые заготовки в расчёте (по умолчанию свёрнуты)
+let openMid = new Set();
+try {
+  openMid = new Set(JSON.parse(localStorage.getItem("forge-open-mid") || "[]"));
+} catch (e) {}
 function renderBreakdown(b) {
   const has = b.t.n > 0;
   document.getElementById("bd").hidden = !has;
@@ -1226,25 +1230,26 @@ function renderBreakdown(b) {
   b.rows.forEach(r => ((remC[r.k] = r.c), (remS[r.k] = r.s)));
   const shown = new Set(),
     out = [];
-  function emit(k, amt, d, struck, par = "") {
+  function emit(k, amt, d, struck, par = "", anc = []) {
     if (!amt) return 0;
     if (MAT[k]) {
       const m = MID[k];
-      if (struck || !m || shown.has(k)) {
-        out.push({ t: struck || !m ? "x" : "ref", k, amt, d });
+      // заготовка, которая нужна и прямо на вещь, раскрывается в своей строке верхнего уровня
+      if (struck || !m || shown.has(k) || (d > 0 && topMid.has(k))) {
+        out.push({ t: struck || !m ? "x" : "ref", k, amt, d, anc });
         return 0;
       }
       shown.add(k);
-      const row = { t: "mid", k, d, m, money: 0 };
+      const row = { t: "mid", k, d, m, money: 0, anc };
       out.push(row);
       const full = m.make ? 0 : Math.ceil(m.need / MAT[k].out);
       Object.entries(MAT[k].inp).forEach(([i, v]) => {
-        row.money += m.crafts ? emit(i, v * m.crafts, d + 1, false, k) : emit(i, v * full, d + 1, true, k);
+        row.money += m.crafts ? emit(i, v * m.crafts, d + 1, false, k, [...anc, k]) : emit(i, v * full, d + 1, true, k, [...anc, k]);
       });
       return row.money;
     }
     if (struck) {
-      out.push({ t: "x", k, amt, d });
+      out.push({ t: "x", k, amt, d, anc });
       return 0;
     }
     const ok = par + ">" + k,
@@ -1255,11 +1260,14 @@ function renderBreakdown(b) {
       money = isOff ? 0 : buy * uc(k);
     remC[k] = (remC[k] || 0) - c;
     remS[k] = (remS[k] || 0) - st;
-    out.push({ t: "raw", k, ok, amt, c, s: st, buy, money, off: isOff, d });
+    out.push({ t: "raw", k, ok, amt, c, s: st, buy, money, off: isOff, d, anc });
     return money;
   }
+  const topMid = new Set(order.filter(k => MAT[k] && b.t.need[k]));
   order.forEach(k => emit(k, b.t.need[k], 0, false));
   const total = out.reduce((a, r) => a + (r.t === "raw" ? r.money : 0), 0);
+  const vis = r => (r.anc.every(a => openMid.has(a)) ? "" : " hidden"),
+    ra = r => (r.anc.length ? ` data-anc="${r.anc.join(" ")}"` : "") + vis(r);
   const nm = (r, extra = "") =>
     `<td class="l tree" style="--d:${r.d}">${r.d ? '<span class="tl">└</span>' : ""}${extra || esc(NAME[r.k])}</td>`;
   const rtog = r =>
@@ -1270,18 +1278,49 @@ function renderBreakdown(b) {
         if (r.t === "mid") {
           const m = r.m,
             left = m.crafts * MAT[r.k].out - m.make;
-          return `<tr class="midrow">${nm(r, `<b>${esc(NAME[r.k])}</b> <span class="rtag">заготовка</span>${m.crafts ? `<br><span class="hint">${fmt(m.crafts)} крафт. по ${MAT[r.k].out} шт.${left ? `, лишних ${left}` : ""}</span>` : ""}`)}<td class="num"><b>${fmt(m.need)}</b></td><td class="num ok">${dot(m.c)}</td><td class="num">${dot(m.s)}</td><td class="num">${m.make ? `сделать <b>${fmt(m.make)}</b>` : '<span class="ok">хватает</span>'}</td><td class="num hint" title="Сырьё на эту заготовку, уже входит в строки ниже">${r.money ? fmt(r.money) : "·"}</td></tr>`;
+          const op = openMid.has(r.k);
+          return `<tr class="midrow"${ra(r)}>${nm(r, `<button type="button" class="mtog" data-tg="${r.k}" aria-expanded="${op}" title="${op ? "Свернуть" : "Показать, из чего делается"}">${op ? "▾" : "▸"}</button> <b>${esc(NAME[r.k])}</b> <span class="rtag">заготовка</span>${m.crafts ? `<br><span class="hint">${fmt(m.crafts)} крафт. по ${MAT[r.k].out} шт.${left ? `, лишних ${left}` : ""}</span>` : ""}`)}<td class="num"><b>${fmt(m.need)}</b></td><td class="num ok">${dot(m.c)}</td><td class="num">${dot(m.s)}</td><td class="num">${m.make ? `сделать <b>${fmt(m.make)}</b>` : '<span class="ok">хватает</span>'}</td><td class="num hint" title="Сырьё на эту заготовку, уже входит в строки ниже">${r.money ? fmt(r.money) : "·"}</td></tr>`;
         }
         if (r.t === "x")
-          return `<tr class="strike">${nm(r)}<td class="num">${fmt(r.amt)}</td><td colspan="3" class="l hint">не нужно, заготовки хватает</td><td class="num">·</td></tr>`;
+          return `<tr class="strike"${ra(r)}>${nm(r)}<td class="num">${fmt(r.amt)}</td><td colspan="3" class="l hint">не нужно, заготовки хватает</td><td class="num">·</td></tr>`;
         if (r.t === "ref")
-          return `<tr class="refrow">${nm(r)}<td class="num">${fmt(r.amt)}</td><td colspan="3" class="l hint">входит в «${esc(NAME[r.k])}» выше</td><td class="num">·</td></tr>`;
-        return `<tr class="${r.off ? "offrow" : ""}">${nm(r, rtog(r))}<td class="num"><b>${fmt(r.amt)}</b></td><td class="num ok">${dot(r.c)}</td><td class="num">${dot(r.s)}</td><td class="num ${r.off ? "" : r.buy ? "buy" : "ok"}">${r.off ? "не считается" : r.buy ? fmt(r.buy) : "хватает"}</td><td class="num">${dot(r.money)}</td></tr>`;
+          return `<tr class="refrow"${ra(r)}>${nm(r)}<td class="num">${fmt(r.amt)}</td><td colspan="3" class="l hint">${r.d ? `считается в строке «${esc(NAME[r.k])}»` : `входит в «${esc(NAME[r.k])}» выше`}</td><td class="num">·</td></tr>`;
+        return `<tr class="${r.off ? "offrow" : ""}"${ra(r)}>${nm(r, rtog(r))}<td class="num"><b>${fmt(r.amt)}</b></td><td class="num ok">${dot(r.c)}</td><td class="num">${dot(r.s)}</td><td class="num ${r.off ? "" : r.buy ? "buy" : "ok"}">${r.off ? "не считается" : r.buy ? fmt(r.buy) : "хватает"}</td><td class="num">${dot(r.money)}</td></tr>`;
       })
-      .join("") +
-    `<tr><td class="l"><b>Итого докупить</b></td><td colspan="4"></td><td class="num"><b>${fmt(total)}</b></td></tr>`;
+      .join("");
+  // Итог по исходному сырью: всё, что в дереве выше, сложено по каждому ресурсу
+  const sumEl = document.getElementById("rawsum");
+  if (!sumEl) return;
+  const agg = {};
+  out.forEach(r => {
+    if (r.t !== "raw") return;
+    const a = (agg[r.k] ||= { k: r.k, amt: 0, c: 0, s: 0, buy: 0, money: 0, offAmt: 0 });
+    a.amt += r.amt;
+    a.c += r.c;
+    a.s += r.s;
+    if (r.off) a.offAmt += r.buy;
+    else a.buy += r.buy;
+    a.money += r.money;
+  });
+  sumEl.innerHTML =
+    ALLK.filter(k => agg[k])
+      .map(k => {
+        const a = agg[k];
+        return `<tr><td class="l">${esc(NAME[k])}</td><td class="num"><b>${fmt(a.amt)}</b></td><td class="num ok">${dot(a.c)}</td><td class="num">${dot(a.s)}</td><td class="num ${a.buy ? "buy" : "ok"}">${a.buy ? fmt(a.buy) : "хватает"}${a.offAmt ? `<br><span class="hint">ещё ${fmt(a.offAmt)} не считается</span>` : ""}</td><td class="num">${dot(a.money)}</td></tr>`;
+      })
+      .join("") + `<tr><td class="l"><b>Итого докупить</b></td><td colspan="4"></td><td class="num"><b>${fmt(total)}</b></td></tr>`;
 }
 document.getElementById("raw").addEventListener("click", e => {
+  const t = e.target.closest(".mtog");
+  if (t) {
+    const k = t.dataset.tg;
+    openMid.has(k) ? openMid.delete(k) : openMid.add(k);
+    try {
+      localStorage.setItem("forge-open-mid", JSON.stringify([...openMid]));
+    } catch (e) {}
+    renderBreakdown(breakdown());
+    return;
+  }
   const b = e.target.closest(".rtog");
   if (!b) return;
   // «не считать» - для конкретной строки: уголь под сталью отдельно от угля на саму вещь
@@ -1350,53 +1389,6 @@ doneBtn.addEventListener("click", () => {
   O().done = true;
   save();
   renderOrderList();
-  renderOrder();
-});
-
-// --- План крафта по шагам
-const planEl = document.getElementById("plan"),
-  planNote = document.getElementById("plannote");
-function renderPlan(b) {
-  const o = O();
-  o.steps = o.steps || {};
-  const steps = [];
-  [...b.mid]
-    .filter(r => r.crafts)
-    .sort((x, y) => x.d - y.d)
-    .forEach(r => {
-      const m = MAT[r.k];
-      steps.push([
-        "m_" + r.k,
-        `${NAME[r.k]}: ${fmt(r.crafts)} раз (${Object.entries(m.inp)
-          .map(([k, n]) => `${n} ${NAME[k].toLowerCase()}`)
-          .join(" + ")}), выйдет ${fmt(r.crafts * m.out)}`,
-      ]);
-    });
-  sortedIds().forEach(id => {
-    const i = BYID[id];
-    if (!i.m) steps.push(["i_" + id, `Сделать: ${nameV(id, varOf(id))} × ${Q()[id]}`]);
-  });
-  const done = steps.filter(([k]) => o.steps[k]).length;
-  planEl.innerHTML = steps
-    .map(
-      ([k, txt]) =>
-        `<li class="${o.steps[k] ? "ok-step" : ""}"><label><input type="checkbox" data-st="${esc(k)}" ${o.steps[k] ? "checked" : ""}> ${esc(txt)}</label></li>`,
-    )
-    .join("");
-  planNote.textContent = steps.length ? `Сделано ${done} из ${steps.length}` : "";
-}
-planEl.addEventListener("change", e => {
-  const c = e.target.closest("input[data-st]");
-  if (!c) return;
-  const o = O();
-  if (c.checked) o.steps[c.dataset.st] = 1;
-  else delete o.steps[c.dataset.st];
-  save();
-  renderOrder();
-});
-document.getElementById("planreset").addEventListener("click", () => {
-  O().steps = {};
-  save();
   renderOrder();
 });
 
