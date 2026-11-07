@@ -299,11 +299,11 @@ body{padding-block:12px 90px}
 .sk-stock tr.cat td{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);background:var(--copper-soft)}
 .sk-cat{font-family:var(--f-head);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);margin:12px 0 6px}
 .sk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
-.sk-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 5px 6px;border:1px solid var(--line);border-radius:7px;background:var(--field);text-align:center;min-width:0}
+.sk-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:20px 5px 6px;border:1px solid var(--line);border-radius:7px;background:var(--field);text-align:center;min-width:0}
 .sk-tile .ic{width:44px;height:44px;min-width:44px}
 .sk-tile.zero .ic{opacity:.45}.sk-tile.zero .sk-cnt{color:var(--muted)}
 .sk-tile.full{border-color:var(--ok,#6a8f4e)}
-.sk-cnt{position:absolute;top:4px;right:6px;font-size:12px;font-weight:700}
+.sk-cnt{position:absolute;top:3px;right:6px;left:6px;text-align:right;font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}
 .sk-nm{font-size:12.5px;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sk-sub{font-size:10.5px;color:var(--muted);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .sk-act{display:flex;gap:3px;margin-top:3px;width:100%}
