@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261107q">
+<link rel="stylesheet" href="style.css?v=20261107r">
 </head>
 <body>
 <header class="top">
@@ -71,7 +71,7 @@
         <p class="hint">Всё сырьё из таблицы выше, сложенное по каждому ресурсу: и на заготовки, и прямо на вещи.</p>
       </div>
     </div>
-    <div class="obar" style="margin-top:14px"><button class="btn" id="odone" type="button" hidden>Заказ выполнен: списать со склада</button><button class="btn" id="oundo" type="button" hidden>Отменить выполнение</button><span class="hint" id="odonenote"></span></div>
+    <div class="obar" style="margin-top:14px"><button class="btn" id="odone" type="button" hidden>Заказ выполнен: списать с моего склада</button><button class="btn" id="oundo" type="button" hidden>Отменить выполнение</button><span class="hint" id="odonenote"></span></div>
     <div class="cbox">
       <div class="row"><h3 style="margin:0">Сырьё от заказчика: <span id="cname"></span></h3><button class="btn" id="callc" type="button">Всё сырьё от заказчика</button><button class="btn" id="cclear" type="button">Очистить сырьё заказчика</button></div>
       <p class="hint" style="margin:4px 0 10px">Впиши, сколько он принёс. Засчитывается по твоим ценам сырья, всё, что он принёс, даже излишек. В дело его сырьё идёт первым, потом склад, остальное докупаешь. Показаны ресурсы, которые нужны на этот заказ.</p>
@@ -79,7 +79,7 @@
       <p id="csum" style="margin:10px 0 0;font-size:14px"></p>
     </div>
     <details style="margin-top:14px" open>
-      <summary>Склад (общий для всех заказов)</summary>
+      <summary>Мой склад (личный, для всех моих заказов)</summary>
       <p class="hint">Показаны ресурсы и заготовки выбранного ремесла и всё, что нужно на текущий заказ. Впиши, что у тебя уже лежит. Готовые заготовки (сталь, железо, гарды…) уменьшают число крафтов, а сырьё — сколько докупать.</p>
       <div class="stock" id="stock"></div>
       <div class="obar" style="margin-top:10px"><label class="hint"><input type="checkbox" id="sall"> Показать все ресурсы</label><button class="btn" id="sclear" type="button">Очистить склад</button></div>
@@ -145,12 +145,12 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261107q"></script>
-<script src="app.js?v=20261107q"></script>
-<script src="layout.js?v=20261107q"></script>
+<script src="data.js?v=20261107r"></script>
+<script src="app.js?v=20261107r"></script>
+<script src="layout.js?v=20261107r"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-<script src="ricon.js?v=20261107q"></script>
-<script src="sklad-config.js?v=20261107q"></script>
-<script src="sklad.js?v=20261107q"></script>
+<script src="ricon.js?v=20261107r"></script>
+<script src="sklad-config.js?v=20261107r"></script>
+<script src="sklad.js?v=20261107r"></script>
 </body>
 </html>
