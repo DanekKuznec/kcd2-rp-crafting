@@ -504,7 +504,7 @@
     const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
     const short = b.rows.filter(r => r.buy > 0).length;
     const lg = linkedG();
-    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>${lg ? `<p style="margin:0 0 6px">Это заказ фракции <b>«${esc(lg.name)}»</b>${lg.note ? ` · для: ${esc(lg.note)}` : ' · <span class="warn">не указано, для кого</span>'} · ${SRC[lg.src] ? `${SRC[lg.src][0]}${(() => { const sp = splitOf(priceOf(b).full, lg.src); return ` · мастеру ${fmt(sp.master)}, в казну ${fmt(sp.treasury)} гр.`; })()}` : '<span class="warn">не указано, кто принёс</span>'}</p>` : ""}
+    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>${lg ? `<p style="margin:0 0 6px">Это заказ фракции <b>«${esc(lg.name)}»</b>${lg.note ? ` · для: ${esc(lg.note)}` : ' · <span class="warn">не указано, для кого</span>'} · ${SRC[lg.src] ? SRC[lg.src][0] : '<span class="warn">не указано, кто принёс</span>'} · ${BENCH[lg.bench] || '<span class="warn">не указано, кто платил за верстак</span>'}${(() => { const sp = splitOf(b, priceOf(b), lg.src, lg.bench); return sp ? ` · <b>мастеру ${fmt(sp.master)}, в казну ${fmt(sp.treasury)} гр.</b>` : ""; })()}</p>` : ""}
       <p class="hint" style="margin:0 0 8px">Что нужно на заказ, сколько возьмётся со склада фракции и хватает ли. Сначала идёт сырьё заказчика, потом склад фракции. Готовые заготовки со склада уменьшают число крафтов.</p>
       <div class="tablebox"><table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
       ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
@@ -612,7 +612,7 @@
     const take = woCur.take;
     const lg = linkedG();
     if (lg) {
-      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : "";
+      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : !BENCH[lg.bench] ? "Сначала выбери в карточке заказа фракции, кто платил за верстак." : "";
       if (why) {
         e.target.disabled = false;
         document.getElementById("sk-wo-msg").textContent = why;
@@ -750,14 +750,26 @@
   }
   // откуда заказ: свой заказчик - мастеру 75%, казне 25%; заказ цеха - мастеру 25%, казне 75%
   const SRC = { mine: ["Мой заказчик", 0.75], cex: ["Заказ цеха", 0.25] };
-  const splitOf = (price, src) => {
-    if (!SRC[src]) return null;
-    const master = Math.round(price * SRC[src][1]);
-    return { master, treasury: Math.round(price) - master };
+  // дележ: материалы целиком в казну, верстак тому, кто его оплатил, остаток (прибыль) по процентам
+  const BENCH = { master: "Верстак оплатил мастер", guild: "Верстак оплатил цех" };
+  const splitOf = (b, pr, src, bench) => {
+    if (!SRC[src] || !BENCH[bench]) return null;
+    const price = Math.round(pr.full),
+      benchc = Math.round(b.t.b + b.matBench),
+      mats = Math.round(b.t.cost) - benchc,
+      profit = price - mats - benchc,
+      share = Math.round(profit * SRC[src][1]),
+      master = share + (bench === "master" ? benchc : 0);
+    return { price, mats, benchc, profit, share, master, treasury: price - master };
   };
+  const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
+  const splitRows = sp =>
+    sp
+      ? `<span class="k">Материалы → в казну</span><span class="v">${fmt(sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
+      : "";
   const srcSeg = (cur, attr) =>
     `<div class="seg gsrc">${Object.entries(SRC)
-      .map(([k, [n, p]]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n} · мне ${Math.round(p * 100)}%, казне ${Math.round((1 - p) * 100)}%</button>`)
+      .map(([k, [n, p]]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n} · прибыль мне ${Math.round(p * 100)}%, казне ${Math.round((1 - p) * 100)}%</button>`)
       .join("")}</div>`;
   // заказ выполнен: статус, списание со склада фракции одним блоком, запись в журнал фракции с дележом
   async function finishG(g, take) {
@@ -772,9 +784,9 @@
       }
     }
     try {
-      const c = calcG(g), price = Math.round(c.pr.full), sp = splitOf(price, g.src) || { master: 0, treasury: 0 };
+      const c = calcG(g), price = Math.round(c.pr.full), sp = splitOf(c.b, c.pr, g.src, g.bench) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
       if (!S.fj.some(r => r.gid === g.id))
-        await addFJ({ gid: g.id, src: g.src || null, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+        await addFJ({ gid: g.id, src: g.src || null, bench: g.bench || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
     // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
     const li = orders.findIndex(o => o.gid === g.id);
@@ -822,6 +834,7 @@
       ${sumH}
       <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
       <div class="hint" style="margin-top:2px">Кто принёс заказ:</div>${srcSeg(gDraft.src, "data-gdsrc")}
+      <div class="hint">Кто платит за верстак (можно выбрать потом):</div>${benchSeg(gDraft.bench, "data-gdbench")}
       <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && gDraft.src ? "" : "disabled"} title="${gDraft.src ? "" : "Выбери, кто принёс заказ"}">Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
   }
   function gRender() {
@@ -882,8 +895,9 @@
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
                 ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}
-                ${splitOf(pr.full, g.src) ? `<span class="k">Мастеру</span><span class="v">${fmt(splitOf(pr.full, g.src).master)} гр.</span><span class="k">В казну</span><span class="v">${fmt(splitOf(pr.full, g.src).treasury)} гр.</span>` : ""}</div>`;
-              sumH += canPrice && g.status !== "done" ? `<div class="hint" style="margin-top:4px">Кто принёс заказ:</div>${srcSeg(g.src, `data-id="${g.id}" data-gsrc`)}` : `<div class="hint">${SRC[g.src] ? `${SRC[g.src][0]}: мастеру ${Math.round(SRC[g.src][1] * 100)}%, казне ${Math.round((1 - SRC[g.src][1]) * 100)}%` : '<span class="warn">не указано, кто принёс заказ</span>'}</div>`;
+                ${(() => { const sp = splitOf(c.b, pr, g.src, g.bench); return sp ? splitRows({ ...sp, bench: g.bench }) : ""; })()}</div>`;
+              sumH += canPrice && g.status !== "done" ? `<div class="hint" style="margin-top:4px">Кто принёс заказ:</div>${srcSeg(g.src, `data-id="${g.id}" data-gsrc`)}` : `<div class="hint">${SRC[g.src] ? `${SRC[g.src][0]}: прибыль мастеру ${Math.round(SRC[g.src][1] * 100)}%, казне ${Math.round((1 - SRC[g.src][1]) * 100)}%` : '<span class="warn">не указано, кто принёс заказ</span>'}</div>`;
+              sumH += (canPrice || takenMe) && g.status !== "done" ? `<div class="hint" style="margin-top:4px">Кто платил за верстак:</div>${benchSeg(g.bench, `data-id="${g.id}" data-gbench`)}` : `<div class="hint">${BENCH[g.bench] || '<span class="warn">не указано, кто платил за верстак</span>'}</div>`;
             }
             const btns = [
               g.status === "new" && !g.taken_by && canFacMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
@@ -962,6 +976,16 @@
       saveDraft();
       return gRender();
     }
+    if (b.dataset.gbench) {
+      const { error } = await sb.from("gorders").update({ bench: b.dataset.gbench }).eq("id", b.dataset.id);
+      if (error) gMsg("Не вышло: " + error.message);
+      return load();
+    }
+    if (b.dataset.gdbench) {
+      gDraft.bench = b.dataset.gdbench;
+      saveDraft();
+      return gRender();
+    }
     if (b.dataset.gsrc) {
       const { error } = await sb.from("gorders").update({ src: b.dataset.gsrc }).eq("id", b.dataset.id);
       if (error) gMsg("Не вышло: " + error.message);
@@ -994,9 +1018,9 @@
       if (!Object.keys(items).length) return gMsg("В заказе нет вещей.");
       b.disabled = true;
       if (!SRC[gDraft.src]) return gMsg("Выбери, кто принёс заказ.");
-      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, src: gDraft.src, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, status: "new", created_by: S.user.id });
       if (error) { b.disabled = false; return gMsg("Не отправилось: " + error.message); }
-      gDraft = { name: "", qty: {}, note: "", manual: 0, src: gDraft.src };
+      gDraft = { name: "", qty: {}, note: "", manual: 0, src: gDraft.src, bench: gDraft.bench };
       saveDraft();
       syncTable();
       return load();
@@ -1044,6 +1068,11 @@
       if (!SRC[g.src]) {
         gMsgId = g.id;
         gMsgTxt = "Сначала выбери, кто принёс заказ: ты или цех.";
+        return gRender();
+      }
+      if (!BENCH[g.bench]) {
+        gMsgId = g.id;
+        gMsgTxt = "Сначала выбери, кто платил за верстак.";
         return gRender();
       }
       const c = calcG(g, Object.fromEntries(Object.entries(S.facStock).filter(([, v]) => v > 0)));
