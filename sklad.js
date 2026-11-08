@@ -776,10 +776,15 @@
       if (!S.fj.some(r => r.gid === g.id))
         await addFJ({ gid: g.id, src: g.src || null, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
-    const lo = orders.find(o => o.gid === g.id);
-    if (lo) {
-      lo.facDone = new Date().toISOString();
+    // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
+    const li = orders.findIndex(o => o.gid === g.id);
+    if (li >= 0) {
+      orders.splice(li, 1);
+      if (!orders.length) orders.push(newOrder("Заказ 1"));
+      if (cur >= li && cur > 0) cur--;
+      cur = Math.min(cur, orders.length - 1);
       save();
+      switchOrder();
     }
     return "";
   }
@@ -852,7 +857,8 @@
     let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(ofac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
       ${canFacMove() ? draftHtml(mine, myCnt) : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}
       <p class="hint" id="g-msg"></p>`;
-    const list = S.gorders;
+    // выполненные заказы уходят в журнал фракции и тут больше не показываются
+    const list = S.gorders.filter(g => g.status !== "done");
     h += list.length
       ? list
           .map(g => {
