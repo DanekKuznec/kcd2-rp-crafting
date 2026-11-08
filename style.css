@@ -355,3 +355,10 @@ section.view.jfac > section.panel:not(.fjbox){display:none}
 .gdraft-box .sum{font-size:13.5px}
 body.gdraft #tb .add{background:var(--copper,#b07a3c);color:#fff;border-color:var(--copper,#b07a3c)}
 .gsrc{display:flex;flex-wrap:wrap}.gsrc button{flex:1 1 180px;font-size:12.5px;padding:5px 6px}
+.pick2{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.pk-l{color:var(--muted);flex:0 0 132px}
+.pk{display:flex;flex:1;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.pk button{flex:1;border:0;background:var(--field);color:var(--ink);font:inherit;font-size:12.5px;padding:4px 6px;cursor:pointer}
+.pk button+button{border-left:1px solid var(--line)}
+.pk button[aria-pressed="true"]{background:var(--copper,#b07a3c);color:#fff}
+.pk button:disabled{cursor:default}.pk button:disabled:not([aria-pressed="true"]){opacity:.55}
