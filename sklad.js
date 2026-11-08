@@ -1295,6 +1295,82 @@
       return r;
     };
   }
+  // --- Отдельная вкладка «Заказы фракции»: все активные заказы одной таблицей
+  const gvTab = document.querySelector('[data-view="gord"]'), gv = document.getElementById("gordv");
+  let gvFilter = "all";
+  function gvRender() {
+    if (!gv) return;
+    const ok = canFacView();
+    if (gvTab) gvTab.hidden = !ok;
+    if (!ok) return (gv.innerHTML = '<div class="panel"><p class="hint">Заказы фракции видят только подтверждённые участники. Войди во вкладке «Склад фракции».</p></div>');
+    const uid = S.user.id;
+    const all = S.gorders.filter(g => g.status !== "done");
+    const list = all.filter(g => gvFilter === "all" || (gvFilter === "new" ? !g.taken_by : gvFilter === "work" ? !!g.taken_by : g.taken_by === uid || g.created_by === uid));
+    const cnt = f => all.filter(g => (f === "new" ? !g.taken_by : f === "work" ? !!g.taken_by : g.taken_by === uid || g.created_by === uid)).length;
+    const rows = list
+      .map(g => {
+        let c = null;
+        try { c = calcG(g); } catch (_) {}
+        const items = Object.entries(g.items || {})
+          .filter(([id]) => BYID[id])
+          .map(([id, q]) => `<span class="gv-it">${icon(BYID[id])}${esc(BYID[id].n)}${(g.vars || {})[id] ? ` <i>${esc(g.vars[id])}</i>` : ""} ×${num(q)}</span>`)
+          .join("");
+        const pay = c ? payOf(c).pay : 0;
+        const st = g.taken_by ? `<span class="ok">в работе</span><br><span class="hint">${esc(ofWho(g.taken_by))}</span>` : '<span class="buy">ждёт мастера</span>';
+        const acts = [
+          !g.taken_by && canFacMove() ? `<button class="btn go" data-gv="take" data-id="${g.id}" type="button">Взять</button>` : "",
+          g.taken_by === uid ? `<button class="btn" data-gv="calc" data-id="${g.id}" type="button">В расчёт</button>` : "",
+          `<button class="btn" data-gv="open" data-id="${g.id}" type="button" title="Показать карточку в панели заказов">Открыть</button>`,
+        ].join("");
+        return `<tr><td class="l"><b>${esc(g.name || "Заказ")}</b><br><span class="hint">${when(g.created_at)} · от ${esc(ofWho(g.created_by))}</span></td><td class="l gv-items">${items}</td><td class="l">${g.note ? esc(g.note) : '<span class="hint">—</span>'}</td><td class="l">${SRC[g.src] ? (g.src === "mine" ? "мастера" : "цеха") : '<span class="hint">—</span>'}</td><td class="num">${fmt(pay)} гр.</td><td class="l">${st}</td><td class="l gv-acts">${acts}</td></tr>`;
+      })
+      .join("");
+    gv.innerHTML = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h2 style="margin:0">Заказы фракции · ${esc(ofac().name)}</h2>
+      <div class="seg" id="gvf">${[["all", "Все"], ["new", "Ждут мастера"], ["work", "В работе"], ["me", "Мои"]].map(([k, n]) => `<button type="button" data-f="${k}" aria-pressed="${gvFilter === k}">${n} (${k === "all" ? all.length : cnt(k)})</button>`).join("")}</div></div>
+      <p class="hint" style="margin:6px 0 10px">Активные заказы, которые ещё не выполнены. Новый заказ создаётся в панели заказов, вкладка «Заказ фракции».</p>
+      <div class="tablebox"><table class="mini gv-t"><thead><tr><th class="l">Заказ</th><th class="l">Вещи</th><th class="l">Для кого</th><th class="l">Чей</th><th>К оплате</th><th class="l">Статус</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="hint">Нет заказов.</td></tr>'}</tbody></table></div></div>`;
+  }
+  if (gv)
+    gv.addEventListener("click", async e => {
+      const f = e.target.closest("#gvf button");
+      if (f) { gvFilter = f.dataset.f; return gvRender(); }
+      const b = e.target.closest("button[data-gv]");
+      if (!b) return;
+      const g = S.gorders.find(x => String(x.id) === b.dataset.id);
+      if (!g) return;
+      const toCex = () => {
+        otab = "cex";
+        try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+        applyOverride();
+        gRender();
+      };
+      if (b.dataset.gv === "take") {
+        b.disabled = true;
+        const { error } = await sb.from("gorders").update({ taken_by: S.user.id, status: "work" }).eq("id", g.id);
+        if (error) { b.disabled = false; b.textContent = "Не вышло"; b.title = error.message; return; }
+        g.taken_by = S.user.id; g.status = "work";
+        toCex();
+        linkOrder(g);
+        await load();
+        const go = document.querySelector('[data-goview="calc"]');
+        if (go) go.click();
+        return;
+      }
+      if (b.dataset.gv === "calc") {
+        toCex();
+        linkOrder(g);
+        const go = document.querySelector('[data-goview="calc"]');
+        if (go) go.click();
+        return;
+      }
+      if (b.dataset.gv === "open") {
+        toCex();
+        setTimeout(() => {
+          const card = [...document.querySelectorAll(".gcard")].find(el => el.querySelector(`[data-id="${g.id}"]`));
+          if (card) { card.scrollIntoView({ block: "center" }); card.classList.add("flash"); setTimeout(() => card.classList.remove("flash"), 1500); }
+        }, 50);
+      }
+    });
   const _render = render;
   // связанный заказ у себя повторяет вещи и цену заказа фракции (их меняет автор), сырьё заказчика идёт обратно
   function mirrorLinked() {
@@ -1331,6 +1407,7 @@
     if ((srcFac && canFacView()) || window.SRC_FAC) applySrc();
     else woRender();
     gRender();
+    gvRender();
     syncTable();
   };
 

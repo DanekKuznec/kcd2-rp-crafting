@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261108za">
+<link rel="stylesheet" href="style.css?v=20261108zb">
 </head>
 <body>
 <header class="top">
@@ -27,6 +27,7 @@
       <button type="button" role="tab" data-view="calc" aria-selected="false">Расчёт заказа</button>
       <button type="button" role="tab" data-view="journal" aria-selected="false">Журнал</button>
       <button type="button" role="tab" data-view="sklad" aria-selected="false">Склад фракции</button>
+      <button type="button" role="tab" data-view="gord" aria-selected="false" hidden>Заказы фракции</button>
       <button type="button" role="tab" data-view="data" aria-selected="false">Данные</button>
     </nav>
   </div>
@@ -95,6 +96,7 @@
   </section>
     </section>
     <section class="view" data-v="sklad" hidden><div id="sklad"></div></section>
+    <section class="view" data-v="gord" hidden><div id="gordv"></div></section>
     <section class="view" data-v="data" hidden>
     <section class="panel" aria-labelledby="dh">
     <h2 id="dh">Данные</h2>
@@ -145,12 +147,12 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261108za"></script>
-<script src="app.js?v=20261108za"></script>
-<script src="layout.js?v=20261108za"></script>
+<script src="data.js?v=20261108zb"></script>
+<script src="app.js?v=20261108zb"></script>
+<script src="layout.js?v=20261108zb"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-<script src="ricon.js?v=20261108za"></script>
-<script src="sklad-config.js?v=20261108za"></script>
-<script src="sklad.js?v=20261108za"></script>
+<script src="ricon.js?v=20261108zb"></script>
+<script src="sklad-config.js?v=20261108zb"></script>
+<script src="sklad.js?v=20261108zb"></script>
 </body>
 </html>
