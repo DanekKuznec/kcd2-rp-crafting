@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261108q">
+<link rel="stylesheet" href="style.css?v=20261108s">
 </head>
 <body>
 <header class="top">
@@ -130,10 +130,10 @@
         <button class="ptog" id="ptog" type="button" aria-expanded="true"><h2 id="ph">Цены сырья</h2><span class="chev" aria-hidden="true">▾</span></button>
         <span class="pbtns"><button class="btn go mkfetch" data-col="1" type="button" title="Подтянуть с аукциона KCDRP: средняя цена реальных продаж за 7 дней">Средняя за 7 дн.</button><button class="btn go mkfetch" data-col="0" type="button" title="Подтянуть с аукциона KCDRP: самый дешёвый лот сейчас">Минимальная</button><button class="btn" id="reset" type="button" title="Вернуть цены по умолчанию">↺</button></span>
       </div>
+      <div class="prices pmk" id="pricesm"></div>
       <div class="pbody" id="pbody">
       <p class="hint" style="margin:0 0 8px"><span id="mkfnote"></span> <span id="mknote"></span></p><select id="mkcol" hidden><option value="0">min</option><option value="1" selected>avg</option></select>
     <div class="pgrid" id="pgrid"></div>
-    <div class="prices" id="pricesm" style="margin-top:10px"></div>
     <details class="more" id="mkcmp" style="margin-top:12px"><summary>Заготовки: крафтить или купить на аукционе</summary>
       <p class="hint" style="margin:6px 0">Впиши цену заготовки на аукционе (или подтяни кнопкой вверху), и видно, что выгоднее: сделать самому из сырья по твоим ценам или купить готовое. Цена за 1 шт.</p>
       <div class="tablebox"><table class="mini"><thead><tr><th class="l">Заготовка</th><th>Крафт, за 1 шт.</th><th>Аукцион, за 1 шт.</th><th class="l">Выгоднее</th></tr></thead><tbody id="mkrows"></tbody></table></div>
@@ -145,12 +145,12 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261108q"></script>
-<script src="app.js?v=20261108q"></script>
-<script src="layout.js?v=20261108q"></script>
+<script src="data.js?v=20261108s"></script>
+<script src="app.js?v=20261108s"></script>
+<script src="layout.js?v=20261108s"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-<script src="ricon.js?v=20261108q"></script>
-<script src="sklad-config.js?v=20261108q"></script>
-<script src="sklad.js?v=20261108q"></script>
+<script src="ricon.js?v=20261108s"></script>
+<script src="sklad-config.js?v=20261108s"></script>
+<script src="sklad.js?v=20261108s"></script>
 </body>
 </html>

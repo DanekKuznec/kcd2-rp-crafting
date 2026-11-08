@@ -818,16 +818,18 @@
         await addFJ({ gid: g.id, disc: Math.round(c.b.disc), src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
     // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
-    const li = orders.findIndex(o => o.gid === g.id);
-    if (li >= 0) {
-      orders.splice(li, 1);
-      if (!orders.length) orders.push(newOrder("Заказ 1"));
-      if (cur >= li && cur > 0) cur--;
-      cur = Math.min(cur, orders.length - 1);
-      save();
-      switchOrder();
-    }
+    dropLinked(g.id);
     return "";
+  }
+  function dropLinked(gid) {
+    const li = orders.findIndex(o => o.gid === gid);
+    if (li < 0) return;
+    orders.splice(li, 1);
+    if (!orders.length) orders.push(newOrder("Заказ 1"));
+    if (cur >= li && cur > 0) cur--;
+    cur = Math.min(cur, orders.length - 1);
+    save();
+    switchOrder();
   }
   // взятый заказ фракции открывается в «Расчёте заказа» как свой: создаём связанный заказ у себя
   function linkOrder(g) {
@@ -1106,7 +1108,12 @@
       if (go) go.click();
       return;
     }
-    if (act === "drop") patch = { taken_by: null, status: "new" };
+    if (act === "drop") {
+      const { error } = await sb.from("gorders").update({ taken_by: null, status: "new" }).eq("id", g.id);
+      if (error) { gMsg("Не вышло: " + error.message); return load(); }
+      dropLinked(g.id);
+      return load();
+    }
     gMsgId = null;
     if (act === "done") {
       const ni = gbox.querySelector(`.g-note[data-id="${g.id}"]`);
@@ -1196,8 +1203,26 @@
     };
   }
   const _render = render;
+  // связанный заказ у себя повторяет вещи и цену заказа фракции (их меняет автор), сырьё заказчика идёт обратно
+  function mirrorLinked() {
+    let changed = false;
+    (orders || []).forEach(o => {
+      if (!o.gid) return;
+      const g = (S.gorders || []).find(x => x.id === o.gid);
+      if (!g) return;
+      const qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
+      const man = +g.manual > 0 ? String(g.manual) : "";
+      if (JSON.stringify(qty) !== JSON.stringify(o.qty)) { o.qty = qty; changed = true; }
+      if ((o.manual || "") !== man) { o.manual = man; changed = true; }
+    });
+    if (changed) {
+      save();
+      if (typeof renderOrder === "function") renderOrder();
+    }
+  }
   render = function () {
     _render();
+    try { mirrorLinked(); } catch (_) {}
     // склад фракции поменялся (или права) - пересчитать заказ, если он считается по складу фракции
     if ((srcFac && canFacView()) || window.SRC_FAC) applySrc();
     else woRender();
