@@ -126,8 +126,9 @@
         const { data: om } = await sb.from("members").select("*").eq("faction", OF);
         S.ofMembers = om || [];
       }
-      const { data: go } = await sb.from("gorders").select("*").eq("faction", OF).order("created_at", { ascending: false }).limit(200);
+      const { data: go, error: eg } = await sb.from("gorders").select("*").eq("faction", OF).order("created_at", { ascending: false }).limit(200);
       S.gorders = go || [];
+      S.gLoaded = !eg && Array.isArray(go);
       const { data: fj } = await sb.from("fjournal").select("*").eq("faction", OF).order("created_at", { ascending: false }).limit(500);
       S.fj = fj || [];
       if (OF !== F) {
@@ -138,6 +139,7 @@
       S.facStock = {};
       S.fj = [];
       S.gorders = [];
+      S.gLoaded = false;
       S.ofMembers = [];
       S.ofMoves = [];
     }
@@ -959,7 +961,7 @@
     zak.classList.toggle("cex", t === "cex");
     gbox.hidden = t !== "cex";
     if (t !== "cex") return;
-    const mine = typeof O === "function" ? O() : null,
+    const mine = typeof orders !== "undefined" ? orders[cur] : null,
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
     let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(ofac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
@@ -1137,7 +1139,7 @@
       return gRender();
     }
     if (b.id === "gd-mine") {
-      const o = O();
+      const o = orders[cur];
       gDraft.qty = { ...gDraft.qty };
       Object.entries(o.qty || {}).forEach(([id, q]) => (gDraft.qty[id] = (gDraft.qty[id] || 0) + q));
       if (!gDraft.name) gDraft.name = o.name || "";
@@ -1286,6 +1288,15 @@
   // связанный заказ у себя повторяет вещи и цену заказа фракции (их меняет автор), сырьё заказчика идёт обратно
   function mirrorLinked() {
     let changed = false;
+    // заказ фракции удалили, отдали другому или уже выполнили - связанный заказ у себя убираем
+    if (S.gLoaded && S.user) {
+      const stale = (orders || []).filter(o => {
+        if (!o.gid) return false;
+        const g = S.gorders.find(x => x.id === o.gid);
+        return !g || g.taken_by !== S.user.id || g.status === "done";
+      });
+      stale.forEach(o => dropLinked(o.gid));
+    }
     (orders || []).forEach(o => {
       if (!o.gid) return;
       const g = (S.gorders || []).find(x => x.id === o.gid);
