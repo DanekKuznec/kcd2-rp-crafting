@@ -58,6 +58,8 @@
   const canFacMove = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 3 || S.admin));
   const canApproveOF = () => !!(S.admin || (S.myFac && S.myFac.rank >= 8));
   const ofWho = id => disp((S.ofMembers || []).find(m => m.user_id === id));
+  // в «Лимиты и цены скупки» только основные материалы, в этом порядке
+  const LIMK = ["steel", "pad", "fe", "co", "cuo", "ag", "nug", "au", "met", "hd", "nettle", "log", "agp", "resin", "shaft", "exw", "leather", "iron", "scrap", "cu", "frank", "tol", "sheet"];
   const AWcache = {};
   const facRes = () => {
     const secs = fac().secs || [];
@@ -214,7 +216,7 @@
             return `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}</td><td class="num"><input class="sk-lim" data-k="${k}" type="number" min="0" value="${l && l.lim != null ? l.lim : ""}" placeholder="—"></td><td class="num"><input class="sk-bmin" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_min != null ? +l.buy_min : ""}" placeholder="от">-<input class="sk-bmax" data-k="${k}" type="number" min="0" step="0.5" value="${l && l.buy_max != null ? +l.buy_max : ""}" placeholder="до"></td></tr>`;
           })
           .join("");
-      h += `<details class="sk-lims"${S.limOpen ? " open" : ""}><summary>Лимиты и цены скупки</summary><div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${rowsOf([...raws, ...mats])}</tbody></table></div></details>`;
+      h += `<details class="sk-lims"${S.limOpen ? " open" : ""}><summary>Лимиты и цены скупки</summary><div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${rowsOf(LIMK.filter(k => NAME[k] && (!q || nm(k).toLowerCase().includes(q))))}</tbody></table></div></details>`;
     }
     const rankOf = u => (S.members.find(x => x.user_id === u) || { rank: 0 }).rank;
     const noteEditable = m => S.me.admin || (S.me.rank >= 3 && rankOf(m.user_id) <= S.me.rank);
