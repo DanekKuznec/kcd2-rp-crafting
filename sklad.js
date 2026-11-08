@@ -794,7 +794,7 @@
   const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
   const splitRows = sp =>
     sp
-      ? `${sp.disc ? `<span class="k hint">сырьё заказчика</span><span class="v hint">−${fmt(sp.disc)} гр.</span><span class="k">Заказчик платит</span><span class="v">${fmt(sp.price)} гр.</span>` : ""}<span class="k">Материалы → ${sp.matby === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
+      ? `<span class="k">Материалы → ${sp.matby === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
       : "";
   const srcSeg = (cur, attr) =>
     `<div class="seg gsrc">${Object.entries(SRC)
@@ -932,7 +932,7 @@
                 <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
-                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}
+                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}${c.b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(c.b.disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(Math.round(pr.price))} гр.</span>` : ""}
                 ${(() => { const sp = splitOf(c.b, pr, g.src, g.bench, g.matby); return sp ? splitRows(sp) : ""; })()}</div>`;
               sumH = pickAll(g, g.id, canPrice && g.status !== "done", (canPrice || takenMe) && g.status !== "done") + sumH;
             }
