@@ -624,7 +624,7 @@
     const take = woCur.take;
     const lg = linkedG();
     if (lg) {
-      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : !BENCH[lg.bench] || !BENCH[lg.matby] ? "Сначала выбери в карточке заказа фракции, кто платил за верстак и материалы." : "";
+      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : !BENCH[lg.bench] || !BENCH[lg.matby] ? "Сначала выбери в карточке заказа фракции, кто платил за верстак и материалы." : priceOf(breakdown()).full < Math.ceil(breakdown().t.cost) ? `Цена ниже затрат (${fmt(Math.ceil(breakdown().t.cost))} гр.), заказ в убыток. Подними цену.` : "";
       if (why) {
         e.target.disabled = false;
         document.getElementById("sk-wo-msg").textContent = why;
@@ -789,6 +789,8 @@
       .join("")}</div></div>`;
   const pickAll = (o, scope, canSrc, canPay) =>
     pick2("src", o.src, scope, canSrc) + pick2("bench", o.bench, scope, canPay) + pick2("matby", o.matby, scope, canPay) + '<div class="hint pk-note">Если материалы предоставил заказчик, отметь нужное в «Расчёте заказа».</div>';
+  // меньше этой «Цены заказчику» нельзя: все материалы и верстак (сырьё заказчика вычитается потом, из обеих сумм одинаково)
+  const minPrice = c => Math.ceil(c.b.t.cost);
   const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
   const splitRows = sp =>
     sp
@@ -846,7 +848,10 @@
     switchOrder();
     setSrc(true);
   }
+  let draftMsg = "";
   function draftHtml(mine, myCnt) {
+    const dm = draftMsg;
+    draftMsg = "";
     const ids = Object.keys(gDraft.qty).filter(id => BYID[id]).sort((a, b) => BYID[a].s.localeCompare(BYID[b].s) || BYID[a].l - BYID[b].l);
     let sumH = "";
     if (ids.length) {
@@ -854,7 +859,7 @@
         const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual });
         var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby);
         const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
-        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
+        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
       } catch (_) {}
     }
     return `<div class="gdraft-box"><h3 style="margin:0 0 4px">Новый заказ фракции</h3>
@@ -863,6 +868,7 @@
       ${pickAll(gDraft, "draft", true, true)}
       ${ids.length ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${gDraft.qty[id]}</span><span class="tn">${esc(i.n)}</span><span class="ctl"><button type="button" data-gd="${esc(id)}" data-d="-1">−</button><button type="button" data-gd="${esc(id)}" data-d="1">+</button><button type="button" data-gd="${esc(id)}" data-d="x">×</button></span></div>`; }).join("")}</div>` : '<div class="empty">Нажми «+» у вещи в рецептах, и она появится здесь.</div>'}
       ${sumH}
+      ${dm ? `<p class="warn" style="margin:0">${esc(dm)}</p>` : ""}
       <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
 
       <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && SRC[gDraft.src] ? "" : "disabled"} title="${SRC[gDraft.src] ? "" : "Выбери, чей это заказ"}">Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
@@ -924,7 +930,7 @@
                 <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
-                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}
+                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}
                 ${(() => { const sp = splitOf(c.b, pr, g.src, g.bench, g.matby); return sp ? splitRows(sp) : ""; })()}</div>`;
               sumH = pickAll(g, g.id, canPrice && g.status !== "done", (canPrice || takenMe) && g.status !== "done") + sumH;
             }
@@ -973,7 +979,11 @@
     const t = e.target;
     if (t.id === "gd-price") {
       let v = Math.max(0, Math.round(+t.value || 0));
-      try { if (Math.round(calcG({ items: gDraft.qty, manual: 0 }).pr.calc) === v) v = 0; } catch (_) {}
+      try {
+        const c0 = calcG({ items: gDraft.qty, manual: 0 }), mn = minPrice(c0);
+        if (v < mn) { v = mn; draftMsg = `Ниже ${fmt(mn)} гр. нельзя: это затраты на материалы и верстак, работа будет в убыток.`; }
+        if (Math.round(c0.pr.calc) === v) v = 0;
+      } catch (_) {}
       gDraft.manual = v;
       saveDraft();
       return gRender();
@@ -982,8 +992,12 @@
       const g = S.gorders.find(x => String(x.id) === t.dataset.id);
       if (!g) return;
       let v = Math.max(0, Math.round(+t.value || 0));
-      // цена совпала с расчётной - значит своей цены нет
-      try { if (Math.round(calcG({ ...g, manual: 0 }).pr.calc) === v) v = 0; } catch (_) {}
+      try {
+        const c0 = calcG({ ...g, manual: 0 }), mn = minPrice(c0);
+        if (v < mn) { v = mn; gMsgId = g.id; gMsgTxt = `Ниже ${fmt(mn)} гр. нельзя: это затраты на материалы и верстак, работа будет в убыток.`; }
+        // цена совпала с расчётной - значит своей цены нет
+        if (Math.round(c0.pr.calc) === v) v = 0;
+      } catch (_) {}
       const { error } = await sb.from("gorders").update({ manual: v }).eq("id", g.id);
       if (error) { gMsgId = g.id; gMsgTxt = "Цена не сохранилась: " + error.message; }
       else g.manual = v;
@@ -1113,6 +1127,12 @@
       if (!BENCH[g.bench] || !BENCH[g.matby]) {
         gMsgId = g.id;
         gMsgTxt = "Сначала выбери, кто платил за верстак и за материалы.";
+        return gRender();
+      }
+      const c1 = calcG(g);
+      if (c1.pr.full < minPrice(c1)) {
+        gMsgId = g.id;
+        gMsgTxt = `Цена ниже затрат (${fmt(minPrice(c1))} гр.), заказ в убыток. Подними «Цену заказчику».`;
         return gRender();
       }
       const c = calcG(g, Object.fromEntries(Object.entries(S.facStock).filter(([, v]) => v > 0)));
