@@ -99,10 +99,13 @@ function fromV3(s) {
   });
   return { p, st };
 }
+// переименованные под игру вещи (сверка брони 8 ноября): старые сохранённые заказы не теряют их
+const IDMAP = {"a:Налокотники с ронделями":"a:Налокотники с ронделами","a:Цервельер с ронделями":"a:Цервельер с ронделами","a:Пластинчатые рукава с ронделями":"a:Пластинчатые рукава с ронделами","a:Кольчужный воротник со знаком":"a:Кольчужный воротник со значком","a:Магдебургские латные наручи (Hanush)":"a:Магдебургские латные наручи (фасон 2)","a:Панские пластинчатые поножи (8 ур.)":"a:Панские пластинчатые поножи (фасон 2)","a:Панцирь скряги":"a:Панцирь скраги","a:Нюрнбергские латные перчатки":"a:Нюрнбергские латные перчатки (тяжёлая версия)"};
+const remapIds = o => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [IDMAP[k] || k, v]));
 const cleanOrders = arr =>
   (Array.isArray(arr) && arr.length ? arr : [newOrder("Заказ 1")]).map(o => ({
     name: o.name || "Заказ",
-    qty: Object.fromEntries(Object.entries(o.qty || {}).filter(([k]) => BYID[k])),
+    qty: Object.fromEntries(Object.entries(remapIds(o.qty)).filter(([k]) => BYID[k])),
     client: o.client || {},
     done: !!o.done,
     snap: o.snap,
@@ -113,7 +116,7 @@ const cleanOrders = arr =>
     pay: o.pay || "no",
     paid: +o.paid || 0,
     given: !!o.given,
-    vars: o.vars || {},
+    vars: remapIds(o.vars),
     jid: o.jid,
     manual: o.manual || "",
     allc: !!o.allc,
