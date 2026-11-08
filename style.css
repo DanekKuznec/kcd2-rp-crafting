@@ -364,3 +364,4 @@ body.gdraft #tb .add{background:var(--copper,#b07a3c);color:#fff;border-color:va
 .pk button:disabled{cursor:default}.pk button:disabled:not([aria-pressed="true"]){opacity:.55}
 .pk-note{font-size:11.5px;margin-top:-2px}
 .pmk{margin:8px 0 6px}.pmk .pf{display:flex;align-items:center;gap:10px}.pmk .pf label{margin:0;white-space:nowrap}.pmk .pf input{width:90px;flex:0 0 90px}
+body.gdraft #odone,body.gdraft #oundo,body.gdraft #odonenote{display:none!important}

@@ -139,11 +139,13 @@ try {
   }
 } catch (e) {}
 const save = () => {
+  if (window.ORD_OVERRIDE && window.onOverrideSave) window.onOverrideSave();
   try {
     localStorage.setItem(KEY, JSON.stringify({ P, stock, sec, orders, cur, off, sign, journal }));
   } catch (e) {}
 };
-const O = () => orders[cur],
+// window.ORD_OVERRIDE: временно считать другой заказ (черновик заказа фракции, расчёт чужого заказа) - ведёт sklad.js
+const O = () => window.ORD_OVERRIDE || orders[cur],
   Q = () => O().qty;
 
 // ============================================================
@@ -624,7 +626,7 @@ function renderClientInputs() {
     ks = visKeys(o.client);
   if (o.allc) {
     cg.innerHTML = `<span class="hint">Стоит галочка «Всё сырьё от заказчика» в заказе: считается, что он принёс всё нужное, склад не трогается.</span>`;
-    document.getElementById("cname").textContent = o.name;
+    document.getElementById("cname").textContent = o.name || (window.ORD_OVERRIDE ? "черновик заказа фракции" : "");
     return;
   }
   cg.innerHTML = ks.length
@@ -635,7 +637,7 @@ function renderClientInputs() {
         )
         .join("")
     : `<span class="hint">Сначала добавь вещи в заказ.</span>`;
-  document.getElementById("cname").textContent = o.name;
+  document.getElementById("cname").textContent = o.name || (window.ORD_OVERRIDE ? "черновик заказа фракции" : "");
 }
 document.getElementById("callc").addEventListener("click", () => {
   const b = breakdown(true);
@@ -1160,7 +1162,7 @@ function renderOrder(skip) {
     ${b.unpriced.length ? `<span class="k warn" style="grid-column:1/-1">Нет цены: ${b.unpriced.map(k => NAME[k].toLowerCase()).join(", ")}. Впиши её в блоке цен, иначе цена занижена.</span>` : ""}`
     : "";
   document.getElementById("mTot").textContent = fmt(price) + " гр.";
-  if (osel.options[cur]) osel.options[cur].textContent = optLabel(O(), t.n);
+  if (osel.options[cur] && !window.ORD_OVERRIDE) osel.options[cur].textContent = optLabel(O(), t.n);
   if (skip !== "c") renderClientInputs();
   if (skip !== "s") renderStockInputs();
   renderBreakdown(b);

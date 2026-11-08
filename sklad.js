@@ -521,7 +521,9 @@
       <div class="tablebox"><table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
       ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
       <p style="margin:8px 0 0">${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
-      ${canFacMove()
+      ${window.ORD_OVERRIDE === gDraft
+        ? '<p class="hint" style="margin-top:8px">Это черновик заказа фракции. Отправь его во фракцию и возьми в работу, тогда можно будет списать со склада.</p>'
+        : canFacMove()
         ? true
           ? `${O().facDone || S.ofMoves.some(m => m.note === `Заказ «${O().name}»`.slice(0, 200)) ? `<p class="warn" style="margin:8px 0 0">Заказ «${esc(O().name)}» уже отмечали выполненным по складу фракции${O().facDone ? " " + when(O().facDone) : ""}. Проверь, чтобы не списать второй раз.</p>` : ""}<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? (take.length ? "Точно? Склад фракции изменится" : "Точно? Запишется в журнал фракции") : lg ? "Заказ фракции выполнен" + (take.length ? ": списать со склада" : "") : take.length ? "Заказ выполнен: списать со склада фракции" : "Заказ выполнен: записать в журнал фракции"}</button><span class="hint" id="sk-wo-msg">${take.length ? `Спишется от тебя с заметкой «Заказ «${esc(O().name)}»», заказ попадёт в журнал фракции.` : "Со склада фракции брать нечего, заказ просто попадёт в журнал фракции."}</span></div>`
           : '<p class="hint">Со склада фракции на этот заказ брать нечего.</p>'
@@ -689,16 +691,35 @@
   // черновик нового заказа фракции: пока открыта вкладка «Заказ фракции», «+» в рецептах кладёт вещи сюда
   let gDraft = { name: "", qty: {}, note: "", manual: 0 };
   try { gDraft = { ...gDraft, ...JSON.parse(localStorage.getItem("forge-gdraft") || "{}") }; } catch (_) {}
+  // черновик - полноценный заказ: пока открыта вкладка «Заказ фракции», «Расчёт заказа» считает его
+  gDraft = Object.assign(newOrder("Заказ фракции"), gDraft, { qty: gDraft.qty || {}, client: gDraft.client || {} });
+  if (!gDraft.name) gDraft.name = "";
   const saveDraft = () => { try { localStorage.setItem("forge-gdraft", JSON.stringify(gDraft)); } catch (_) {} };
+  window.onOverrideSave = () => { if (window.ORD_OVERRIDE === gDraft) saveDraft(); };
+  function applyOverride() {
+    const want = draftOn() ? gDraft : null;
+    if (window.ORD_OVERRIDE === want) return false;
+    window.ORD_OVERRIDE = want;
+    document.body.classList.toggle("gdraft", !!want);
+    return true;
+  }
   const draftOn = () => otab === "cex" && canFacMove();
   const draftCnt = () => Object.values(gDraft.qty).reduce((a, b) => a + (+b || 0), 0);
+  function resetDraft() {
+    const keep = { src: gDraft.src, bench: gDraft.bench, matby: gDraft.matby };
+    gDraft = Object.assign(newOrder("Заказ фракции"), { name: "", qty: {}, note: "", manual: 0, client: {} }, keep);
+    saveDraft();
+    if (window.ORD_OVERRIDE) window.ORD_OVERRIDE = gDraft;
+    if (typeof renderOrder === "function") renderOrder();
+  }
   function setDraft(id, v) {
     v = Math.max(0, v | 0);
     if (v) gDraft.qty[id] = v;
     else delete gDraft.qty[id];
     saveDraft();
     syncTable();
-    gRender();
+    if (window.ORD_OVERRIDE === gDraft && typeof renderOrder === "function") renderOrder();
+    else gRender();
   }
   // таблица рецептов показывает количество того заказа, куда сейчас идёт «+»
   const tbEl = document.getElementById("tb");
@@ -736,7 +757,8 @@
         else delete gDraft.qty[t.dataset.k];
         saveDraft();
         t.closest("tr").classList.toggle("picked", !!v);
-        gRender();
+        if (window.ORD_OVERRIDE === gDraft && typeof renderOrder === "function") renderOrder();
+        else gRender();
       },
       true,
     );
@@ -751,15 +773,15 @@
     tmp.manual = +g.manual > 0 ? String(g.manual) : "";
     tmp.client = { ...(g.client || {}) };
     tmp.allc = !!g.allc;
-    const savedO = orders[cur];
-    orders[cur] = tmp;
+    const savedO = window.ORD_OVERRIDE;
+    window.ORD_OVERRIDE = tmp;
     try {
       return withStock(guildStock || null, () => {
         const b = breakdown();
         return { b, pr: priceOf(b) };
       });
     } finally {
-      orders[cur] = savedO;
+      window.ORD_OVERRIDE = savedO;
     }
   }
   // откуда заказ: свой заказчик - мастеру 75%, казне 25%; заказ цеха - мастеру 25%, казне 75%
@@ -846,9 +868,13 @@
       i = orders.length - 1;
     }
     cur = i;
+    otab = "my";
+    try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+    applyOverride();
     save();
     switchOrder();
     setSrc(true);
+    syncTable();
   }
   let draftMsg = "";
   function draftHtml(mine, myCnt) {
@@ -858,10 +884,10 @@
     let sumH = "";
     if (ids.length) {
       try {
-        const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual });
+        const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc });
         var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby);
         const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
-        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
+        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${c.b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(c.b.disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(Math.round(pr.price))} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
       } catch (_) {}
     }
     return `<div class="gdraft-box"><h3 style="margin:0 0 4px">Новый заказ фракции</h3>
@@ -966,6 +992,7 @@
     if (!b) return;
     otab = b.dataset.t;
     try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+    if (applyOverride() && typeof renderOrder === "function") renderOrder();
     gRender();
     syncTable();
   });
@@ -982,7 +1009,7 @@
     if (t.id === "gd-price") {
       let v = Math.max(0, Math.round(+t.value || 0));
       try {
-        const c0 = calcG({ items: gDraft.qty, manual: 0 }), mn = minPrice(c0);
+        const c0 = calcG({ items: gDraft.qty, manual: 0, client: gDraft.client, allc: gDraft.allc }), mn = minPrice(c0);
         if (v < mn) { v = mn; draftMsg = `Ниже ${fmt(mn)} гр. нельзя: это затраты на материалы и верстак, работа будет в убыток.`; }
         if (Math.round(c0.pr.calc) === v) v = 0;
       } catch (_) {}
@@ -1054,8 +1081,7 @@
     if (b.id === "gd-preset") { gDraft.manual = 0; saveDraft(); return gRender(); }
     if (b.id === "gd-clear") {
       if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Точно очистить?"; return; }
-      gDraft = { name: "", qty: {}, note: "", manual: 0 };
-      saveDraft();
+      resetDraft();
       syncTable();
       return gRender();
     }
@@ -1074,9 +1100,9 @@
       if (!Object.keys(items).length) return gMsg("В заказе нет вещей.");
       b.disabled = true;
       if (!SRC[gDraft.src]) return gMsg("Выбери, кто принёс заказ.");
-      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, matby: BENCH[gDraft.matby] ? gDraft.matby : null, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, client: Object.fromEntries(Object.entries(gDraft.client || {}).filter(([, v]) => +v > 0)), allc: !!gDraft.allc, src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, matby: BENCH[gDraft.matby] ? gDraft.matby : null, status: "new", created_by: S.user.id });
       if (error) { b.disabled = false; return gMsg("Не отправилось: " + error.message); }
-      gDraft = { name: "", qty: {}, note: "", manual: 0, src: gDraft.src, bench: gDraft.bench, matby: gDraft.matby };
+      resetDraft();
       saveDraft();
       syncTable();
       return load();
@@ -1176,6 +1202,8 @@
       switchOrder();
       otab = "my";
       try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+      applyOverride();
+      switchOrder();
       gRender();
       return syncTable();
     }
@@ -1223,6 +1251,7 @@
   render = function () {
     _render();
     try { mirrorLinked(); } catch (_) {}
+    if (applyOverride() && typeof renderOrder === "function") renderOrder();
     // склад фракции поменялся (или права) - пересчитать заказ, если он считается по складу фракции
     if ((srcFac && canFacView()) || window.SRC_FAC) applySrc();
     else woRender();
