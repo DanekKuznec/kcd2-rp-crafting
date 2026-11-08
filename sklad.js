@@ -684,6 +684,8 @@
   tabs.hidden = true;
   tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказ фракции</button>';
   const gbox = document.createElement("div");
+  const gvEl = document.getElementById("gordv");
+  const onG = (ev, fn) => { gbox.addEventListener(ev, fn); if (gvEl) gvEl.addEventListener(ev, fn); };
   gbox.id = "gord";
   gbox.hidden = true;
   if (zak) {
@@ -945,44 +947,8 @@
 
       <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && SRC[gDraft.src] ? "" : "disabled"} title="${SRC[gDraft.src] ? "" : "Выбери, чей это заказ"}">Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
   }
-  function gRender() {
-    if (!zak) return;
-    const ok = canFacView();
-    tabs.hidden = !ok;
-    const t = ok ? otab : "my";
-    tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
-    // кнопка списания со склада фракции прямо в панели заказа
-    let wb = document.getElementById("g-wo");
-    if (!wb && document.getElementById("odel")) {
-      wb = document.createElement("button");
-      wb.id = "g-wo";
-      wb.className = "btn";
-      wb.type = "button";
-      wb.textContent = "Склад фракции";
-      wb.title = "Открыть расчёт по складу своей фракции: что нужно, сколько спишется и хватает ли";
-      document.getElementById("odel").after(wb);
-      wb.addEventListener("click", () => {
-        const go = document.querySelector('[data-goview="calc"]');
-        if (go) go.click();
-        setSrc(true);
-        setTimeout(() => wo.scrollIntoView({ block: "start" }), 50);
-      });
-    }
-    if (wb) wb.hidden = !canFacView();
-    zak.classList.toggle("cex", t === "cex");
-    gbox.hidden = t !== "cex";
-    if (t !== "cex") return;
-    const mine = typeof orders !== "undefined" ? orders[cur] : null,
-      myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
+  function cardHtml(g) {
     const uid = S.user.id;
-    let h = `<p class="hint" style="margin:6px 0">Общие заказы фракции «${esc(ofac().name)}»: их видят все подтверждённые участники. Любой мастер может взять заказ в работу.</p>
-      ${canFacMove() ? draftHtml(mine, myCnt) : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}
-      <p class="hint" id="g-msg"></p>`;
-    // выполненные заказы уходят в журнал фракции и тут больше не показываются
-    const list = S.gorders.filter(g => g.status !== "done");
-    h += list.length
-      ? list
-          .map(g => {
             const takenMe = g.taken_by === uid,
               canDel = g.created_by === uid || canApproveOF(),
               canNoteG = g.created_by === uid || takenMe || canApproveOF(),
@@ -1026,10 +992,49 @@
               ${gMsgId === g.id && gMsgTxt ? `<p class="warn" style="margin:4px 0">${esc(gMsgTxt)}</p>` : ""}
               ${doneH}
               <div class="obar">${btns}</div></div>`;
-          })
+  }
+  function gRender() {
+    if (!zak) return;
+    const ok = canFacView();
+    tabs.hidden = !ok;
+    const t = ok ? otab : "my";
+    tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
+    // кнопка списания со склада фракции прямо в панели заказа
+    let wb = document.getElementById("g-wo");
+    if (!wb && document.getElementById("odel")) {
+      wb = document.createElement("button");
+      wb.id = "g-wo";
+      wb.className = "btn";
+      wb.type = "button";
+      wb.textContent = "Склад фракции";
+      wb.title = "Открыть расчёт по складу своей фракции: что нужно, сколько спишется и хватает ли";
+      document.getElementById("odel").after(wb);
+      wb.addEventListener("click", () => {
+        const go = document.querySelector('[data-goview="calc"]');
+        if (go) go.click();
+        setSrc(true);
+        setTimeout(() => wo.scrollIntoView({ block: "start" }), 50);
+      });
+    }
+    if (wb) wb.hidden = !canFacView();
+    zak.classList.toggle("cex", t === "cex");
+    gbox.hidden = t !== "cex";
+    if (t !== "cex") return;
+    const mine = typeof orders !== "undefined" ? orders[cur] : null,
+      myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
+    const uid = S.user.id;
+    let h = `<p class="hint" style="margin:6px 0">Здесь новый заказ и заказы, которые ты взял. Все заказы фракции «${esc(ofac().name)}» во вкладке «Заказы фракции».</p>
+      ${canFacMove() ? draftHtml(mine, myCnt) : '<p class="hint">Создавать и брать заказы могут Подмастерье и выше.</p>'}
+      <p class="hint" id="g-msg"></p>`;
+    // справа только заказы, которые взял я; остальные во вкладке «Заказы фракции»
+    const list = S.gorders.filter(g => g.status !== "done" && g.taken_by === uid);
+    h += list.length
+      ? list
+          .map(cardHtml)
           .join("")
-      : '<p class="hint">Заказов фракции пока нет.</p>';
+      : '<p class="hint">Взятых тобой заказов нет. Свободные заказы во вкладке «Заказы фракции» сверху.</p>';
     gbox.innerHTML = h;
+    try { gvRender(); } catch (_) {}
   }
   tabs.addEventListener("click", e => {
     const b = e.target.closest("button");
@@ -1041,10 +1046,10 @@
     gRender();
     syncTable();
   });
-  gbox.addEventListener("keydown", e => {
+  onG("keydown", e => {
     if (e.key === "Enter" && e.target.classList.contains("g-price")) e.target.blur();
   });
-  gbox.addEventListener("input", e => {
+  onG("input", e => {
     if (e.target.classList.contains("gd-var")) {
       const v = e.target.value.trim();
       gDraft.vars = gDraft.vars || {};
@@ -1056,7 +1061,7 @@
     if (e.target.id === "gd-note") { gDraft.note = e.target.value; saveDraft(); }
     if (e.target.id === "g-sendnote") gSendNote = e.target.value;
   });
-  gbox.addEventListener("change", async e => {
+  onG("change", async e => {
     const t = e.target;
     if (t.classList.contains("g-var")) {
       const g = S.gorders.find(x => String(x.id) === t.dataset.id);
@@ -1102,7 +1107,7 @@
     if (g) g.note = t.value.trim().slice(0, 300);
   });
   const gMsg = m => { const el = document.getElementById("g-msg"); if (el) el.textContent = m; };
-  gbox.addEventListener("click", async e => {
+  onG("click", async e => {
     const b = e.target.closest("button");
     if (!b) return;
     if (!canFacMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
@@ -1206,7 +1211,7 @@
     }
     gMsgId = null;
     if (act === "done") {
-      const ni = gbox.querySelector(`.g-note[data-id="${g.id}"]`);
+      const ni = (e.target.closest("#gord, #gordv") || gbox).querySelector(`.g-note[data-id="${g.id}"]`);
       if (ni && ni.value.trim() !== (g.note || "")) {
         const { error } = await sb.from("gorders").update({ note: ni.value.trim().slice(0, 300) }).eq("id", g.id);
         if (!error) g.note = ni.value.trim().slice(0, 300);
@@ -1298,6 +1303,7 @@
   // --- Отдельная вкладка «Заказы фракции»: все активные заказы одной таблицей
   const gvTab = document.querySelector('[data-view="gord"]'), gv = document.getElementById("gordv");
   let gvFilter = "all";
+  const gvOpen = new Set();
   function gvRender() {
     if (!gv) return;
     const ok = canFacView();
@@ -1320,9 +1326,9 @@
         const acts = [
           !g.taken_by && canFacMove() ? `<button class="btn go" data-gv="take" data-id="${g.id}" type="button">Взять</button>` : "",
           g.taken_by === uid ? `<button class="btn" data-gv="calc" data-id="${g.id}" type="button">В расчёт</button>` : "",
-          `<button class="btn" data-gv="open" data-id="${g.id}" type="button" title="Показать карточку в панели заказов">Открыть</button>`,
+          `<button class="btn${gvOpen.has(g.id) ? " go" : ""}" data-gv="open" data-id="${g.id}" type="button" title="Подробно: цена, кто платит, заметка, удаление">${gvOpen.has(g.id) ? "Скрыть" : "Подробно"}</button>`,
         ].join("");
-        return `<tr><td class="l"><b>${esc(g.name || "Заказ")}</b><br><span class="hint">${when(g.created_at)} · от ${esc(ofWho(g.created_by))}</span></td><td class="l gv-items">${items}</td><td class="l">${g.note ? esc(g.note) : '<span class="hint">—</span>'}</td><td class="l">${SRC[g.src] ? (g.src === "mine" ? "мастера" : "цеха") : '<span class="hint">—</span>'}</td><td class="num">${fmt(pay)} гр.</td><td class="l">${st}</td><td class="l gv-acts">${acts}</td></tr>`;
+        return `<tr><td class="l"><b>${esc(g.name || "Заказ")}</b><br><span class="hint">${when(g.created_at)} · от ${esc(ofWho(g.created_by))}</span></td><td class="l gv-items">${items}</td><td class="l">${g.note ? esc(g.note) : '<span class="hint">—</span>'}</td><td class="l">${SRC[g.src] ? (g.src === "mine" ? "мастера" : "цеха") : '<span class="hint">—</span>'}</td><td class="num">${fmt(pay)} гр.</td><td class="l">${st}</td><td class="l gv-acts">${acts}</td></tr>${gvOpen.has(g.id) ? `<tr class="gv-card"><td colspan="7">${cardHtml(g)}</td></tr>` : ""}`;
       })
       .join("");
     gv.innerHTML = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h2 style="margin:0">Заказы фракции · ${esc(ofac().name)}</h2>
@@ -1364,11 +1370,8 @@
         return;
       }
       if (b.dataset.gv === "open") {
-        toCex();
-        setTimeout(() => {
-          const card = [...document.querySelectorAll(".gcard")].find(el => el.querySelector(`[data-id="${g.id}"]`));
-          if (card) { card.scrollIntoView({ block: "center" }); card.classList.add("flash"); setTimeout(() => card.classList.remove("flash"), 1500); }
-        }, 50);
+        gvOpen.has(g.id) ? gvOpen.delete(g.id) : gvOpen.add(g.id);
+        return gvRender();
       }
     });
   const _render = render;
