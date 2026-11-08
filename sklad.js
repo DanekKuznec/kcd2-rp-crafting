@@ -649,7 +649,7 @@
     let jr = null;
     try {
       const b = breakdown(), pr = priceOf(b);
-      jr = { name: (o.name || "Заказ").slice(0, 80), items: sortedIds().map(id => ({ n: BYID[id].n, q: Q()[id] })), price: Math.round(pr.price), labor: Math.round(pr.labor) };
+      jr = { name: (o.name || "Заказ").slice(0, 80), items: sortedIds().map(id => ({ n: nameV(id, varOf(id)), q: Q()[id] })), price: Math.round(pr.price), labor: Math.round(pr.labor) };
     } catch (_) {}
     const { error } = take.length ? await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id, batch: wb }))) : { error: null };
     if (!error) {
@@ -723,7 +723,7 @@
   const draftCnt = () => Object.values(gDraft.qty).reduce((a, b) => a + (+b || 0), 0);
   function resetDraft() {
     const keep = { src: gDraft.src, bench: gDraft.bench, matby: gDraft.matby };
-    gDraft = Object.assign(newOrder("Заказ фракции"), { name: "", qty: {}, note: "", manual: 0, client: {} }, keep);
+    gDraft = Object.assign(newOrder("Заказ фракции"), { name: "", qty: {}, note: "", manual: 0, client: {}, vars: {} }, keep);
     saveDraft();
     if (window.ORD_OVERRIDE) window.ORD_OVERRIDE = gDraft;
     if (typeof renderOrder === "function") renderOrder();
@@ -864,7 +864,7 @@
     try {
       const c = calcG(g), price = payOf(c).pay, sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
       if (!S.fj.some(r => r.gid === g.id))
-        await addFJ({ gid: g.id, disc: payOf(c).disc, src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+        await addFJ({ gid: g.id, disc: payOf(c).disc, src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n + ((g.vars || {})[id] ? ` — ${g.vars[id]}` : ""), q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
     // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
     dropLinked(g.id);
@@ -892,6 +892,7 @@
       o.gid = g.id;
       o.client = { ...(g.client || {}) };
       o.allc = !!g.allc;
+      o.vars = { ...(g.vars || {}) };
       orders.push(o);
       i = orders.length - 1;
       save();
@@ -924,7 +925,7 @@
       ${gFocus !== "draft" ? `<p class="hint" style="margin:0 0 6px">Сейчас «Расчёт заказа» показывает взятый заказ. <button class="linkbtn" id="gd-focus" type="button">Считать черновик</button></p>` : ""}
       <input id="gd-name" maxlength="80" placeholder="Название заказа" value="${esc(gDraft.name)}">
       ${pickAll(gDraft, "draft", true, true)}
-      ${ids.length ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${gDraft.qty[id]}</span><span class="tn">${esc(i.n)}</span><span class="ctl"><button type="button" data-gd="${esc(id)}" data-d="-1">−</button><button type="button" data-gd="${esc(id)}" data-d="1">+</button><button type="button" data-gd="${esc(id)}" data-d="x">×</button></span></div>`; }).join("")}</div>` : '<div class="empty">Нажми «+» у вещи в рецептах, и она появится здесь.</div>'}
+      ${ids.length ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${gDraft.qty[id]}</span><span class="tn">${esc(i.n)}</span>${(i.s === "a" || i.var) && !i.m ? `<input class="var gd-var" data-v="${esc(id)}" list="varlist" maxlength="40" placeholder="вариант" value="${esc((gDraft.vars || {})[id] || "")}">` : ""}<span class="ctl"><button type="button" data-gd="${esc(id)}" data-d="-1">−</button><button type="button" data-gd="${esc(id)}" data-d="1">+</button><button type="button" data-gd="${esc(id)}" data-d="x">×</button></span></div>`; }).join("")}</div>` : '<div class="empty">Нажми «+» у вещи в рецептах, и она появится здесь.</div>'}
       ${sumH}
       ${dm ? `<p class="warn" style="margin:0">${esc(dm)}</p>` : ""}
       <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
@@ -977,7 +978,7 @@
             try { c = calcG(g); } catch (_) { c = null; }
             const ids = Object.keys(g.items || {}).filter(id => typeof BYID !== "undefined" && BYID[id]);
             const tilesH = ids.length
-              ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${num(g.items[id])}</span><span class="tn">${esc(i.n)}</span></div>`; }).join("")}</div>`
+              ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${num(g.items[id])}</span><span class="tn">${esc(i.n)}</span>${(i.s === "a" || i.var) && !i.m ? canPrice && g.status !== "done" ? `<input class="var g-var" data-id="${g.id}" data-v="${esc(id)}" list="varlist" maxlength="40" placeholder="вариант" value="${esc((g.vars || {})[id] || "")}">` : (g.vars || {})[id] ? `<span class="tvar">${esc(g.vars[id])}</span>` : "" : ""}</div>`; }).join("")}</div>`
               : '<p class="hint">Вещей нет.</p>';
             let sumH = "";
             if (c && c.b.t.n) {
@@ -1031,12 +1032,30 @@
     if (e.key === "Enter" && e.target.classList.contains("g-price")) e.target.blur();
   });
   gbox.addEventListener("input", e => {
+    if (e.target.classList.contains("gd-var")) {
+      const v = e.target.value.trim();
+      gDraft.vars = gDraft.vars || {};
+      if (v) gDraft.vars[e.target.dataset.v] = v;
+      else delete gDraft.vars[e.target.dataset.v];
+      saveDraft();
+    }
     if (e.target.id === "gd-name") { gDraft.name = e.target.value; saveDraft(); }
     if (e.target.id === "gd-note") { gDraft.note = e.target.value; saveDraft(); }
     if (e.target.id === "g-sendnote") gSendNote = e.target.value;
   });
   gbox.addEventListener("change", async e => {
     const t = e.target;
+    if (t.classList.contains("g-var")) {
+      const g = S.gorders.find(x => String(x.id) === t.dataset.id);
+      if (!g) return;
+      const vars = { ...(g.vars || {}) }, v = t.value.trim();
+      if (v) vars[t.dataset.v] = v;
+      else delete vars[t.dataset.v];
+      g.vars = vars;
+      const { error } = await sb.from("gorders").update({ vars }).eq("id", g.id);
+      if (error) { gMsgId = g.id; gMsgTxt = "Вариант не сохранился: " + error.message; return load(); }
+      return;
+    }
     if (t.id === "gd-price") {
       let v = Math.max(0, Math.round(+t.value || 0));
       try {
@@ -1132,7 +1151,7 @@
       if (!Object.keys(items).length) return gMsg("В заказе нет вещей.");
       b.disabled = true;
       if (!SRC[gDraft.src]) return gMsg("Выбери, кто принёс заказ.");
-      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, client: Object.fromEntries(Object.entries(gDraft.client || {}).filter(([, v]) => +v > 0)), allc: !!gDraft.allc, src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, matby: BENCH[gDraft.matby] ? gDraft.matby : null, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, client: Object.fromEntries(Object.entries(gDraft.client || {}).filter(([, v]) => +v > 0)), allc: !!gDraft.allc, vars: Object.fromEntries(Object.entries(gDraft.vars || {}).filter(([id, v]) => items[id] && v)), src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, matby: BENCH[gDraft.matby] ? gDraft.matby : null, status: "new", created_by: S.user.id });
       if (error) { b.disabled = false; return gMsg("Не отправилось: " + error.message); }
       resetDraft();
       saveDraft();
@@ -1228,6 +1247,7 @@
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => typeof BYID === "undefined" || BYID[id]));
       o.due = g.due || "";
       if (+g.manual > 0) o.manual = String(g.manual);
+      o.vars = { ...(g.vars || {}) };
       orders.push(o);
       cur = orders.length - 1;
       save();
@@ -1274,6 +1294,7 @@
       const man = +g.manual > 0 ? String(g.manual) : "";
       if (JSON.stringify(qty) !== JSON.stringify(o.qty)) { o.qty = qty; changed = true; }
       if ((o.manual || "") !== man) { o.manual = man; changed = true; }
+      if (JSON.stringify(o.vars || {}) !== JSON.stringify(g.vars || {})) { o.vars = { ...(g.vars || {}) }; changed = true; }
     });
     if (changed) {
       save();
