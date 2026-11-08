@@ -518,7 +518,7 @@
     const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
     const short = b.rows.filter(r => r.buy > 0).length;
     const lg = linkedG();
-    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>${lg ? `<p style="margin:0 0 6px">Это заказ фракции <b>«${esc(lg.name)}»</b>${lg.note ? ` · для: ${esc(lg.note)}` : ' · <span class="warn">не указано, для кого</span>'} · ${SRC[lg.src] ? SRC[lg.src][0] : '<span class="warn">не указано, кто принёс</span>'} · ${BENCH[lg.bench] && BENCH[lg.matby] ? `верстак: ${lg.bench === "master" ? "мастер" : "цех"}, материалы: ${lg.matby === "master" ? "мастер" : "цех"}` : '<span class="warn">не указано, кто платил за верстак и материалы</span>'}${(() => { const sp = splitOf(b, priceOf(b), lg.src, lg.bench, lg.matby); return sp ? ` · <b>мастеру ${fmt(sp.master)}, в казну ${fmt(sp.treasury)} гр.</b>` : ""; })()}</p>` : ""}
+    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>${lg ? `<p style="margin:0 0 6px">Это заказ фракции <b>«${esc(lg.name)}»</b>${lg.note ? ` · для: ${esc(lg.note)}` : ' · <span class="warn">не указано, для кого</span>'} · ${SRC[lg.src] ? SRC[lg.src][0] : '<span class="warn">не указано, кто принёс</span>'} · ${BENCH[lg.bench] && BENCH[lg.matby] ? `верстак: ${lg.bench === "master" ? "мастер" : "цех"}, материалы: ${lg.matby === "master" ? "мастер" : "цех"}` : '<span class="warn">не указано, кто платил за верстак и материалы</span>'}${(() => { const sp = splitOf(b, priceOf(b), lg.src, lg.bench, lg.matby, stockValOf(b)); return sp ? ` · <b>мастеру ${fmt(sp.master)}, в казну ${fmt(sp.treasury)} гр.</b>` : ""; })()}</p>` : ""}
       <p class="hint" style="margin:0 0 8px">Что нужно на заказ, сколько возьмётся со склада фракции и хватает ли. Сначала идёт сырьё заказчика, потом склад фракции. Готовые заготовки со склада уменьшают число крафтов.</p>
       <div class="tablebox"><table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
       ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
@@ -808,7 +808,10 @@
   const SRC = { mine: ["Заказ мастера", 0.75], cex: ["Заказ цеха", 0.25] };
   // дележ: материалы целиком в казну, верстак тому, кто его оплатил, остаток (прибыль) по процентам
   const BENCH = { master: "Верстак оплатил мастер", guild: "Верстак оплатил цех" };
-  const splitOf = (b, pr, src, bench, matby) => {
+  // сколько стоит то, что берётся со склада фракции (это всегда добро цеха)
+  const stockValOf = b => Math.round(b.rows.reduce((a, r) => a + (r.s || 0) * uc(r.k), 0) + b.mid.reduce((a, m) => a + (m.s || 0) * uc(m.k), 0));
+  const takeVal = take => Math.round((take || []).reduce((a, [k, n]) => a + n * uc(k), 0));
+  const splitOf = (b, pr, src, bench, matby, stockVal = 0) => {
     if (!SRC[src] || !BENCH[bench] || !BENCH[matby]) return null;
     // заказчик платит цену без своего сырья; его сырьё никому не возвращается
     const benchc0 = Math.round(b.t.b + b.matBench),
@@ -817,10 +820,13 @@
       matsAll = Math.round(b.t.cost) - benchc,
       discEff = Math.min(Math.round(b.disc), matsAll),
       mats = matsAll - discEff,
+      // материалы со склада фракции возвращаются казне, «Материалы оплатил» касается только докупленного
+      fromStock = Math.min(mats, Math.max(0, Math.round(stockVal))),
+      bought = mats - fromStock,
       profit = price - mats - benchc,
       share = Math.round(profit * SRC[src][1]),
-      master = share + (bench === "master" ? benchc : 0) + (matby === "master" ? mats : 0);
-    return { price, mats, benchc, profit, share, master, treasury: price - master, bench, matby, disc: discEff };
+      master = share + (bench === "master" ? benchc : 0) + (matby === "master" ? bought : 0);
+    return { price, mats, fromStock, bought, benchc, profit, share, master, treasury: price - master, bench, matby, disc: discEff };
   };
   // переключатель из двух половинок
   const PICK = {
@@ -845,7 +851,7 @@
   const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
   const splitRows = sp =>
     sp
-      ? `<span class="k">Материалы → ${sp.matby === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
+      ? `${sp.fromStock ? `<span class="k">Материалы со склада → в казну</span><span class="v">${fmt(sp.fromStock)} гр.</span>` : ""}<span class="k">Материалы${sp.fromStock ? " докупить" : ""} → ${sp.matby === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.fromStock ? sp.bought : sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
       : "";
   const srcSeg = (cur, attr) =>
     `<div class="seg gsrc">${Object.entries(SRC)
@@ -864,7 +870,7 @@
       }
     }
     try {
-      const c = calcG(g), price = payOf(c).pay, sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
+      const c = calcG(g), price = payOf(c).pay, sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby, takeVal(take)) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
       if (!S.fj.some(r => r.gid === g.id))
         await addFJ({ gid: g.id, disc: payOf(c).disc, src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n + ((g.vars || {})[id] ? ` — ${g.vars[id]}` : ""), q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
@@ -917,7 +923,9 @@
     if (ids.length) {
       try {
         const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc });
-        var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby);
+        let sv = 0;
+        try { sv = stockValOf(calcG({ items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc }, posStock(S.facStock)).b); } catch (_) {}
+        var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby, sv);
         const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
         sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
       } catch (_) {}
@@ -992,7 +1000,7 @@
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
                 ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}
-                ${(() => { const sp = splitOf(c.b, pr, g.src, g.bench, g.matby); return sp ? splitRows(sp) : ""; })()}</div>`;
+                ${(() => { let sv = 0; try { sv = stockValOf(calcG(g, posStock(S.facStock)).b); } catch (_) {} const sp = splitOf(c.b, pr, g.src, g.bench, g.matby, sv); return sp ? splitRows(sp) : ""; })()}</div>`;
               sumH = pickAll(g, g.id, canPrice && g.status !== "done", (canPrice || takenMe) && g.status !== "done") + sumH;
             }
             const btns = [
