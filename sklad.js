@@ -508,6 +508,7 @@
     sw.innerHTML = `<button type="button" data-src="my" aria-pressed="${!on}">Личный склад</button><button type="button" data-src="fac" aria-pressed="${on}">Склад фракции «${esc(ofac().name)}»</button>`;
     if (!on) return (wo.innerHTML = "");
     if (woCur && woCur.msg) return (wo.innerHTML = woCur.msg);
+    const lg0 = linkedG();
     const b = breakdown();
     if (!b.t.n) return (wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 6px">Склад фракции «${esc(ofac().name)}»</h3><p class="hint">В заказе пока нет вещей.</p></div>`);
     const have = k => S.facStock[k] || 0;
@@ -515,14 +516,15 @@
       `<tr><td>${resIcon(k)}</td><td class="l">${esc(nm(k))}${mid ? ' <span class="rtag">заготовка</span>' : ""}</td><td class="num">${num(need)}</td><td class="num hint">${c ? num(c) : ""}</td><td class="num">${num(have(k))}</td><td class="num"><b>${s ? num(s) : "—"}</b></td><td class="l ${lack ? "buy" : "ok"}">${lack ? (mid ? `сделать ${num(lack)}` : `не хватает ${num(lack)}`) : "✓ хватает"}</td></tr>`;
     const mids = b.mid.map(m => row(m.k, m.need, m.c, m.s, m.make, true)).join("");
     const raws = b.rows.map(r => row(r.k, r.all, r.c, r.s, r.buy, false)).join("");
-    const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
+    const ownMats = !!((lg0 && lg0.matby === "master") || (window.ORD_OVERRIDE === gDraft && gDraft.matby === "master"));
+    const take = ownMats ? [] : [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
     const short = b.rows.filter(r => r.buy > 0).length;
     const lg = linkedG();
     wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>${lg ? `<p style="margin:0 0 6px">Это заказ фракции <b>«${esc(lg.name)}»</b>${lg.note ? ` · для: ${esc(lg.note)}` : ' · <span class="warn">не указано, для кого</span>'} · ${SRC[lg.src] ? SRC[lg.src][0] : '<span class="warn">не указано, кто принёс</span>'} · ${BENCH[lg.bench] && BENCH[lg.matby] ? `верстак: ${lg.bench === "master" ? "мастер" : "цех"}, материалы: ${lg.matby === "master" ? "мастер" : "цех"}` : '<span class="warn">не указано, кто платил за верстак и материалы</span>'}${(() => { const sp = splitOf(b, priceOf(b), lg.src, lg.bench, lg.matby, stockValOf(b)); return sp ? ` · <b>мастеру ${fmt(sp.master)}, в казну ${fmt(sp.treasury)} гр.</b>` : ""; })()}</p>` : ""}
-      <p class="hint" style="margin:0 0 8px">Что нужно на заказ, сколько возьмётся со склада фракции и хватает ли. Сначала идёт сырьё заказчика, потом склад фракции. Готовые заготовки со склада уменьшают число крафтов.</p>
-      <div class="tablebox"><table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
+      ${ownMats ? '<p style="margin:0 0 8px"><b>Материалы оплатил мастер</b>: со склада фракции ничего не берётся и не списывается. Чтобы посчитать по своему складу, переключи расчёт на «Личный склад».</p><div class="tablebox" hidden>' : `<p class="hint" style="margin:0 0 8px">Что нужно на заказ, сколько возьмётся со склада фракции и хватает ли. Сначала идёт сырьё заказчика, потом склад фракции. Готовые заготовки со склада уменьшают число крафтов.</p>
+      <div class="tablebox">`}<table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
       ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
-      <p style="margin:8px 0 0">${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
+      <p style="margin:8px 0 0"${ownMats ? " hidden" : ""}>${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
       ${window.ORD_OVERRIDE === gDraft
         ? '<p class="hint" style="margin-top:8px">Это черновик заказа фракции. Отправь его во фракцию и возьми в работу, тогда можно будет списать со склада.</p>'
         : canFacMove()
@@ -821,7 +823,8 @@
       discEff = Math.min(Math.round(b.disc), matsAll),
       mats = matsAll - discEff,
       // материалы со склада фракции возвращаются казне, «Материалы оплатил» касается только докупленного
-      fromStock = Math.min(mats, Math.max(0, Math.round(stockVal))),
+      // материалы оплатил мастер - склад фракции не трогается вовсе
+      fromStock = matby === "master" ? 0 : Math.min(mats, Math.max(0, Math.round(stockVal))),
       bought = mats - fromStock,
       profit = price - mats - benchc,
       share = Math.round(profit * SRC[src][1]),
@@ -1230,7 +1233,7 @@
         return gRender();
       }
       const c = calcG(g, Object.fromEntries(Object.entries(S.facStock).filter(([, v]) => v > 0)));
-      gPlan = { take: [...c.b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...c.b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])], lack: c.b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]) };
+      gPlan = g.matby === "master" ? { take: [], lack: [], own: true } : { take: [...c.b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...c.b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])], lack: c.b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]) };
       gDone = g.id;
       return gRender();
     }
