@@ -696,11 +696,27 @@
   if (!gDraft.name) gDraft.name = "";
   const saveDraft = () => { try { localStorage.setItem("forge-gdraft", JSON.stringify(gDraft)); } catch (_) {} };
   window.onOverrideSave = () => { if (window.ORD_OVERRIDE === gDraft) saveDraft(); };
+  // что считает «Расчёт заказа», пока открыта вкладка «Заказ фракции»: черновик или взятый мной заказ
+  let gFocus = "draft";
+  const focusOrder = () => {
+    if (gFocus !== "draft") {
+      const o = orders.find(x => x.gid === gFocus);
+      if (o) return o;
+      gFocus = "draft";
+    }
+    return gDraft;
+  };
+  function setFocus(f) {
+    gFocus = f;
+    if (applyOverride() && typeof renderOrder === "function") renderOrder();
+    if (canFacView() && !srcFac) setSrc(true);
+  }
   function applyOverride() {
-    const want = draftOn() ? gDraft : null;
+    const want = draftOn() ? focusOrder() : null;
     if (window.ORD_OVERRIDE === want) return false;
     window.ORD_OVERRIDE = want;
     document.body.classList.toggle("gdraft", !!want);
+    syncTable();
     return true;
   }
   const draftOn = () => otab === "cex" && canFacMove();
@@ -713,6 +729,7 @@
     if (typeof renderOrder === "function") renderOrder();
   }
   function setDraft(id, v) {
+    if (gFocus !== "draft") setFocus("draft");
     v = Math.max(0, v | 0);
     if (v) gDraft.qty[id] = v;
     else delete gDraft.qty[id];
@@ -725,7 +742,7 @@
   const tbEl = document.getElementById("tb");
   function syncTable() {
     if (!tbEl) return;
-    const src = draftOn() ? gDraft.qty : typeof Q === "function" ? Q() : {};
+    const src = draftOn() ? gDraft.qty : typeof Q === "function" ? orders[cur].qty : {};
     tbEl.querySelectorAll("input.qty").forEach(inp => {
       if (document.activeElement === inp) return;
       const v = src[inp.dataset.k] || "";
@@ -752,6 +769,7 @@
         const t = e.target;
         if (!t.classList.contains("qty") || !draftOn()) return;
         e.stopImmediatePropagation();
+        if (gFocus !== "draft") setFocus("draft");
         const v = Math.max(0, parseInt(t.value) || 0);
         if (v) gDraft.qty[t.dataset.k] = v;
         else delete gDraft.qty[t.dataset.k];
@@ -791,13 +809,16 @@
   const splitOf = (b, pr, src, bench, matby) => {
     if (!SRC[src] || !BENCH[bench] || !BENCH[matby]) return null;
     // заказчик платит цену без своего сырья; его сырьё никому не возвращается
-    const price = Math.round(pr.price),
+    const benchc0 = Math.round(b.t.b + b.matBench),
+      price = Math.round(pr.full) - Math.min(Math.round(b.disc), Math.round(b.t.cost) - benchc0),
       benchc = Math.round(b.t.b + b.matBench),
-      mats = Math.max(0, Math.round(b.t.cost - b.disc) - benchc),
+      matsAll = Math.round(b.t.cost) - benchc,
+      discEff = Math.min(Math.round(b.disc), matsAll),
+      mats = matsAll - discEff,
       profit = price - mats - benchc,
       share = Math.round(profit * SRC[src][1]),
       master = share + (bench === "master" ? benchc : 0) + (matby === "master" ? mats : 0);
-    return { price, mats, benchc, profit, share, master, treasury: price - master, bench, matby, disc: Math.round(b.disc) };
+    return { price, mats, benchc, profit, share, master, treasury: price - master, bench, matby, disc: discEff };
   };
   // переключатель из двух половинок
   const PICK = {
@@ -813,6 +834,12 @@
     pick2("src", o.src, scope, canSrc) + pick2("bench", o.bench, scope, canPay) + pick2("matby", o.matby, scope, canPay) + '<div class="hint pk-note">Если материалы предоставил заказчик, отметь нужное в «Расчёте заказа».</div>';
   // меньше этой «Цены заказчику» нельзя: все материалы и верстак (сырьё заказчика вычитается потом, из обеих сумм одинаково)
   const minPrice = c => Math.ceil(c.b.t.cost);
+  // сырьё заказчика в заказе фракции засчитывается не больше стоимости материалов
+  const payOf = c => {
+    const mats = Math.round(c.b.t.cost) - Math.round(c.b.t.b + c.b.matBench),
+      disc = Math.max(0, Math.min(Math.round(c.b.disc), mats));
+    return { disc, pay: Math.round(c.pr.full) - disc };
+  };
   const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
   const splitRows = sp =>
     sp
@@ -835,15 +862,16 @@
       }
     }
     try {
-      const c = calcG(g), price = Math.round(c.pr.price), sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
+      const c = calcG(g), price = payOf(c).pay, sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
       if (!S.fj.some(r => r.gid === g.id))
-        await addFJ({ gid: g.id, disc: Math.round(c.b.disc), src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+        await addFJ({ gid: g.id, disc: payOf(c).disc, src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
     // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
     dropLinked(g.id);
     return "";
   }
   function dropLinked(gid) {
+    if (gFocus === gid) setFocus("draft");
     const li = orders.findIndex(o => o.gid === gid);
     if (li < 0) return;
     orders.splice(li, 1);
@@ -866,15 +894,16 @@
       o.allc = !!g.allc;
       orders.push(o);
       i = orders.length - 1;
+      save();
+      if (typeof switchOrder === "function" && !window.ORD_OVERRIDE) switchOrder();
     }
-    cur = i;
-    otab = "my";
-    try { localStorage.setItem("forge-otab", otab); } catch (_) {}
-    applyOverride();
-    save();
-    switchOrder();
-    setSrc(true);
-    syncTable();
+    if (otab === "cex") setFocus(g.id);
+    else {
+      cur = i;
+      save();
+      switchOrder();
+      setSrc(true);
+    }
   }
   let draftMsg = "";
   function draftHtml(mine, myCnt) {
@@ -887,11 +916,12 @@
         const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc });
         var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby);
         const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
-        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${c.b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(c.b.disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(Math.round(pr.price))} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
+        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
       } catch (_) {}
     }
     return `<div class="gdraft-box"><h3 style="margin:0 0 4px">Новый заказ фракции</h3>
       <p class="hint" style="margin:0 0 6px">Пока открыта эта вкладка, «+» в рецептах добавляет вещи сюда, а не в твой заказ.</p>
+      ${gFocus !== "draft" ? `<p class="hint" style="margin:0 0 6px">Сейчас «Расчёт заказа» показывает взятый заказ. <button class="linkbtn" id="gd-focus" type="button">Считать черновик</button></p>` : ""}
       <input id="gd-name" maxlength="80" placeholder="Название заказа" value="${esc(gDraft.name)}">
       ${pickAll(gDraft, "draft", true, true)}
       ${ids.length ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${gDraft.qty[id]}</span><span class="tn">${esc(i.n)}</span><span class="ctl"><button type="button" data-gd="${esc(id)}" data-d="-1">−</button><button type="button" data-gd="${esc(id)}" data-d="1">+</button><button type="button" data-gd="${esc(id)}" data-d="x">×</button></span></div>`; }).join("")}</div>` : '<div class="empty">Нажми «+» у вещи в рецептах, и она появится здесь.</div>'}
@@ -958,13 +988,13 @@
                 <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
-                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}${c.b.disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(c.b.disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(Math.round(pr.price))} гр.</span>` : ""}
+                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}
                 ${(() => { const sp = splitOf(c.b, pr, g.src, g.bench, g.matby); return sp ? splitRows(sp) : ""; })()}</div>`;
               sumH = pickAll(g, g.id, canPrice && g.status !== "done", (canPrice || takenMe) && g.status !== "done") + sumH;
             }
             const btns = [
               g.status === "new" && !g.taken_by && canFacMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
-              takenMe && g.status === "work" ? `<button class="btn" data-g="calc" data-id="${g.id}" type="button" title="Открыть этот заказ в «Расчёте заказа»">В расчёт</button>` : "",
+              takenMe && g.status === "work" ? `<button class="btn${gFocus === g.id ? " go" : ""}" data-g="calc" data-id="${g.id}" type="button" title="Открыть этот заказ в «Расчёте заказа»">${gFocus === g.id ? "В расчёте ✓" : "В расчёт"}</button>` : "",
               takenMe && g.status === "work" && gDone !== g.id ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Выполнил</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
               takenMe && g.status === "done" ? `<button class="btn" data-g="reopen" data-id="${g.id}" type="button">Не готово</button>` : "",
               `<button class="btn" data-g="copy" data-id="${g.id}" type="button" title="Создать такой же заказ у себя, чтобы посчитать сырьё">В мои заказы</button>`,
@@ -993,6 +1023,7 @@
     otab = b.dataset.t;
     try { localStorage.setItem("forge-otab", otab); } catch (_) {}
     if (applyOverride() && typeof renderOrder === "function") renderOrder();
+    if (otab === "cex" && canFacView() && !srcFac) setSrc(true);
     gRender();
     syncTable();
   });
@@ -1078,6 +1109,7 @@
       const id = b.dataset.gd, d = b.dataset.d;
       return setDraft(id, d === "x" ? 0 : (gDraft.qty[id] || 0) + +d);
     }
+    if (b.id === "gd-focus") { setFocus("draft"); return gRender(); }
     if (b.id === "gd-preset") { gDraft.manual = 0; saveDraft(); return gRender(); }
     if (b.id === "gd-clear") {
       if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Точно очистить?"; return; }
@@ -1132,7 +1164,7 @@
       linkOrder(g);
       const go = document.querySelector('[data-goview="calc"]');
       if (go) go.click();
-      return;
+      return gRender();
     }
     if (act === "drop") {
       const { error } = await sb.from("gorders").update({ taken_by: null, status: "new" }).eq("id", g.id);
