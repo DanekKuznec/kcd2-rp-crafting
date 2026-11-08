@@ -354,3 +354,4 @@ section.view.jfac > section.panel:not(.fjbox){display:none}
 .gdraft-box .tiles{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px}
 .gdraft-box .sum{font-size:13.5px}
 body.gdraft #tb .add{background:var(--copper,#b07a3c);color:#fff;border-color:var(--copper,#b07a3c)}
+.gsrc{display:flex;flex-wrap:wrap}.gsrc button{flex:1 1 180px;font-size:12.5px;padding:5px 6px}

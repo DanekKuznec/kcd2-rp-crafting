@@ -452,6 +452,13 @@
   wo.className = "sk-wo";
   const stockDet = document.getElementById("stock") && document.getElementById("stock").closest("details");
   if (stockDet) stockDet.after(wo);
+  // текущий заказ связан со взятым мной заказом фракции?
+  const linkedG = () => {
+    const o = typeof O === "function" ? O() : null;
+    if (!o || !o.gid) return null;
+    const g = (S.gorders || []).find(x => x.id === o.gid);
+    return g && g.taken_by === S.user.id && g.status === "work" ? g : null;
+  };
   let woCur = null, woArm = false, woArmKey = "", woArmAt = 0;
   function setSrc(v) {
     srcFac = v;
@@ -496,14 +503,15 @@
     const raws = b.rows.map(r => row(r.k, r.all, r.c, r.s, r.buy, false)).join("");
     const take = [...b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])];
     const short = b.rows.filter(r => r.buy > 0).length;
-    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>
+    const lg = linkedG();
+    wo.innerHTML = `<div class="panel sk-wo-box"><h3 style="margin:0 0 4px">Склад фракции «${esc(ofac().name)}»</h3>${lg ? `<p style="margin:0 0 6px">Это заказ фракции <b>«${esc(lg.name)}»</b>${lg.note ? ` · для: ${esc(lg.note)}` : ' · <span class="warn">не указано, для кого</span>'} · ${SRC[lg.src] ? `${SRC[lg.src][0]}${(() => { const sp = splitOf(priceOf(b).full, lg.src); return ` · мастеру ${fmt(sp.master)}, в казну ${fmt(sp.treasury)} гр.`; })()}` : '<span class="warn">не указано, кто принёс</span>'}</p>` : ""}
       <p class="hint" style="margin:0 0 8px">Что нужно на заказ, сколько возьмётся со склада фракции и хватает ли. Сначала идёт сырьё заказчика, потом склад фракции. Готовые заготовки со склада уменьшают число крафтов.</p>
       <div class="tablebox"><table class="mini"><thead><tr><th></th><th class="l">Ресурс</th><th>Нужно</th><th>От заказчика</th><th>На складе</th><th>Спишется</th><th class="l">Хватает?</th></tr></thead><tbody>
       ${mids ? `<tr class="cat"><td></td><td colspan="6">Заготовки</td></tr>${mids}` : ""}${raws ? `<tr class="cat"><td></td><td colspan="6">Сырьё</td></tr>${raws}` : ""}</tbody></table></div>
       <p style="margin:8px 0 0">${short ? `<span class="buy">Сырья на складе фракции не хватает: ${short} поз.</span> Недостающее докупаешь или берёшь своё.` : '<span class="ok">Всего хватает.</span>'}</p>
       ${canFacMove()
         ? true
-          ? `${O().facDone || S.ofMoves.some(m => m.note === `Заказ «${O().name}»`.slice(0, 200)) ? `<p class="warn" style="margin:8px 0 0">Заказ «${esc(O().name)}» уже отмечали выполненным по складу фракции${O().facDone ? " " + when(O().facDone) : ""}. Проверь, чтобы не списать второй раз.</p>` : ""}<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? (take.length ? "Точно? Склад фракции изменится" : "Точно? Запишется в журнал фракции") : take.length ? "Заказ выполнен: списать со склада фракции" : "Заказ выполнен: записать в журнал фракции"}</button><span class="hint" id="sk-wo-msg">${take.length ? `Спишется от тебя с заметкой «Заказ «${esc(O().name)}»», заказ попадёт в журнал фракции.` : "Со склада фракции брать нечего, заказ просто попадёт в журнал фракции."}</span></div>`
+          ? `${O().facDone || S.ofMoves.some(m => m.note === `Заказ «${O().name}»`.slice(0, 200)) ? `<p class="warn" style="margin:8px 0 0">Заказ «${esc(O().name)}» уже отмечали выполненным по складу фракции${O().facDone ? " " + when(O().facDone) : ""}. Проверь, чтобы не списать второй раз.</p>` : ""}<div class="obar" style="margin-top:8px"><button class="btn go" id="sk-wo-yes" type="button">${woArm ? (take.length ? "Точно? Склад фракции изменится" : "Точно? Запишется в журнал фракции") : lg ? "Заказ фракции выполнен" + (take.length ? ": списать со склада" : "") : take.length ? "Заказ выполнен: списать со склада фракции" : "Заказ выполнен: записать в журнал фракции"}</button><span class="hint" id="sk-wo-msg">${take.length ? `Спишется от тебя с заметкой «Заказ «${esc(O().name)}»», заказ попадёт в журнал фракции.` : "Со склада фракции брать нечего, заказ просто попадёт в журнал фракции."}</span></div>`
           : '<p class="hint">Со склада фракции на этот заказ брать нечего.</p>'
         : '<p class="hint">Списывать со склада фракции могут Подмастерье и выше.</p>'}</div>`;
     woCur = { take };
@@ -548,12 +556,18 @@
       sum = f => rs.reduce((a, r) => a + (+r[f] || 0), 0),
       cnt = rs.reduce((a, r) => a + (r.items || []).reduce((x, i) => x + (+i.q || 0), 0), 0);
     fjBox.innerHTML = `<div class="row"><h2 style="margin:0">Журнал фракции</h2><div class="seg" id="fjper">${[["week", "Неделя"], ["month", "Месяц"], ["all", "Всё время"]].map(([k, n]) => `<button type="button" data-p="${k}" aria-pressed="${k === fjPer}">${n}</button>`).join("")}</div></div>
-      <div class="derived" style="margin-top:10px"><span>Заказов: <b>${rs.length}</b></span><span>Выручка: <b>${fmt(sum("price"))} гр.</b></span><span>За работу: <b>${fmt(sum("labor"))} гр.</b></span><span>Вещей: <b>${fmt(cnt)}</b></span></div>
+      <div class="derived" style="margin-top:10px"><span>Заказов: <b>${rs.length}</b></span><span>Выручка: <b>${fmt(sum("price"))} гр.</b></span><span>За работу: <b>${fmt(sum("labor"))} гр.</b></span><span>В казну: <b>${fmt(sum("treasury"))} гр.</b></span><span>Мастерам: <b>${fmt(sum("master"))} гр.</b></span><span>Вещей: <b>${fmt(cnt)}</b></span></div>
+      ${(() => {
+        const by = {};
+        rs.forEach(r => { if (r.master) by[r.created_by] = (by[r.created_by] || 0) + r.master; });
+        const l = Object.entries(by).sort((a, b) => b[1] - a[1]);
+        return l.length ? `<p class="hint" style="margin:6px 0 0">Заработали: ${l.map(([u, v]) => `${esc(ofWho(u))} ${fmt(v)} гр.`).join(" · ")}</p>` : "";
+      })()}
       <div class="fj-list">${
         rs.length
           ? rs
               .map(
-                r => `<div class="fj-row"><span class="fj-d">${when(r.created_at)}</span><span class="fj-m"><b>${esc(r.name || "Заказ")}</b> <span class="hint">· ${esc(ofWho(r.created_by))}${r.note ? " · " + esc(r.note) : ""}</span><br><span class="fj-it">${(r.items || []).map(i => `${esc(i.n)} ×${num(i.q)}`).join(", ")}</span></span><span class="fj-p">${fmt(r.price)} гр.<br><span class="hint">работа ${fmt(r.labor)}</span></span>${canApproveOF() ? `<button class="linkbtn" data-fjdel="${r.id}" type="button" title="Удалить запись">${fjArm === String(r.id) ? "точно?" : "×"}</button>` : ""}</div>`,
+                r => `<div class="fj-row"><span class="fj-d">${when(r.created_at)}</span><span class="fj-m"><b>${esc(r.name || "Заказ")}</b> <span class="hint">· ${esc(ofWho(r.created_by))}${r.note ? " · " + esc(r.note) : ""}</span><br><span class="fj-it">${(r.items || []).map(i => `${esc(i.n)} ×${num(i.q)}`).join(", ")}</span></span><span class="fj-p">${fmt(r.price)} гр.<br><span class="hint">${r.src ? `${r.src === "mine" ? "свой" : "цеха"}: мастеру ${fmt(r.master)} · казне ${fmt(r.treasury)}` : `работа ${fmt(r.labor)}`}</span></span>${canApproveOF() ? `<button class="linkbtn" data-fjdel="${r.id}" type="button" title="Удалить запись">${fjArm === String(r.id) ? "точно?" : "×"}</button>` : ""}</div>`,
               )
               .join("")
           : '<p class="hint">Пока пусто. Запись появляется, когда заказ выполнен со склада фракции или заказ фракции отмечен «Выполнил».</p>'
@@ -596,6 +610,26 @@
     woArm = false;
     e.target.disabled = true;
     const take = woCur.take;
+    const lg = linkedG();
+    if (lg) {
+      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : "";
+      if (why) {
+        e.target.disabled = false;
+        document.getElementById("sk-wo-msg").textContent = why;
+        return;
+      }
+      const err = await finishG(lg, take);
+      if (err) {
+        e.target.disabled = false;
+        document.getElementById("sk-wo-msg").textContent = err;
+        return;
+      }
+      woCur = { msg: `<div class="panel sk-wo-box"><p class="ok" style="margin:0">Заказ фракции «${esc(lg.name)}» выполнен.${take.length ? ` Списано со склада: ${take.map(([k, n]) => `${esc(nm(k))} ${num(n)}`).join(", ")}.` : ""} Записан в журнал фракции.</p></div>` };
+      woRender();
+      await load();
+      setTimeout(() => { woCur = null; applySrc(); }, 4000);
+      return;
+    }
     const note = `Заказ «${O().name}»`.slice(0, 200);
     const o = O(), wb = newBatch();
     let jr = null;
@@ -714,6 +748,58 @@
       orders[cur] = savedO;
     }
   }
+  // откуда заказ: свой заказчик - мастеру 75%, казне 25%; заказ цеха - мастеру 25%, казне 75%
+  const SRC = { mine: ["Мой заказчик", 0.75], cex: ["Заказ цеха", 0.25] };
+  const splitOf = (price, src) => {
+    if (!SRC[src]) return null;
+    const master = Math.round(price * SRC[src][1]);
+    return { master, treasury: Math.round(price) - master };
+  };
+  const srcSeg = (cur, attr) =>
+    `<div class="seg gsrc">${Object.entries(SRC)
+      .map(([k, [n, p]]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n} · мне ${Math.round(p * 100)}%, казне ${Math.round((1 - p) * 100)}%</button>`)
+      .join("")}</div>`;
+  // заказ выполнен: статус, списание со склада фракции одним блоком, запись в журнал фракции с дележом
+  async function finishG(g, take) {
+    const { error: e1 } = await sb.from("gorders").update({ status: "done" }).eq("id", g.id);
+    if (e1) return "Не вышло: " + e1.message;
+    if (take && take.length) {
+      const batch = newBatch();
+      const { error } = await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note: gNoteTxt(g), user_id: S.user.id, batch })));
+      if (error) {
+        await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
+        return "Не списалось, заказ не отмечен выполненным: " + error.message;
+      }
+    }
+    try {
+      const c = calcG(g), price = Math.round(c.pr.full), sp = splitOf(price, g.src) || { master: 0, treasury: 0 };
+      if (!S.fj.some(r => r.gid === g.id))
+        await addFJ({ gid: g.id, src: g.src || null, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+    } catch (_) {}
+    const lo = orders.find(o => o.gid === g.id);
+    if (lo) {
+      lo.facDone = new Date().toISOString();
+      save();
+    }
+    return "";
+  }
+  // взятый заказ фракции открывается в «Расчёте заказа» как свой: создаём связанный заказ у себя
+  function linkOrder(g) {
+    let i = orders.findIndex(o => o.gid === g.id);
+    if (i < 0) {
+      const o = newOrder((g.name || "Заказ фракции").slice(0, 40));
+      o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
+      o.due = g.due || "";
+      if (+g.manual > 0) o.manual = String(g.manual);
+      o.gid = g.id;
+      orders.push(o);
+      i = orders.length - 1;
+    }
+    cur = i;
+    save();
+    switchOrder();
+    setSrc(true);
+  }
   function draftHtml(mine, myCnt) {
     const ids = Object.keys(gDraft.qty).filter(id => BYID[id]).sort((a, b) => BYID[a].s.localeCompare(BYID[b].s) || BYID[a].l - BYID[b].l);
     let sumH = "";
@@ -730,7 +816,8 @@
       ${ids.length ? `<div class="tiles">${ids.map(id => { const i = BYID[id]; return `<div class="tile" title="${esc(i.n)}"><span class="lv">${i.l}</span>${icon(i)}<span class="badge">${gDraft.qty[id]}</span><span class="tn">${esc(i.n)}</span><span class="ctl"><button type="button" data-gd="${esc(id)}" data-d="-1">−</button><button type="button" data-gd="${esc(id)}" data-d="1">+</button><button type="button" data-gd="${esc(id)}" data-d="x">×</button></span></div>`; }).join("")}</div>` : '<div class="empty">Нажми «+» у вещи в рецептах, и она появится здесь.</div>'}
       ${sumH}
       <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
-      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length ? "" : "disabled"}>Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
+      <div class="hint" style="margin-top:2px">Кто принёс заказ:</div>${srcSeg(gDraft.src, "data-gdsrc")}
+      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && gDraft.src ? "" : "disabled"} title="${gDraft.src ? "" : "Выбери, кто принёс заказ"}">Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
   }
   function gRender() {
     if (!zak) return;
@@ -788,10 +875,13 @@
                 <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
-                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}</div>`;
+                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}
+                ${splitOf(pr.full, g.src) ? `<span class="k">Мастеру</span><span class="v">${fmt(splitOf(pr.full, g.src).master)} гр.</span><span class="k">В казну</span><span class="v">${fmt(splitOf(pr.full, g.src).treasury)} гр.</span>` : ""}</div>`;
+              sumH += canPrice && g.status !== "done" ? `<div class="hint" style="margin-top:4px">Кто принёс заказ:</div>${srcSeg(g.src, `data-id="${g.id}" data-gsrc`)}` : `<div class="hint">${SRC[g.src] ? `${SRC[g.src][0]}: мастеру ${Math.round(SRC[g.src][1] * 100)}%, казне ${Math.round((1 - SRC[g.src][1]) * 100)}%` : '<span class="warn">не указано, кто принёс заказ</span>'}</div>`;
             }
             const btns = [
               g.status === "new" && !g.taken_by && canFacMove() ? `<button class="btn" data-g="take" data-id="${g.id}" type="button">Взять</button>` : "",
+              takenMe && g.status === "work" ? `<button class="btn" data-g="calc" data-id="${g.id}" type="button" title="Открыть этот заказ в «Расчёте заказа»">В расчёт</button>` : "",
               takenMe && g.status === "work" && gDone !== g.id ? `<button class="btn go" data-g="done" data-id="${g.id}" type="button">Выполнил</button><button class="btn" data-g="drop" data-id="${g.id}" type="button">Отказаться</button>` : "",
               takenMe && g.status === "done" ? `<button class="btn" data-g="reopen" data-id="${g.id}" type="button">Не готово</button>` : "",
               `<button class="btn" data-g="copy" data-id="${g.id}" type="button" title="Создать такой же заказ у себя, чтобы посчитать сырьё">В мои заказы</button>`,
@@ -861,6 +951,16 @@
     const b = e.target.closest("button");
     if (!b) return;
     if (!canFacMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
+    if (b.dataset.gdsrc) {
+      gDraft.src = b.dataset.gdsrc;
+      saveDraft();
+      return gRender();
+    }
+    if (b.dataset.gsrc) {
+      const { error } = await sb.from("gorders").update({ src: b.dataset.gsrc }).eq("id", b.dataset.id);
+      if (error) gMsg("Не вышло: " + error.message);
+      return load();
+    }
     if (b.dataset.gd) {
       const id = b.dataset.gd, d = b.dataset.d;
       return setDraft(id, d === "x" ? 0 : (gDraft.qty[id] || 0) + +d);
@@ -887,9 +987,10 @@
       const items = Object.fromEntries(Object.entries(gDraft.qty).filter(([id, q]) => +q > 0 && BYID[id]));
       if (!Object.keys(items).length) return gMsg("В заказе нет вещей.");
       b.disabled = true;
-      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, status: "new", created_by: S.user.id });
+      if (!SRC[gDraft.src]) return gMsg("Выбери, кто принёс заказ.");
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, src: gDraft.src, status: "new", created_by: S.user.id });
       if (error) { b.disabled = false; return gMsg("Не отправилось: " + error.message); }
-      gDraft = { name: "", qty: {}, note: "", manual: 0 };
+      gDraft = { name: "", qty: {}, note: "", manual: 0, src: gDraft.src };
       saveDraft();
       syncTable();
       return load();
@@ -909,7 +1010,18 @@
     if (!g) return;
     const act = b.dataset.g;
     let patch = null;
-    if (act === "take") patch = { taken_by: S.user.id, status: "work" };
+    if (act === "take") {
+      const { error } = await sb.from("gorders").update({ taken_by: S.user.id, status: "work" }).eq("id", g.id);
+      if (error) { gMsg("Не вышло: " + error.message); return load(); }
+      linkOrder(g);
+      return load();
+    }
+    if (act === "calc") {
+      linkOrder(g);
+      const go = document.querySelector('[data-goview="calc"]');
+      if (go) go.click();
+      return;
+    }
     if (act === "drop") patch = { taken_by: null, status: "new" };
     gMsgId = null;
     if (act === "done") {
@@ -923,6 +1035,11 @@
         gMsgTxt = "Сначала впиши в заметку, для кого заказ или его номер.";
         return gRender();
       }
+      if (!SRC[g.src]) {
+        gMsgId = g.id;
+        gMsgTxt = "Сначала выбери, кто принёс заказ: ты или цех.";
+        return gRender();
+      }
       const c = calcG(g, Object.fromEntries(Object.entries(S.facStock).filter(([, v]) => v > 0)));
       gPlan = { take: [...c.b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...c.b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])], lack: c.b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]) };
       gDone = g.id;
@@ -934,25 +1051,8 @@
     }
     if (act === "done-yes") {
       b.disabled = true;
-      const { error: e1 } = await sb.from("gorders").update({ status: "done" }).eq("id", g.id);
-      if (e1) { gMsgId = g.id; gMsgTxt = "Не вышло: " + e1.message; gDone = gPlan = null; return load(); }
-      if (gPlan && gPlan.take.length) {
-        const note = gNoteTxt(g);
-        const gb = newBatch();
-        const { error } = await sb.from("moves").insert(gPlan.take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note, user_id: S.user.id, batch: gb })));
-        if (error) {
-          await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
-          gMsgId = g.id;
-          gMsgTxt = "Не списалось, заказ не отмечен выполненным: " + error.message;
-          gDone = gPlan = null;
-          return load();
-        }
-      }
-      try {
-        const c = calcG(g);
-        if (!S.fj.some(r => r.gid === g.id))
-          await addFJ({ gid: g.id, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price: Math.round(c.pr.full), labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
-      } catch (_) {}
+      const err = await finishG(g, gPlan ? gPlan.take : []);
+      if (err) { gMsgId = g.id; gMsgTxt = err; }
       gDone = gPlan = null;
       return load();
     }
