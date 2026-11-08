@@ -362,3 +362,4 @@ body.gdraft #tb .add{background:var(--copper,#b07a3c);color:#fff;border-color:va
 .pk button+button{border-left:1px solid var(--line)}
 .pk button[aria-pressed="true"]{background:var(--copper,#b07a3c);color:#fff}
 .pk button:disabled{cursor:default}.pk button:disabled:not([aria-pressed="true"]){opacity:.55}
+.pk-note{font-size:11.5px;margin-top:-2px}

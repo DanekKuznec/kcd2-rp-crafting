@@ -452,6 +452,18 @@
   wo.className = "sk-wo";
   const stockDet = document.getElementById("stock") && document.getElementById("stock").closest("details");
   if (stockDet) stockDet.after(wo);
+  // сырьё заказчика, отмеченное в расчёте у связанного заказа, уходит в заказ фракции
+  let clientT = 0;
+  function syncClient() {
+    const g = linkedG();
+    if (!g) return;
+    const o = O(), cl = Object.fromEntries(Object.entries(o.client || {}).filter(([, v]) => +v > 0));
+    if (JSON.stringify(cl) === JSON.stringify(g.client || {}) && !!o.allc === !!g.allc) return;
+    g.client = cl;
+    g.allc = !!o.allc;
+    clearTimeout(clientT);
+    clientT = setTimeout(() => sb.from("gorders").update({ client: cl, allc: !!o.allc }).eq("id", g.id).then(() => {}), 600);
+  }
   // текущий заказ связан со взятым мной заказом фракции?
   const linkedG = () => {
     const o = typeof O === "function" ? O() : null;
@@ -737,6 +749,8 @@
     const tmp = newOrder(g.name || "Заказ");
     tmp.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
     tmp.manual = +g.manual > 0 ? String(g.manual) : "";
+    tmp.client = { ...(g.client || {}) };
+    tmp.allc = !!g.allc;
     const savedO = orders[cur];
     orders[cur] = tmp;
     try {
@@ -749,34 +763,36 @@
     }
   }
   // откуда заказ: свой заказчик - мастеру 75%, казне 25%; заказ цеха - мастеру 25%, казне 75%
-  const SRC = { mine: ["Мой заказчик", 0.75], cex: ["Заказ цеха", 0.25] };
+  const SRC = { mine: ["Заказ мастера", 0.75], cex: ["Заказ цеха", 0.25] };
   // дележ: материалы целиком в казну, верстак тому, кто его оплатил, остаток (прибыль) по процентам
   const BENCH = { master: "Верстак оплатил мастер", guild: "Верстак оплатил цех" };
   const splitOf = (b, pr, src, bench, matby) => {
     if (!SRC[src] || !BENCH[bench] || !BENCH[matby]) return null;
-    const price = Math.round(pr.full),
+    // заказчик платит цену без своего сырья; его сырьё никому не возвращается
+    const price = Math.round(pr.price),
       benchc = Math.round(b.t.b + b.matBench),
-      mats = Math.round(b.t.cost) - benchc,
+      mats = Math.max(0, Math.round(b.t.cost - b.disc) - benchc),
       profit = price - mats - benchc,
       share = Math.round(profit * SRC[src][1]),
       master = share + (bench === "master" ? benchc : 0) + (matby === "master" ? mats : 0);
-    return { price, mats, benchc, profit, share, master, treasury: price - master, bench, matby };
+    return { price, mats, benchc, profit, share, master, treasury: price - master, bench, matby, disc: Math.round(b.disc) };
   };
   // переключатель из двух половинок
   const PICK = {
-    src: ["Заказ", [["mine", "Мой заказчик"], ["cex", "Заказ цеха"]]],
-    bench: ["Верстак оплатил", [["master", "мастер"], ["guild", "цех"]]],
-    matby: ["Материалы оплатил", [["guild", "цех"], ["master", "мастер"]]],
+    src: ["Заказ", [["mine", "Мастера"], ["cex", "Цеха"]]],
+    bench: ["Верстак оплатил", [["master", "мастер"], ["guild", "цех / заказчик"]]],
+    matby: ["Материалы оплатил", [["master", "мастер"], ["guild", "цех"]]],
   };
   const pick2 = (f, cur, scope, can) =>
     `<div class="pick2"><span class="pk-l">${PICK[f][0]}</span><div class="pk">${PICK[f][1]
       .map(([v, n]) => `<button type="button" data-pk="${f}" data-pv="${v}" data-scope="${scope}" aria-pressed="${cur === v}"${can ? "" : " disabled"}>${n}</button>`)
       .join("")}</div></div>`;
-  const pickAll = (o, scope, canSrc, canPay) => pick2("src", o.src, scope, canSrc) + pick2("bench", o.bench, scope, canPay) + pick2("matby", o.matby, scope, canPay);
+  const pickAll = (o, scope, canSrc, canPay) =>
+    pick2("src", o.src, scope, canSrc) + pick2("bench", o.bench, scope, canPay) + pick2("matby", o.matby, scope, canPay) + '<div class="hint pk-note">Если материалы предоставил заказчик, отметь нужное в «Расчёте заказа».</div>';
   const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
   const splitRows = sp =>
     sp
-      ? `<span class="k">Материалы → ${sp.matby === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
+      ? `${sp.disc ? `<span class="k hint">сырьё заказчика</span><span class="v hint">−${fmt(sp.disc)} гр.</span><span class="k">Заказчик платит</span><span class="v">${fmt(sp.price)} гр.</span>` : ""}<span class="k">Материалы → ${sp.matby === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.mats)} гр.</span><span class="k">Верстак → ${sp.bench === "master" ? "мастеру" : "в казну"}</span><span class="v">${fmt(sp.benchc)} гр.</span><span class="k">Прибыль</span><span class="v ${sp.profit < 0 ? "buy" : ""}">${fmt(sp.profit)} гр.</span><span class="k"><b>Мастеру</b></span><span class="v"><b>${fmt(sp.master)} гр.</b></span><span class="k"><b>В казну</b></span><span class="v"><b>${fmt(sp.treasury)} гр.</b></span>`
       : "";
   const srcSeg = (cur, attr) =>
     `<div class="seg gsrc">${Object.entries(SRC)
@@ -795,9 +811,9 @@
       }
     }
     try {
-      const c = calcG(g), price = Math.round(c.pr.full), sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
+      const c = calcG(g), price = Math.round(c.pr.price), sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
       if (!S.fj.some(r => r.gid === g.id))
-        await addFJ({ gid: g.id, src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
+        await addFJ({ gid: g.id, disc: Math.round(c.b.disc), src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n, q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
     } catch (_) {}
     // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
     const li = orders.findIndex(o => o.gid === g.id);
@@ -820,6 +836,8 @@
       o.due = g.due || "";
       if (+g.manual > 0) o.manual = String(g.manual);
       o.gid = g.id;
+      o.client = { ...(g.client || {}) };
+      o.allc = !!g.allc;
       orders.push(o);
       i = orders.length - 1;
     }
@@ -1149,6 +1167,7 @@
     renderOrder = function (...a) {
       const r = _ro.apply(this, a);
       try {
+        syncClient();
         if (woArmKey !== qKey()) woArm = false;
         woRender();
         if (otab === "cex" && !typing()) gRender();
