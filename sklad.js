@@ -265,6 +265,14 @@
         return `<tr><td class="l">${nameCell}${mine(m) ? ' <span class="hint">(ты)</span>' : ""}</td><td class="l hint">${esc(m.name || "")}</td><td class="l">${rankCell}</td>${adm}</tr>`;
       })
       .join("")}</tbody></table></div>`;
+    if (S.me.admin) {
+      if (S.dhook === undefined) {
+        S.dhook = null;
+        sb.rpc("has_discord_webhook", { f: F }).then(r => { S.dhook = !r.error && !!r.data; render(); });
+      }
+      h += `<h3>Канал в Discord</h3><div class="sk-form" style="align-items:center"><span class="hint" style="width:100%">Сайт сам пишет туда записи склада, новые, взятые, брошенные и выполненные заказы фракции. Адрес видит только сервер, на сайте его не показать. ${S.dhook ? '<b class="ok">подключен</b>' : S.dhook === false ? "не подключен" : ""}</span>
+        <input id="sk-dh" type="password" autocomplete="off" placeholder="адрес вебхука https://discord.com/api/webhooks/..." style="flex:1;min-width:240px"><button class="btn go" id="sk-dhs" type="button">Сохранить</button>${S.dhook ? '<button class="btn" id="sk-dhx" type="button">Отключить</button>' : ""}<span class="hint" id="sk-dhm"></span></div>`;
+    }
     root.innerHTML = h + "</div>";
   }
 
@@ -274,7 +282,7 @@
       if (t.dataset.fac === F) return;
       F = t.dataset.fac;
       try { localStorage.setItem("forge-faction", F); } catch (_) {}
-      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "", pend: {} });
+      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "", pend: {}, dhook: undefined });
       woCur = null; gDone = gPlan = null;
       root.innerHTML = facTabs() + `<div class="panel"><p class="hint">Загружаю…</p></div>`;
       return load();
@@ -282,6 +290,15 @@
     if (t.id === "sk-login") {
       try { localStorage.setItem("forge-view", "sklad"); } catch (_) {}
       await sb.auth.signInWithOAuth({ provider: "discord", options: { redirectTo: location.origin + location.pathname } });
+    } else if (t.id === "sk-dhs" || t.id === "sk-dhx") {
+      const url = t.id === "sk-dhx" ? "" : (document.getElementById("sk-dh").value || "").trim();
+      const m = document.getElementById("sk-dhm");
+      if (t.id === "sk-dhs" && !url) return (m.textContent = "вставь адрес");
+      t.disabled = true;
+      const { error } = await sb.rpc("set_discord_webhook", { f: F, url });
+      if (error) { t.disabled = false; return (m.textContent = error.message.includes("вебхука") ? "это не адрес вебхука Discord" : "не вышло: " + error.message); }
+      S.dhook = !!url;
+      render();
     } else if (t.id === "sk-out") {
       await sb.auth.signOut();
       S.user = null;
