@@ -73,19 +73,6 @@
   syncLabel("ddcats", "cats", "все");
   syncLabel("ddsort", "dsort", "как на верстаке");
 
-  // --- сворачивание блока цен ---
-  const tog = $("#ptog"),
-    pbody = $("#pbody"),
-    pp = $("#pricep");
-  function setPrices(open) {
-    tog.setAttribute("aria-expanded", String(open));
-    pbody.hidden = !open;
-    pp.classList.toggle("closed", !open);
-    store("forge-prices-open", open ? "1" : "0");
-  }
-  tog.addEventListener("click", () => setPrices(tog.getAttribute("aria-expanded") !== "true"));
-  setPrices(store("forge-prices-open") !== "0");
-
   // --- сворачивание блока заказов ---
   const btog = $("#btog"),
     zak = $("#zakaz");
