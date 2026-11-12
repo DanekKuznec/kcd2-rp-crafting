@@ -706,7 +706,7 @@
   gbox.id = "gord";
   gbox.hidden = true;
   if (zak) {
-    zak.querySelector("h2").after(tabs);
+    (zak.querySelector("#btog") || zak.querySelector("h2")).after(tabs);
     zak.appendChild(gbox);
   }
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };

@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261112a">
+<link rel="stylesheet" href="style.css?v=20261112b">
 </head>
 <body>
 <header class="top">
@@ -107,7 +107,7 @@
   </div>
   <aside class="right">
     <aside class="basket panel" id="zakaz" aria-labelledby="bh">
-      <h2 id="bh">Заказы</h2>
+      <button class="ptog" id="btog" type="button" aria-expanded="true"><h2 id="bh">Заказы</h2><span class="chev" aria-hidden="true">▾</span></button>
       <div class="obar"><label class="sr" for="osel">Выбрать заказ</label><select id="osel"></select><button class="btn" id="onew" type="button">+ Новый</button></div>
       <div id="tiles"></div><datalist id="varlist"></datalist>
       <div class="sum" id="bsum"></div>
@@ -147,12 +147,12 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261112a"></script>
-<script src="app.js?v=20261112a"></script>
-<script src="layout.js?v=20261112a"></script>
+<script src="data.js?v=20261112b"></script>
+<script src="app.js?v=20261112b"></script>
+<script src="layout.js?v=20261112b"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-<script src="ricon.js?v=20261112a"></script>
-<script src="sklad-config.js?v=20261112a"></script>
-<script src="sklad.js?v=20261112a"></script>
+<script src="ricon.js?v=20261112b"></script>
+<script src="sklad-config.js?v=20261112b"></script>
+<script src="sklad.js?v=20261112b"></script>
 </body>
 </html>

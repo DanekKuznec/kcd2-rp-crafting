@@ -86,6 +86,17 @@
   tog.addEventListener("click", () => setPrices(tog.getAttribute("aria-expanded") !== "true"));
   setPrices(store("forge-prices-open") !== "0");
 
+  // --- сворачивание блока заказов ---
+  const btog = $("#btog"),
+    zak = $("#zakaz");
+  function setOrders(open) {
+    btog.setAttribute("aria-expanded", String(open));
+    zak.classList.toggle("closed", !open);
+    store("forge-orders-open", open ? "1" : "0");
+  }
+  btog.addEventListener("click", () => setOrders(btog.getAttribute("aria-expanded") !== "true"));
+  setOrders(store("forge-orders-open") !== "0");
+
   // подсказка не должна висеть при прокрутке внутренних колонок
   document.addEventListener(
     "scroll",
