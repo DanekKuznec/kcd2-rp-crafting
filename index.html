@@ -7,7 +7,7 @@
 <title>Счётная книга ремесленника</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=20261112d">
+<link rel="stylesheet" href="style.css?v=20261112e">
 </head>
 <body>
 <header class="top">
@@ -63,7 +63,6 @@
         <h2 id="ph">Цены сырья</h2>
         <span class="pbtns"><button class="btn go mkfetch" data-col="1" type="button" title="Подтянуть с аукциона KCDRP: средняя цена реальных продаж за 7 дней">Средняя за 7 дн.</button><button class="btn go mkfetch" data-col="0" type="button" title="Подтянуть с аукциона KCDRP: самый дешёвый лот сейчас">Минимальная</button><button class="btn" id="reset" type="button" title="Вернуть цены по умолчанию">↺</button></span>
       </div>
-      <div class="prices pmk" id="pricesm"></div>
       <div class="pbody" id="pbody">
       <p class="hint" style="margin:0 0 8px"><span id="mkfnote"></span> <span id="mknote"></span></p><select id="mkcol" hidden><option value="0">min</option><option value="1" selected>avg</option></select>
     <div class="pgrid" id="pgrid"></div>
@@ -127,6 +126,7 @@
   <aside class="right">
     <aside class="basket panel" id="zakaz" aria-labelledby="bh">
       <button class="ptog" id="btog" type="button" aria-expanded="true"><h2 id="bh">Заказы</h2><span class="chev" aria-hidden="true">▾</span></button>
+      <div class="prices pmk" id="pricesm"></div>
       <div class="obar"><label class="sr" for="osel">Выбрать заказ</label><select id="osel"></select><button class="btn" id="onew" type="button">+ Новый</button></div>
       <div id="tiles"></div><datalist id="varlist"></datalist>
       <div class="sum" id="bsum"></div>
@@ -150,12 +150,12 @@
 </main>
 
 <div class="mbar"><div><span class="note">Заказ</span> <b class="num" id="mTot">0 гр.</b></div><a href="#zakaz">К заказу ↓</a></div>
-<script src="data.js?v=20261112d"></script>
-<script src="app.js?v=20261112d"></script>
-<script src="layout.js?v=20261112d"></script>
+<script src="data.js?v=20261112e"></script>
+<script src="app.js?v=20261112e"></script>
+<script src="layout.js?v=20261112e"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
-<script src="ricon.js?v=20261112d"></script>
-<script src="sklad-config.js?v=20261112d"></script>
-<script src="sklad.js?v=20261112d"></script>
+<script src="ricon.js?v=20261112e"></script>
+<script src="sklad-config.js?v=20261112e"></script>
+<script src="sklad.js?v=20261112e"></script>
 </body>
 </html>
