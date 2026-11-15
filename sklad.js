@@ -958,9 +958,9 @@
     let sumH = "";
     if (ids.length) {
       try {
-        const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc });
+        const c = calcG({ name: gDraft.name, items: gDraft.qty, manual: gDraft.manual, manual_set: !!gDraft.manual_set, client: gDraft.client, allc: gDraft.allc });
         let sv = 0;
-        try { sv = stockValOf(calcG({ items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc }, posStock(S.facStock)).b); } catch (_) {}
+        try { sv = stockValOf(calcG({ items: gDraft.qty, manual: gDraft.manual, manual_set: !!gDraft.manual_set, client: gDraft.client, allc: gDraft.allc }, posStock(S.facStock)).b); } catch (_) {}
         var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby, sv);
         const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
         sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
@@ -1112,6 +1112,7 @@
         gDraft.manual_set = Math.round(c0.pr.calc) !== v;
       } catch (_) {}
       gDraft.manual = v;
+      gDraft.manual_set = true;
       saveDraft();
       return gRender();
     }
