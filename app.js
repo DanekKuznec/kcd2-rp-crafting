@@ -120,6 +120,7 @@ const cleanOrders = arr =>
     vars: remapIds(o.vars),
     jid: o.jid,
     manual: o.manual || "",
+    manualSet: !!o.manualSet,
     allc: !!o.allc,
   }));
 try {
