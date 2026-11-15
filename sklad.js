@@ -57,6 +57,7 @@
   const canFacView = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 1 || S.admin));
   const canFacMove = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 3 || S.admin));
   const canApproveOF = () => !!(S.admin || (S.myFac && S.myFac.rank >= 8));
+  const canDeleteG = g => !!(S.user && g && (g.created_by === S.user.id || S.admin || (S.myFac && S.myFac.faction === g.faction && S.myFac.rank >= 7)));
   const ofWho = id => disp((S.ofMembers || []).find(m => m.user_id === id));
   // в «Лимиты и цены скупки» только основные материалы, в этом порядке
   const LIMK = ["steel", "pad", "fe", "co", "cuo", "ag", "nug", "au", "met", "hd", "nettle", "log", "agp", "resin", "shaft", "exw", "leather", "iron", "scrap", "cu", "frank", "tol", "sheet"];
@@ -967,7 +968,7 @@
   function cardHtml(g) {
     const uid = S.user.id;
             const takenMe = g.taken_by === uid,
-              canDel = g.created_by === uid || canApproveOF(),
+              canDel = canDeleteG(g),
               canNoteG = g.created_by === uid || takenMe || canApproveOF(),
               canPrice = g.created_by === uid || canApproveOF();
             let c;
@@ -1272,7 +1273,7 @@
       const o = newOrder((g.name || "Заказ фракции").slice(0, 40));
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => typeof BYID === "undefined" || BYID[id]));
       o.due = g.due || "";
-      if (+g.manual > 0) o.manual = String(g.manual);
+      if (g.manual_set) o.manual = String(g.manual);
       o.vars = { ...(g.vars || {}) };
       orders.push(o);
       cur = orders.length - 1;
@@ -1286,6 +1287,7 @@
       return syncTable();
     }
     if (act === "del") {
+      if (!canDeleteG(g)) return;
       if (gArm !== "del" + g.id) { gArm = "del" + g.id; return gRender(); }
       gArm = "";
       const { error } = await sb.from("gorders").delete().eq("id", g.id);
@@ -1335,6 +1337,7 @@
           !g.taken_by && canFacMove() ? `<button class="btn go" data-gv="take" data-id="${g.id}" type="button">Взять</button>` : "",
           g.taken_by === uid ? `<button class="btn" data-gv="calc" data-id="${g.id}" type="button">В расчёт</button>` : "",
           `<button class="btn${gvOpen.has(g.id) ? " go" : ""}" data-gv="open" data-id="${g.id}" type="button" title="Подробно: цена, кто платит, заметка, удаление">${gvOpen.has(g.id) ? "Скрыть" : "Подробно"}</button>`,
+          canDeleteG(g) ? `<button class="btn gv-del" data-gv="del" data-id="${g.id}" type="button" title="${gArm === "gvdel" + g.id ? "Подтвердить удаление" : "Удалить заказ"}" aria-label="Удалить заказ «${esc(g.name || "Заказ")}»">${gArm === "gvdel" + g.id ? "Точно удалить?" : "×"}</button>` : "",
         ].join("");
         return `<tr><td class="l"><b>${esc(g.name || "Заказ")}</b><br><span class="hint">${when(g.created_at)} · от ${esc(ofWho(g.created_by))}</span></td><td class="l gv-items">${items}</td><td class="l">${g.note ? esc(g.note) : '<span class="hint">—</span>'}</td><td class="l">${SRC[g.src] ? (g.src === "mine" ? "мастера" : "цеха") : '<span class="hint">—</span>'}</td><td class="num">${fmt(pay)} гр.</td><td class="l">${st}</td><td class="l gv-acts">${acts}</td></tr>${gvOpen.has(g.id) ? `<tr class="gv-card"><td colspan="7">${cardHtml(g)}</td></tr>` : ""}`;
       })
@@ -1358,6 +1361,16 @@
         applyOverride();
         gRender();
       };
+      if (b.dataset.gv === "del") {
+        if (!canDeleteG(g)) return;
+        if (gArm !== "gvdel" + g.id) { gArm = "gvdel" + g.id; return gvRender(); }
+        gArm = "";
+        b.disabled = true;
+        const { error } = await sb.from("gorders").delete().eq("id", g.id).eq("faction", OF);
+        if (error) { b.disabled = false; b.title = "Не удалилось: " + error.message; b.textContent = "Ошибка"; return; }
+        gvOpen.delete(g.id);
+        return load();
+      }
       if (b.dataset.gv === "take") {
         b.disabled = true;
         const { error } = await sb.from("gorders").update({ taken_by: S.user.id, status: "work" }).eq("id", g.id);
