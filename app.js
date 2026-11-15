@@ -1131,7 +1131,7 @@ function priceOf(b) {
     man = +O().manual || 0,
     hasManual = O().manualSet === true || man > 0,
     full = hasManual ? man : calc,
-    price = full - b.disc;
+    price = O().manualSet === true ? Math.max(0, full - b.disc) : full - b.disc;
   return { mat: t.cost - b.disc, labor: full - t.cost, full, price, calc, manual: hasManual };
 }
 function renderOrder(skip) {
