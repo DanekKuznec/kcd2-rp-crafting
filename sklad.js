@@ -813,6 +813,7 @@
     const tmp = newOrder(g.name || "Заказ");
     tmp.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
     tmp.manual = g.manual_set ? String(Math.max(0, +g.manual || 0)) : "";
+    tmp.manualSet = !!g.manual_set;
     tmp.client = { ...(g.client || {}) };
     tmp.allc = !!g.allc;
     const savedO = window.ORD_OVERRIDE;
