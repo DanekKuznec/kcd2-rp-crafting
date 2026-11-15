@@ -55,8 +55,8 @@
   const ofac = () => S.factions.find(x => x.id === OF) || { id: OF, name: OF || "", secs: [] };
   const ofNick = () => !!(S.myFac && (S.myFac.rp_name || "").trim());
   const canFacView = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 1 || S.admin));
-  const canFacMove = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 3 || S.admin));
-  const canApproveOF = () => !!(S.admin || (S.myFac && S.myFac.rank >= 8));
+  const canFacMove = () => !!(S.user && S.myFac && ofNick() && (S.myFac.rank >= 4 || S.admin));
+  const canApproveOF = () => !!(S.admin || (S.myFac && S.myFac.rank >= 10));
   const canDeleteG = g => !!(S.user && g && (g.created_by === S.user.id || S.admin || (S.myFac && S.myFac.faction === g.faction && S.myFac.rank >= 7)));
   const ofWho = id => disp((S.ofMembers || []).find(m => m.user_id === id));
   // в «Лимиты и цены скупки» только основные материалы, в этом порядке
@@ -149,13 +149,15 @@
   }
 
   // Ранги цеха как в игре. 0 - нет доступа (ждёт подтверждения).
-  const RANKS = ["нет доступа", "Батрак", "Ученик", "Подмастерье", "Старший Подмастерье", "Мастер Кузнец", "Цеховой Мастер", "Цеховой Писарь", "Цеховой Старейшина", "Цехмейстер"];
+  // Номера 3,4,6-11 подтверждены игровым списком рангов (1403).
+  // Для 1,2 и 5 нет подтверждения названий на скриншоте, не выдаём догадки за игровые звания.
+  const RANKS = ["нет доступа", "Батрак (не подтверждено)", "Ранг 2 (не уточнён)", "Ученик", "Подмастерье", "Ранг 5 (не уточнён)", "Мастер Кузнец", "Цеховой Мастер", "Щит Цеха", "Цеховой Писарь", "Цеховой Старейшина", "Цехмейстер"];
   const disp = m => (m && (m.rp_name || m.name)) || "кто-то";
   const who = id => disp(S.members.find(m => m.user_id === id));
-  const canApprove = () => S.me.admin || S.me.rank >= 8;
-  // класть, брать и списывать со склада: Подмастерье (3) и выше
+  const canApprove = () => S.me.admin || S.me.rank >= 10;
+  // класть, брать и списывать со склада: Подмастерье (4) и выше
   const hasNick = () => !!(S.me && (S.me.rp_name || "").trim());
-  const canMove = () => !!(S.user && S.me && (S.me.admin || (hasNick() && S.me.rank >= 3)));
+  const canMove = () => !!(S.user && S.me && (S.me.admin || (hasNick() && S.me.rank >= 4)));
 
   const facTabs = () =>
     S.factions.length > 0
@@ -211,7 +213,7 @@
     const grid = (title, ks) => (ks.length ? `<div class="sk-cat">${title}</div><div class="sk-grid">${ks.map(tile).join("")}</div>` : "");
     h += `<div class="row" style="gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"><h3 style="margin:0">Остатки</h3><input class="search" id="sk-q" type="search" placeholder="Поиск" value="${esc(S.q)}" style="max-width:220px"><span class="hint">${canMove() ? "впиши число на плитках, нажми + (положил) или − (взял), потом «Записать» сверху" : "класть и брать со склада могут Подмастерье и выше"}</span></div>${pendBar()}
       ${grid("Сырьё", raws)}${grid("Заготовки", mats)}${!raws.length && !mats.length ? '<p class="hint">Ничего не найдено.</p>' : ""}`;
-    if (S.me.admin || S.me.rank >= 6) {
+    if (S.me.admin || S.me.rank >= 7) {
       const rowsOf = ks =>
         ks
           .map(k => {
@@ -222,7 +224,7 @@
       h += `<details class="sk-lims"${S.limOpen ? " open" : ""}><summary>Лимиты и цены скупки</summary><div class="tablebox"><table class="mini sk-stock"><thead><tr><th></th><th class="l">Ресурс</th><th>Лимит</th><th>Скупаем по</th></tr></thead><tbody>${rowsOf(LIMK.filter(k => NAME[k] && (!q || nm(k).toLowerCase().includes(q))))}</tbody></table></div></details>`;
     }
     const rankOf = u => (S.members.find(x => x.user_id === u) || { rank: 0 }).rank;
-    const noteEditable = m => S.me.admin || (S.me.rank >= 3 && rankOf(m.user_id) <= S.me.rank);
+    const noteEditable = m => S.me.admin || (S.me.rank >= 4 && rankOf(m.user_id) <= S.me.rank);
     // журнал: чистить и менять «кто» могут цехмейстер, старейшина и управляющий
     // записи одним блоком (одна кнопка «Записать» или одно списание) показываем одной строкой
     const groups = () => {
@@ -252,7 +254,7 @@
     // участники: ранги видят все, менять могут управляющий, цехмейстер и старейшина
     const mine = m => m.user_id === S.user.id,
       editable = m => S.me.admin || (head && !mine(m) && !m.admin && m.rank <= S.me.rank),
-      maxRank = S.me.admin ? 9 : S.me.rank;
+      maxRank = S.me.admin ? 11 : S.me.rank;
     const list = [...S.members].sort((a, b) => (a.rank === 0) - (b.rank === 0) || b.rank - a.rank || disp(a).localeCompare(disp(b), "ru"));
     const pend = list.filter(m => m.rank === 0 && !m.admin);
     h += `<h3>Участники${head && pend.length ? ` <span class="warn">· ждут подтверждения: ${pend.length}</span>` : ""}</h3>
@@ -340,7 +342,7 @@
     const el = document.getElementById("sk-msg");
     if (el) el.textContent = m;
   };
-  const canNote = () => S.me && (S.me.admin || S.me.rank >= 3);
+  const canNote = () => S.me && (S.me.admin || S.me.rank >= 4);
   const newBatch = () => "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   // плитка: число + «+»/«−» только добавляет в запись; записывается всё разом кнопкой «Записать»
   function put(k, sign) {
