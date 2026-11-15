@@ -883,22 +883,32 @@
       .join("")}</div>`;
   // заказ выполнен: статус, списание со склада фракции одним блоком, запись в журнал фракции с дележом
   async function finishG(g, take) {
-    const { error: e1 } = await sb.from("gorders").update({ status: "done" }).eq("id", g.id);
-    if (e1) return "Не вышло: " + e1.message;
-    if (take && take.length) {
-      const batch = newBatch();
-      const { error } = await sb.from("moves").insert(take.map(([k, n]) => ({ faction: OF, res: k, qty: -n, note: gNoteTxt(g), user_id: S.user.id, batch })));
-      if (error) {
-        await sb.from("gorders").update({ status: "work" }).eq("id", g.id);
-        return "Не списалось, заказ не отмечен выполненным: " + error.message;
-      }
-    }
+    // Один RPC = одна транзакция: статус, списание со склада и запись в журнал.
+    // Если любой шаг не прошёл, Supabase отменяет ВСЮ операцию.
+    let jr;
     try {
-      const c = calcG(g), price = payOf(c).pay, sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby, takeVal(take)) || { master: 0, treasury: 0, mats: 0, benchc: 0 };
-      if (!S.fj.some(r => r.gid === g.id))
-        await addFJ({ gid: g.id, disc: payOf(c).disc, src: g.src || null, bench: g.bench || null, matby: g.matby || null, mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury, name: (g.name || "Заказ").slice(0, 80), items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => ({ n: BYID[id].n + ((g.vars || {})[id] ? ` — ${g.vars[id]}` : ""), q: +q })), price, labor: Math.round(c.pr.labor), note: (g.note || "").slice(0, 300) });
-    } catch (_) {}
-    // связанный заказ у себя тоже убираем: он выполнен и уже в журнале фракции
+      const c = calcG(g);
+      const paid = payOf(c);
+      const sp = splitOf(c.b, c.pr, g.src, g.bench, g.matby, takeVal(take)) ||
+        { master: 0, treasury: 0, mats: 0, benchc: 0 };
+      jr = {
+        name: (g.name || "Заказ").slice(0, 80),
+        items: Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) =>
+          ({ n: BYID[id].n + ((g.vars || {})[id] ? ` — ${g.vars[id]}` : ""), q: +q })),
+        price: paid.pay,
+        labor: Math.round(c.pr.labor),
+        disc: paid.disc,
+        src: g.src || null, bench: g.bench || null, matby: g.matby || null,
+        mats: sp.mats, benchc: sp.benchc, master: sp.master, treasury: sp.treasury,
+        note: (g.note || "").slice(0, 300)
+      };
+    } catch (err) {
+      return "Не удалось рассчитать заказ: " + err.message;
+    }
+    const { error } = await sb.rpc("complete_gorder_atomic", {
+      p_id: g.id, p_faction: OF, p_take: take || [], p_journal: jr
+    });
+    if (error) return "Не удалось выполнить заказ: " + error.message;
     dropLinked(g.id);
     return "";
   }
