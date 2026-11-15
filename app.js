@@ -1127,9 +1127,10 @@ function priceOf(b) {
     labor0 = (t.cost * P.markup) / 100,
     calc = t.cost + labor0,
     man = +O().manual || 0,
-    full = man > 0 ? man : calc,
+    hasManual = O().manualSet === true || man > 0,
+    full = hasManual ? man : calc,
     price = full - b.disc;
-  return { mat: t.cost - b.disc, labor: full - t.cost, full, price, calc, manual: man > 0 };
+  return { mat: t.cost - b.disc, labor: full - t.cost, full, price, calc, manual: hasManual };
 }
 function renderOrder(skip) {
   const b = breakdown(),
