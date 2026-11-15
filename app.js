@@ -109,6 +109,7 @@ const cleanOrders = arr =>
     client: o.client || {},
     done: !!o.done,
     snap: o.snap,
+    stockDelta: o.stockDelta,
     gid: o.gid || null,
     facDone: o.facDone || "",
     steps: o.steps || {},
@@ -1352,24 +1353,30 @@ function renderDone(b) {
   const o = O();
   doneBtn.hidden = !b.t.n;
   doneBtn.disabled = o.done;
-  undoBtn.hidden = !(o.done && o.snap);
+  undoBtn.hidden = !(o.done && o.stockDelta);
   if (!doneBtn.dataset.armed)
     doneBtn.textContent = o.done ? "Заказ выполнен ✓" : "Заказ выполнен: списать со склада";
   doneNote.textContent = o.done
-    ? o.snap
-      ? "Мой склад списан. Если нажал по ошибке, можно отменить."
-      : "Мой склад по этому заказу уже списан."
+    ? o.stockDelta
+      ? "Мой склад списан. Отмена вернёт только изменения этого заказа."
+      : "Заказ сделан до обновления. Безопасная отмена старого списания недоступна: скорректируй остатки вручную."
     : "Спишет со склада то, что ушло в дело, и добавит излишки: лишнее сырьё заказчика и лишние заготовки после крафта.";
 }
 undoBtn.addEventListener("click", () => {
   const o = O();
-  if (!o.done || !o.snap) return;
+  if (!o.done || !o.stockDelta) return;
   if (!undoBtn.dataset.armed) {
-    arm(undoBtn, "Точно вернуть склад?", "Отменить выполнение");
+    arm(undoBtn, "Точно вернуть изменения заказа?", "Отменить выполнение");
     return;
   }
   disarm(undoBtn, "Отменить выполнение");
-  stock = o.snap;
+  try {
+    stock = StockOps.undo(stock, o.stockDelta);
+  } catch (e) {
+    doneNote.textContent = e.message;
+    return;
+  }
+  delete o.stockDelta;
   delete o.snap;
   o.done = false;
   save();
@@ -1383,19 +1390,21 @@ doneBtn.addEventListener("click", () => {
     return;
   }
   disarm(doneBtn, "Заказ выполнен: списать со склада");
-  const b = breakdown(),
-    add = (k, v) => {
-      const n = Math.max(0, (stock[k] || 0) + v);
-      if (n) stock[k] = n;
-      else delete stock[k];
-    };
-  O().snap = JSON.parse(JSON.stringify(stock));
+  const b = breakdown(), changes = [];
+  const add = (k, v) => { changes.push([k, v]); };
   b.mid.forEach(r => add(r.k, -r.s));
   b.rows.forEach(r => add(r.k, -r.s));
   b.extra.forEach(([k, v]) => add(k, v));
-  Object.entries(b.surplus).forEach(([k, v]) => {
-    if (v > 0) add(k, v);
-  });
+  Object.entries(b.surplus).forEach(([k, v]) => { if (v > 0) add(k, v); });
+  try {
+    const result = StockOps.apply(stock, changes);
+    stock = result.stock;
+    O().stockDelta = result.delta;
+    delete O().snap;
+  } catch (e) {
+    doneNote.textContent = e.message;
+    return;
+  }
   O().done = true;
   save();
   renderOrderList();
