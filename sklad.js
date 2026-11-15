@@ -717,6 +717,7 @@
   try { gDraft = { ...gDraft, ...JSON.parse(localStorage.getItem("forge-gdraft") || "{}") }; } catch (_) {}
   // черновик - полноценный заказ: пока открыта вкладка «Заказ фракции», «Расчёт заказа» считает его
   gDraft = Object.assign(newOrder("Заказ фракции"), gDraft, { qty: gDraft.qty || {}, client: gDraft.client || {} });
+  if (+gDraft.manual > 0) gDraft.manual_set = true;
   if (!gDraft.name) gDraft.name = "";
   const saveDraft = () => { try { localStorage.setItem("forge-gdraft", JSON.stringify(gDraft)); } catch (_) {} };
   window.onOverrideSave = () => { if (window.ORD_OVERRIDE === gDraft) saveDraft(); };
@@ -931,6 +932,7 @@
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
       o.due = g.due || "";
       if (g.manual_set) o.manual = String(g.manual);
+      o.manualSet = !!g.manual_set;
       o.gid = g.id;
       o.client = { ...(g.client || {}) };
       o.allc = !!g.allc;
@@ -1285,6 +1287,7 @@
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => typeof BYID === "undefined" || BYID[id]));
       o.due = g.due || "";
       if (g.manual_set) o.manual = String(g.manual);
+      o.manualSet = !!g.manual_set;
       o.vars = { ...(g.vars || {}) };
       orders.push(o);
       cur = orders.length - 1;
@@ -1426,7 +1429,7 @@
       const qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
       const man = g.manual_set ? String(g.manual) : "";
       if (JSON.stringify(qty) !== JSON.stringify(o.qty)) { o.qty = qty; changed = true; }
-      if ((o.manual || "") !== man) { o.manual = man; changed = true; }
+      if ((o.manual || "") !== man || !!o.manualSet !== !!g.manual_set) { o.manual = man; o.manualSet = !!g.manual_set; changed = true; }
       if (JSON.stringify(o.vars || {}) !== JSON.stringify(g.vars || {})) { o.vars = { ...(g.vars || {}) }; changed = true; }
     });
     if (changed) {
