@@ -839,7 +839,7 @@
     if (!SRC[src] || !BENCH[bench] || !BENCH[matby]) return null;
     // заказчик платит цену без своего сырья; его сырьё никому не возвращается
     const benchc0 = Math.round(b.t.b + b.matBench),
-      price = Math.round(pr.full) - Math.min(Math.round(b.disc), Math.round(b.t.cost) - benchc0),
+      price = Math.max(0, Math.round(pr.full) - Math.min(Math.round(b.disc), Math.round(b.t.cost) - benchc0)),
       benchc = Math.round(b.t.b + b.matBench),
       matsAll = Math.round(b.t.cost) - benchc,
       discEff = Math.min(Math.round(b.disc), matsAll),
@@ -871,7 +871,7 @@
   const payOf = c => {
     const mats = Math.round(c.b.t.cost) - Math.round(c.b.t.b + c.b.matBench),
       disc = Math.max(0, Math.min(Math.round(c.b.disc), mats));
-    return { disc, pay: Math.round(c.pr.full) - disc };
+    return { disc, pay: Math.max(0, Math.round(c.pr.full) - disc) };
   };
   const benchSeg = (cur, attr) => `<div class="seg gsrc">${Object.entries(BENCH).map(([k, n]) => `<button type="button" ${attr}="${k}" aria-pressed="${cur === k}">${n}</button>`).join("")}</div>`;
   const splitRows = sp =>
