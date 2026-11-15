@@ -647,7 +647,7 @@
     const take = woCur.take;
     const lg = linkedG();
     if (lg) {
-      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : !BENCH[lg.bench] || !BENCH[lg.matby] ? "Сначала выбери в карточке заказа фракции, кто платил за верстак и материалы." : priceOf(breakdown()).full < Math.ceil(breakdown().t.cost) ? `Цена ниже затрат (${fmt(Math.ceil(breakdown().t.cost))} гр.), заказ в убыток. Подними цену.` : "";
+      const why = !(lg.note || "").trim() ? "Сначала впиши в карточке заказа фракции, для кого он." : !SRC[lg.src] ? "Сначала выбери в карточке заказа фракции, кто его принёс." : !BENCH[lg.bench] || !BENCH[lg.matby] ? "Сначала выбери в карточке заказа фракции, кто платил за верстак и материалы." : "";
       if (why) {
         e.target.disabled = false;
         document.getElementById("sk-wo-msg").textContent = why;
@@ -712,7 +712,7 @@
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
   const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
   // черновик нового заказа фракции: пока открыта вкладка «Заказ фракции», «+» в рецептах кладёт вещи сюда
-  let gDraft = { name: "", qty: {}, note: "", manual: 0 };
+  let gDraft = { name: "", qty: {}, note: "", manual: 0, manual_set: false };
   try { gDraft = { ...gDraft, ...JSON.parse(localStorage.getItem("forge-gdraft") || "{}") }; } catch (_) {}
   // черновик - полноценный заказ: пока открыта вкладка «Заказ фракции», «Расчёт заказа» считает его
   gDraft = Object.assign(newOrder("Заказ фракции"), gDraft, { qty: gDraft.qty || {}, client: gDraft.client || {} });
@@ -746,7 +746,7 @@
   const draftCnt = () => Object.values(gDraft.qty).reduce((a, b) => a + (+b || 0), 0);
   function resetDraft() {
     const keep = { src: gDraft.src, bench: gDraft.bench, matby: gDraft.matby };
-    gDraft = Object.assign(newOrder("Заказ фракции"), { name: "", qty: {}, note: "", manual: 0, client: {}, vars: {} }, keep);
+    gDraft = Object.assign(newOrder("Заказ фракции"), { name: "", qty: {}, note: "", manual: 0, manual_set: false, client: {}, vars: {} }, keep);
     saveDraft();
     if (window.ORD_OVERRIDE) window.ORD_OVERRIDE = gDraft;
     if (typeof renderOrder === "function") renderOrder();
@@ -811,7 +811,7 @@
   function calcG(g, guildStock) {
     const tmp = newOrder(g.name || "Заказ");
     tmp.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
-    tmp.manual = +g.manual > 0 ? String(g.manual) : "";
+    tmp.manual = g.manual_set ? String(Math.max(0, +g.manual || 0)) : "";
     tmp.client = { ...(g.client || {}) };
     tmp.allc = !!g.allc;
     const savedO = window.ORD_OVERRIDE;
@@ -863,7 +863,7 @@
   const pickAll = (o, scope, canSrc, canPay) =>
     pick2("src", o.src, scope, canSrc) + pick2("bench", o.bench, scope, canPay) + pick2("matby", o.matby, scope, canPay) + '<div class="hint pk-note">Если материалы предоставил заказчик, отметь нужное в «Расчёте заказа».</div>';
   // меньше этой «Цены заказчику» нельзя: все материалы и верстак (сырьё заказчика вычитается потом, из обеих сумм одинаково)
-  const minPrice = c => Math.ceil(c.b.t.cost);
+  
   // сырьё заказчика в заказе фракции засчитывается не больше стоимости материалов
   const payOf = c => {
     const mats = Math.round(c.b.t.cost) - Math.round(c.b.t.b + c.b.matBench),
@@ -918,7 +918,7 @@
       const o = newOrder((g.name || "Заказ фракции").slice(0, 40));
       o.qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
       o.due = g.due || "";
-      if (+g.manual > 0) o.manual = String(g.manual);
+      if (g.manual_set) o.manual = String(g.manual);
       o.gid = g.id;
       o.client = { ...(g.client || {}) };
       o.allc = !!g.allc;
@@ -949,7 +949,7 @@
         try { sv = stockValOf(calcG({ items: gDraft.qty, manual: gDraft.manual, client: gDraft.client, allc: gDraft.allc }, posStock(S.facStock)).b); } catch (_) {}
         var dsp = splitOf(c.b, c.pr, gDraft.src, gDraft.bench, gDraft.matby, sv);
         const t = c.b.t, pr = c.pr, bench = t.b + c.b.matBench;
-        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
+        sumH = `<div class="sum"><span class="k">Вещей</span><span class="v">${t.n}</span><span class="k">Материалы</span><span class="v">${fmt(t.cost - bench)} гр.</span><span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span><span class="k">За работу</span><span class="v">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span><span class="k">Цена заказчику</span><span class="v big pv"><input class="pman" id="gd-price" type="number" min="0" step="1" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.</span>${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v"><button class="linkbtn" id="gd-preset" type="button">↺ вернуть</button></span>` : ""}${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}${dsp ? splitRows(dsp) : '<span class="k hint">выбери все три пункта выше, и тут будет дележ</span><span class="v"></span>'}</div>`;
       } catch (_) {}
     }
     return `<div class="gdraft-box"><h3 style="margin:0 0 4px">Новый заказ фракции</h3>
@@ -985,7 +985,7 @@
                 <span class="k">Верстак</span><span class="v">${fmt(bench)} гр.</span>
                 <span class="k">За работу ${pr.manual ? `(${pct}%)` : `${fmt(P.markup)}%`}</span><span class="v ${pr.labor < 0 ? "buy" : ""}">${pr.labor < 0 ? "−" : "+"}${fmt(Math.abs(pr.labor))} гр.</span>
                 <span class="k">Цена заказчику</span><span class="v big pv">${canPrice ? `<input class="pman g-price" data-id="${g.id}" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(pr.full)}" title="Можно вписать свою цену"> гр.` : `${fmt(Math.round(pr.full))} гр.`}</span>
-                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${canPrice && g.status !== "done" ? `<span class="k hint">не ниже</span><span class="v hint">${fmt(minPrice(c))} гр.</span>` : ""}${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}
+                ${pr.manual ? `<span class="k hint">своя цена, по расчёту ${fmt(Math.round(pr.calc))} гр.</span><span class="v">${canPrice ? `<button class="linkbtn" data-g="preset" data-id="${g.id}" type="button">↺ вернуть</button>` : ""}</span>` : ""}${payOf(c).disc ? `<span class="k">Сырьё заказчика</span><span class="v ok">−${fmt(payOf(c).disc)} гр.</span><span class="k"><b>К оплате</b></span><span class="v big" style="color:var(--copper)">${fmt(payOf(c).pay)} гр.</span>` : ""}
                 ${(() => { let sv = 0; try { sv = stockValOf(calcG(g, posStock(S.facStock)).b); } catch (_) {} const sp = splitOf(c.b, pr, g.src, g.bench, g.matby, sv); return sp ? splitRows(sp) : ""; })()}</div>`;
               sumH = pickAll(g, g.id, canPrice && g.status !== "done", (canPrice || takenMe) && g.status !== "done") + sumH;
             }
@@ -1094,9 +1094,8 @@
     if (t.id === "gd-price") {
       let v = Math.max(0, Math.round(+t.value || 0));
       try {
-        const c0 = calcG({ items: gDraft.qty, manual: 0, client: gDraft.client, allc: gDraft.allc }), mn = minPrice(c0);
-        if (v < mn) { v = mn; draftMsg = `Ниже ${fmt(mn)} гр. нельзя: это затраты на материалы и верстак, работа будет в убыток.`; }
-        if (Math.round(c0.pr.calc) === v) v = 0;
+        const c0 = calcG({ items: gDraft.qty, manual_set: false, client: gDraft.client, allc: gDraft.allc });
+        gDraft.manual_set = Math.round(c0.pr.calc) !== v;
       } catch (_) {}
       gDraft.manual = v;
       saveDraft();
@@ -1107,14 +1106,12 @@
       if (!g) return;
       let v = Math.max(0, Math.round(+t.value || 0));
       try {
-        const c0 = calcG({ ...g, manual: 0 }), mn = minPrice(c0);
-        if (v < mn) { v = mn; gMsgId = g.id; gMsgTxt = `Ниже ${fmt(mn)} гр. нельзя: это затраты на материалы и верстак, работа будет в убыток.`; }
-        // цена совпала с расчётной - значит своей цены нет
-        if (Math.round(c0.pr.calc) === v) v = 0;
+        const c0 = calcG({ ...g, manual_set: false });
+        var manualSet = Math.round(c0.pr.calc) !== v;
       } catch (_) {}
-      const { error } = await sb.from("gorders").update({ manual: v }).eq("id", g.id);
+      const { error } = await sb.from("gorders").update({ manual: v, manual_set: manualSet ?? true }).eq("id", g.id);
       if (error) { gMsgId = g.id; gMsgTxt = "Цена не сохранилась: " + error.message; }
-      else g.manual = v;
+      else { g.manual = v; g.manual_set = manualSet ?? true; }
       return load();
     }
     if (!t.classList.contains("g-note")) return;
@@ -1164,7 +1161,7 @@
       return setDraft(id, d === "x" ? 0 : (gDraft.qty[id] || 0) + +d);
     }
     if (b.id === "gd-focus") { setFocus("draft"); return gRender(); }
-    if (b.id === "gd-preset") { gDraft.manual = 0; saveDraft(); return gRender(); }
+    if (b.id === "gd-preset") { gDraft.manual = 0; gDraft.manual_set = false; saveDraft(); return gRender(); }
     if (b.id === "gd-clear") {
       if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Точно очистить?"; return; }
       resetDraft();
@@ -1186,7 +1183,7 @@
       if (!Object.keys(items).length) return gMsg("В заказе нет вещей.");
       b.disabled = true;
       if (!SRC[gDraft.src]) return gMsg("Выбери, кто принёс заказ.");
-      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual > 0 ? +gDraft.manual : 0, client: Object.fromEntries(Object.entries(gDraft.client || {}).filter(([, v]) => +v > 0)), allc: !!gDraft.allc, vars: Object.fromEntries(Object.entries(gDraft.vars || {}).filter(([id, v]) => items[id] && v)), src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, matby: BENCH[gDraft.matby] ? gDraft.matby : null, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (gDraft.name || "Заказ").slice(0, 80), items, due: "", note: (gDraft.note || "").trim().slice(0, 300), manual: +gDraft.manual || 0, manual_set: !!gDraft.manual_set, client: Object.fromEntries(Object.entries(gDraft.client || {}).filter(([, v]) => +v > 0)), allc: !!gDraft.allc, vars: Object.fromEntries(Object.entries(gDraft.vars || {}).filter(([id, v]) => items[id] && v)), src: gDraft.src, bench: BENCH[gDraft.bench] ? gDraft.bench : null, matby: BENCH[gDraft.matby] ? gDraft.matby : null, status: "new", created_by: S.user.id });
       if (error) { b.disabled = false; return gMsg("Не отправилось: " + error.message); }
       resetDraft();
       saveDraft();
@@ -1199,7 +1196,7 @@
       const o = O();
       const items = Object.fromEntries(Object.entries(o.qty || {}).filter(([, q]) => +q > 0));
       if (!Object.keys(items).length) return gMsg("В твоём заказе нет вещей.");
-      const { error } = await sb.from("gorders").insert({ faction: OF, name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual > 0 ? +o.manual : 0, status: "new", created_by: S.user.id });
+      const { error } = await sb.from("gorders").insert({ faction: OF, name: (o.name || "Заказ").slice(0, 80), items, due: (o.due || "").slice(0, 20), note: gSendNote.trim().slice(0, 300), manual: +o.manual || 0, manual_set: o.manual !== "" && o.manual != null, status: "new", created_by: S.user.id });
       if (error) return gMsg("Не отправилось: " + error.message);
       gSendNote = "";
       return load();
@@ -1248,12 +1245,6 @@
         gMsgTxt = "Сначала выбери, кто платил за верстак и за материалы.";
         return gRender();
       }
-      const c1 = calcG(g);
-      if (c1.pr.full < minPrice(c1)) {
-        gMsgId = g.id;
-        gMsgTxt = `Цена ниже затрат (${fmt(minPrice(c1))} гр.), заказ в убыток. Подними «Цену заказчику».`;
-        return gRender();
-      }
       const c = calcG(g, Object.fromEntries(Object.entries(S.facStock).filter(([, v]) => v > 0)));
       gPlan = g.matby === "master" ? { take: [], lack: [], own: true } : { take: [...c.b.mid.filter(m => m.s > 0).map(m => [m.k, m.s]), ...c.b.rows.filter(r => r.s > 0).map(r => [r.k, r.s])], lack: c.b.rows.filter(r => r.buy > 0).map(r => [r.k, r.buy]) };
       gDone = g.id;
@@ -1271,7 +1262,7 @@
       return load();
     }
     if (act === "reopen") patch = { status: "work" };
-    if (act === "preset") patch = { manual: 0 };
+    if (act === "preset") patch = { manual: 0, manual_set: false };
     if (patch) {
       const { error } = await sb.from("gorders").update(patch).eq("id", g.id);
       if (error) gMsg("Не вышло: " + error.message);
@@ -1409,7 +1400,7 @@
       const g = (S.gorders || []).find(x => x.id === o.gid);
       if (!g) return;
       const qty = Object.fromEntries(Object.entries(g.items || {}).filter(([id]) => BYID[id]).map(([id, q]) => [id, +q]));
-      const man = +g.manual > 0 ? String(g.manual) : "";
+      const man = g.manual_set ? String(g.manual) : "";
       if (JSON.stringify(qty) !== JSON.stringify(o.qty)) { o.qty = qty; changed = true; }
       if ((o.manual || "") !== man) { o.manual = man; changed = true; }
       if (JSON.stringify(o.vars || {}) !== JSON.stringify(g.vars || {})) { o.vars = { ...(g.vars || {}) }; changed = true; }
