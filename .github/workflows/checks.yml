@@ -22,5 +22,6 @@ jobs:
           node --check sklad.js
           node --check layout.js
           node --check stock-ops.js
+          node --check warehouse-payment.js
       - name: Тесты склада
         run: node --test tests/*.test.js
