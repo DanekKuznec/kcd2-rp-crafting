@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", journalWho: "", payer: "self", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -229,7 +229,7 @@
     // записи одним блоком (одна кнопка «Записать» или одно списание) показываем одной строкой
     const groups = () => {
       const out = [], at = {};
-      S.moves.forEach(m => {
+      shownMoves.forEach(m => {
         if (m.batch && at[m.batch]) return at[m.batch].push(m);
         const g = [m];
         if (m.batch) at[m.batch] = g;
@@ -237,17 +237,23 @@
       });
       return out;
     };
+    // Фильтр журнала по автору складской операции. Не изменяет сами записи или остатки.
+    const authors = [...new Set(S.moves.map(m => m.user_id).filter(Boolean))]
+      .map(id => ({ id, label: who(id) }))
+      .sort((a, b) => a.label.localeCompare(b.label, "ru"));
+    const shownMoves = S.journalWho ? S.moves.filter(m => m.user_id === S.journalWho) : S.moves;
+    const paidLabel = value => value === "self" ? "Оплатил сам" : value === "guild" ? "Оплатил цех" : "";
     const whoSel = (m, ids) =>
       `<select class="sk-who" data-ids="${ids}">${S.members.some(x => x.user_id === m.user_id) ? "" : `<option selected>${esc(who(m.user_id))}</option>`}${[...S.members]
         .filter(x => x.rank > 0 || x.admin || x.user_id === m.user_id)
         .map(x => `<option value="${x.user_id}" ${x.user_id === m.user_id ? "selected" : ""}>${esc(disp(x))}</option>`)
         .join("")}</select>`;
-    h += `<h3>Журнал <span class="hint" style="font-family:inherit;text-transform:none;letter-spacing:0">${S.moves.length >= 1000 ? "последние 1000 записей" : "записей: " + S.moves.length}</span></h3><div class="tablebox sk-jbox"><table class="mini sk-journal"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
+    h += `<div class="row" style="gap:12px;align-items:center;flex-wrap:wrap"><h3 style="margin:0">Журнал <span class="hint" style="font-family:inherit;text-transform:none;letter-spacing:0">${S.moves.length >= 1000 ? "последние 1000 записей" : "записей: " + S.moves.length}</span></h3><label class="hint" for="sk-jwho">Записи персонажа</label><select id="sk-jwho" style="max-width:260px"><option value="">Все участники</option>${authors.map(a => `<option value="${esc(a.id)}" ${S.journalWho === a.id ? "selected" : ""}>${esc(a.label)}</option>`).join("")}</select>${S.journalWho ? `<span class="hint">Показано: ${shownMoves.length}</span>` : ""}</div><div class="tablebox sk-jbox"><table class="mini sk-journal"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
       groups()
         .map(g => {
           g.sort((x, y) => (y.qty > 0) - (x.qty > 0) || x.id - y.id);
           const m = g[0], ids = g.map(x => x.id).join(",");
-          return `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m, ids) : esc(who(m.user_id))}</td><td class="l sk-what">${g.map(x => `<span class="${x.qty > 0 ? "ok" : "buy"}">${x.qty > 0 ? "положил" : "взял"} ${num(Math.abs(x.qty))} · ${esc(nm(x.res))}</span>`).join("<br>")}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-ids="${ids}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${ids}" type="button" title="Удалить запись${g.length > 1 ? " целиком" : ""}. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`;
+          return `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m, ids) : esc(who(m.user_id))}</td><td class="l sk-what">${g.map(x => `<span class="${x.qty > 0 ? "ok" : "buy"}">${x.qty > 0 ? "положил" : "взял"} ${num(Math.abs(x.qty))} · ${esc(nm(x.res))}${x.qty > 0 && paidLabel(x.paid_by) ? ` <span class="hint">(${paidLabel(x.paid_by)})</span>` : ""}</span>`).join("<br>")}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-ids="${ids}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${ids}" type="button" title="Удалить запись${g.length > 1 ? " целиком" : ""}. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`;
         })
         .join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
     }</tbody></table></div>`;
@@ -285,7 +291,7 @@
       if (t.dataset.fac === F) return;
       F = t.dataset.fac;
       try { localStorage.setItem("forge-faction", F); } catch (_) {}
-      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "", pend: {}, dhook: undefined });
+      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", journalWho: "", payer: "self", err: "", pend: {}, dhook: undefined });
       woCur = null; gDone = gPlan = null;
       root.innerHTML = facTabs() + `<div class="panel"><p class="hint">Загружаю…</p></div>`;
       return load();
@@ -363,6 +369,7 @@
     const ins = l.filter(([, v]) => v > 0), outs = l.filter(([, v]) => v < 0);
     const txt = a => a.map(([k, v]) => `${num(Math.abs(v))} · ${esc(nm(k))}`).join(", ");
     return `<div class="sk-pbar"><div class="sk-plist">${ins.length ? `<span class="ok">Положил:</span> ${txt(ins)}` : ""}${ins.length && outs.length ? "<br>" : ""}${outs.length ? `<span class="buy">Взял:</span> ${txt(outs)}` : ""}</div>
+      ${ins.length ? `<label class="hint" for="sk-paid">Кто оплатил пополнение?</label><select id="sk-paid"><option value="self" ${S.payer === "self" ? "selected" : ""}>Оплатил сам</option><option value="guild" ${S.payer === "guild" ? "selected" : ""}>Оплатил цех</option></select>` : ""}
       <div class="obar">${canNote() ? `<input id="sk-note" placeholder="Заметка к записи, например: 751 грош со своих" value="${esc(S.note)}" maxlength="200">` : ""}<button class="btn go" id="sk-save" type="button">${lowArmed ? "Точно записать?" : `Записать (${l.length})`}</button><button class="btn" id="sk-pclear" type="button">Отмена</button></div></div>`;
   }
   let lowArmed = false, saving = false;
@@ -378,11 +385,12 @@
     saving = true;
     const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
     const batch = newBatch();
-    const { error } = await sb.from("moves").insert(l.map(([k, v]) => ({ faction: F, res: k, qty: v, note, batch })));
+    const { error } = await sb.from("moves").insert(l.map(([k, v]) => ({ faction: F, res: k, qty: v, note, batch, paid_by: v > 0 ? S.payer : null })));
     saving = false;
     if (error) return alertMsg("Не записалось: " + error.message);
     S.pend = {};
     S.note = "";
+    S.payer = "self";
     lowArmed = false;
     await load();
     alertMsg(`Записано одним блоком: ${l.length} поз.`);
@@ -405,6 +413,8 @@
   };
   root.addEventListener("change", e => {
     const t = e.target;
+    if (t.id === "sk-jwho") { S.journalWho = t.value; return render(); }
+    if (t.id === "sk-paid") { S.payer = t.value === "guild" ? "guild" : "self"; return; }
     if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
     if (t.classList.contains("sk-mnote"))
       return sb.from("moves").update({ note: t.value.trim().slice(0, 200) }).in("id", t.dataset.ids.split(",")).then(({ error }) => {
