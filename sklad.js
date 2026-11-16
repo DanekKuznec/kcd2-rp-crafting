@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", journalWho: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -229,7 +229,7 @@
     // записи одним блоком (одна кнопка «Записать» или одно списание) показываем одной строкой
     const groups = () => {
       const out = [], at = {};
-      S.moves.forEach(m => {
+      shownMoves.forEach(m => {
         if (m.batch && at[m.batch]) return at[m.batch].push(m);
         const g = [m];
         if (m.batch) at[m.batch] = g;
@@ -237,12 +237,17 @@
       });
       return out;
     };
+    // Фильтр журнала по автору складской операции. Не изменяет сами записи или остатки.
+    const authors = [...new Set(S.moves.map(m => m.user_id).filter(Boolean))]
+      .map(id => ({ id, label: who(id) }))
+      .sort((a, b) => a.label.localeCompare(b.label, "ru"));
+    const shownMoves = S.journalWho ? S.moves.filter(m => m.user_id === S.journalWho) : S.moves;
     const whoSel = (m, ids) =>
       `<select class="sk-who" data-ids="${ids}">${S.members.some(x => x.user_id === m.user_id) ? "" : `<option selected>${esc(who(m.user_id))}</option>`}${[...S.members]
         .filter(x => x.rank > 0 || x.admin || x.user_id === m.user_id)
         .map(x => `<option value="${x.user_id}" ${x.user_id === m.user_id ? "selected" : ""}>${esc(disp(x))}</option>`)
         .join("")}</select>`;
-    h += `<h3>Журнал <span class="hint" style="font-family:inherit;text-transform:none;letter-spacing:0">${S.moves.length >= 1000 ? "последние 1000 записей" : "записей: " + S.moves.length}</span></h3><div class="tablebox sk-jbox"><table class="mini sk-journal"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
+    h += `<div class="row" style="gap:12px;align-items:center;flex-wrap:wrap"><h3 style="margin:0">Журнал <span class="hint" style="font-family:inherit;text-transform:none;letter-spacing:0">${S.moves.length >= 1000 ? "последние 1000 записей" : "записей: " + S.moves.length}</span></h3><label class="hint" for="sk-jwho">Записи персонажа</label><select id="sk-jwho" style="max-width:260px"><option value="">Все участники</option>${authors.map(a => `<option value="${esc(a.id)}" ${S.journalWho === a.id ? "selected" : ""}>${esc(a.label)}</option>`).join("")}</select>${S.journalWho ? `<span class="hint">Показано: ${shownMoves.length}</span>` : ""}</div><div class="tablebox sk-jbox"><table class="mini sk-journal"><thead><tr><th class="l">Когда</th><th class="l">Кто</th><th class="l">Что</th><th class="l">Заметка</th>${head ? "<th></th>" : ""}</tr></thead><tbody>${
       groups()
         .map(g => {
           g.sort((x, y) => (y.qty > 0) - (x.qty > 0) || x.id - y.id);
@@ -285,7 +290,7 @@
       if (t.dataset.fac === F) return;
       F = t.dataset.fac;
       try { localStorage.setItem("forge-faction", F); } catch (_) {}
-      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", err: "", pend: {}, dhook: undefined });
+      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", journalWho: "", err: "", pend: {}, dhook: undefined });
       woCur = null; gDone = gPlan = null;
       root.innerHTML = facTabs() + `<div class="panel"><p class="hint">Загружаю…</p></div>`;
       return load();
@@ -405,6 +410,7 @@
   };
   root.addEventListener("change", e => {
     const t = e.target;
+    if (t.id === "sk-jwho") { S.journalWho = t.value; return render(); }
     if (t.classList.contains("sk-rank")) return upd(t.dataset.u, { rank: +t.value });
     if (t.classList.contains("sk-mnote"))
       return sb.from("moves").update({ note: t.value.trim().slice(0, 200) }).in("id", t.dataset.ids.split(",")).then(({ error }) => {
