@@ -382,25 +382,17 @@
       render();
       return alertMsg(`На складе меньше, чем берёшь: ${low.map(([k]) => `${nm(k)} (есть ${num(S.stock[k] || 0)})`).join(", ")}. Нажми «Записать» ещё раз, если всё верно.`);
     }
-    // Сумму записываем на одну позицию партии, иначе она будет удвоена
-    // при пополнении несколькими материалами одной записью.
-    const incoming = l.some(([, qty]) => qty > 0);
-    const amountRaw = S.paidAmount.trim();
-    const amount = incoming ? Number(amountRaw) : null;
-    if (incoming && (amountRaw === "" || !Number.isSafeInteger(amount) || amount < 0)) {
-      return alertMsg("Впиши сумму пополнения в грошах: целое число от 0.");
-    }
-    saving = true;
     const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
     const batch = newBatch();
-    let amountWritten = false;
-    const rows = l.map(([k, v]) => {
-      const firstIncoming = v > 0 && !amountWritten;
-      if (firstIncoming) amountWritten = true;
-      return { faction: F, res: k, qty: v, note, batch,
-        paid_by: v > 0 ? S.payer : null,
-        paid_amount: firstIncoming ? amount : null };
-    });
+    let rows;
+    try {
+      rows = window.FORGE_WAREHOUSE_PAYMENT.prepareMoves(l, {
+        faction: F, note, batch, payer: S.payer, paidAmount: S.paidAmount
+      });
+    } catch (e) {
+      return alertMsg(e.message);
+    }
+    saving = true;
     const { error } = await sb.from("moves").insert(rows);
     saving = false;
     if (error) return alertMsg("Не записалось: " + error.message);
