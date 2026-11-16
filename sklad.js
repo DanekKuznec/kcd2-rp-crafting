@@ -34,7 +34,7 @@
     .catch(e => fail("Склад не запустился: " + (e && e.message)));
   function start() {
   const sb = window.supabase.createClient(cfg.url, cfg.key);
-  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", journalWho: "", payer: "self", gorders: [], limOpen: false, err: "" };
+  const S = { factions: [], pend: {}, fj: [], facStock: {}, ofMoves: [], ofMembers: [], user: null, me: null, members: [], moves: [], stock: {}, limits: {}, q: "", note: "", journalWho: "", payer: "self", paidAmount: "", gorders: [], limOpen: false, err: "" };
   // ресурсы ремесла: сырьё и заготовки, которые нужны на его вещи
   function secRes(sec) {
     const list = sec === "aw" ? ["a", "w"] : [sec],
@@ -253,7 +253,7 @@
         .map(g => {
           g.sort((x, y) => (y.qty > 0) - (x.qty > 0) || x.id - y.id);
           const m = g[0], ids = g.map(x => x.id).join(",");
-          return `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m, ids) : esc(who(m.user_id))}</td><td class="l sk-what">${g.map(x => `<span class="${x.qty > 0 ? "ok" : "buy"}">${x.qty > 0 ? "положил" : "взял"} ${num(Math.abs(x.qty))} · ${esc(nm(x.res))}${x.qty > 0 && paidLabel(x.paid_by) ? ` <span class="hint">(${paidLabel(x.paid_by)})</span>` : ""}</span>`).join("<br>")}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-ids="${ids}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${ids}" type="button" title="Удалить запись${g.length > 1 ? " целиком" : ""}. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`;
+          return `<tr><td class="l">${when(m.created_at)}</td><td class="l">${head ? whoSel(m, ids) : esc(who(m.user_id))}</td><td class="l sk-what">${g.map(x => `<span class="${x.qty > 0 ? "ok" : "buy"}">${x.qty > 0 ? "положил" : "взял"} ${num(Math.abs(x.qty))} · ${esc(nm(x.res))}</span>`).join("<br>")}${(() => { const paid = g.find(x => x.qty > 0 && x.paid_amount != null), payer = g.find(x => x.qty > 0 && paidLabel(x.paid_by)); return paid || payer ? `<div class="hint" style="margin-top:4px">${payer ? esc(paidLabel(payer.paid_by)) : "Оплата"}${paid ? `: <b>${fmt(+paid.paid_amount)} гр.</b>` : ""}</div>` : ""; })()}</td><td class="l hint">${noteEditable(m) ? `<input class="sk-mnote" data-ids="${ids}" value="${esc(m.note)}" maxlength="200" placeholder="—">` : esc(m.note)}</td>${head ? `<td><button class="linkbtn" data-del="${ids}" type="button" title="Удалить запись${g.length > 1 ? " целиком" : ""}. Остаток на складе тоже изменится">×</button></td>` : ""}</tr>`;
         })
         .join("") || `<tr><td colspan="5" class="hint">Записей пока нет.</td></tr>`
     }</tbody></table></div>`;
@@ -291,7 +291,7 @@
       if (t.dataset.fac === F) return;
       F = t.dataset.fac;
       try { localStorage.setItem("forge-faction", F); } catch (_) {}
-      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", journalWho: "", payer: "self", err: "", pend: {}, dhook: undefined });
+      Object.assign(S, { members: [], moves: [], stock: {}, limits: {}, gorders: [], me: null, joined: false, q: "", note: "", journalWho: "", payer: "self", paidAmount: "", err: "", pend: {}, dhook: undefined });
       woCur = null; gDone = gPlan = null;
       root.innerHTML = facTabs() + `<div class="panel"><p class="hint">Загружаю…</p></div>`;
       return load();
@@ -369,7 +369,7 @@
     const ins = l.filter(([, v]) => v > 0), outs = l.filter(([, v]) => v < 0);
     const txt = a => a.map(([k, v]) => `${num(Math.abs(v))} · ${esc(nm(k))}`).join(", ");
     return `<div class="sk-pbar"><div class="sk-plist">${ins.length ? `<span class="ok">Положил:</span> ${txt(ins)}` : ""}${ins.length && outs.length ? "<br>" : ""}${outs.length ? `<span class="buy">Взял:</span> ${txt(outs)}` : ""}</div>
-      ${ins.length ? `<label class="hint" for="sk-paid">Кто оплатил пополнение?</label><select id="sk-paid"><option value="self" ${S.payer === "self" ? "selected" : ""}>Оплатил сам</option><option value="guild" ${S.payer === "guild" ? "selected" : ""}>Оплатил цех</option></select>` : ""}
+      ${ins.length ? `<label class="hint" for="sk-paid">Кто оплатил пополнение?</label><select id="sk-paid"><option value="self" ${S.payer === "self" ? "selected" : ""}>Оплатил сам</option><option value="guild" ${S.payer === "guild" ? "selected" : ""}>Оплатил цех</option></select><label class="hint" for="sk-amount">Сумма, гр.</label><input id="sk-amount" type="number" inputmode="numeric" min="0" step="1" placeholder="0" value="${esc(S.paidAmount)}" style="width:100px" aria-label="Сумма оплаты пополнения в грошах">` : ""}
       <div class="obar">${canNote() ? `<input id="sk-note" placeholder="Заметка к записи, например: 751 грош со своих" value="${esc(S.note)}" maxlength="200">` : ""}<button class="btn go" id="sk-save" type="button">${lowArmed ? "Точно записать?" : `Записать (${l.length})`}</button><button class="btn" id="sk-pclear" type="button">Отмена</button></div></div>`;
   }
   let lowArmed = false, saving = false;
@@ -382,21 +382,39 @@
       render();
       return alertMsg(`На складе меньше, чем берёшь: ${low.map(([k]) => `${nm(k)} (есть ${num(S.stock[k] || 0)})`).join(", ")}. Нажми «Записать» ещё раз, если всё верно.`);
     }
+    // Сумму записываем на одну позицию партии, иначе она будет удвоена
+    // при пополнении несколькими материалами одной записью.
+    const incoming = l.some(([, qty]) => qty > 0);
+    const amountRaw = S.paidAmount.trim();
+    const amount = incoming ? Number(amountRaw) : null;
+    if (incoming && (amountRaw === "" || !Number.isSafeInteger(amount) || amount < 0)) {
+      return alertMsg("Впиши сумму пополнения в грошах: целое число от 0.");
+    }
     saving = true;
     const note = canNote() ? (S.note || "").trim().slice(0, 200) : "";
     const batch = newBatch();
-    const { error } = await sb.from("moves").insert(l.map(([k, v]) => ({ faction: F, res: k, qty: v, note, batch, paid_by: v > 0 ? S.payer : null })));
+    let amountWritten = false;
+    const rows = l.map(([k, v]) => {
+      const firstIncoming = v > 0 && !amountWritten;
+      if (firstIncoming) amountWritten = true;
+      return { faction: F, res: k, qty: v, note, batch,
+        paid_by: v > 0 ? S.payer : null,
+        paid_amount: firstIncoming ? amount : null };
+    });
+    const { error } = await sb.from("moves").insert(rows);
     saving = false;
     if (error) return alertMsg("Не записалось: " + error.message);
     S.pend = {};
     S.note = "";
     S.payer = "self";
+    S.paidAmount = "";
     lowArmed = false;
     await load();
     alertMsg(`Записано одним блоком: ${l.length} поз.`);
   }
   root.addEventListener("input", e => {
     if (e.target.id === "sk-note") S.note = e.target.value;
+    if (e.target.id === "sk-amount") S.paidAmount = e.target.value;
     if (e.target.id === "sk-q") {
       S.q = e.target.value;
       const pos = e.target.selectionStart;
