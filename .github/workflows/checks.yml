@@ -23,5 +23,6 @@ jobs:
           node --check layout.js
           node --check stock-ops.js
           node --check warehouse-payment.js
+          node --check gorder-actions.js
       - name: Тесты склада
         run: node --test tests/*.test.js
