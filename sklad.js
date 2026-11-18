@@ -946,6 +946,13 @@
     save();
     switchOrder();
   }
+  // Сервер должен подтвердить изменение конкретного заказа; нулевое число обновлённых строк не означает успех.
+  async function takeGOrder(g) {
+    if (!canFacMove()) throw new Error("Недостаточно прав для принятия заказа. Нужен ранг 4 или выше.");
+    const row = await window.FORGE_ORDER_ACTIONS.claim(sb, g.id, OF, S.user.id);
+    g.taken_by = row.taken_by;
+    g.status = row.status;
+  }
   // взятый заказ фракции открывается в «Расчёте заказа» как свой: создаём связанный заказ у себя
   function linkOrder(g) {
     let i = orders.findIndex(o => o.gid === g.id);
@@ -1243,10 +1250,16 @@
     const act = b.dataset.g;
     let patch = null;
     if (act === "take") {
-      const { error } = await sb.from("gorders").update({ taken_by: S.user.id, status: "work" }).eq("id", g.id);
-      if (error) { gMsg("Не вышло: " + error.message); return load(); }
-      linkOrder(g);
-      return load();
+      try {
+        await takeGOrder(g);
+        linkOrder(g);
+        return load();
+      } catch (err) {
+        gMsgId = g.id;
+        gMsgTxt = err.message || "Не удалось взять заказ.";
+        gMsg(gMsgTxt);
+        return load();
+      }
     }
     if (act === "calc") {
       linkOrder(g);
@@ -1350,6 +1363,7 @@
   // --- Отдельная вкладка «Заказы фракции»: все активные заказы одной таблицей
   const gvTab = document.querySelector('[data-view="gord"]'), gv = document.getElementById("gordv");
   let gvFilter = "all";
+  let gvMessage = "";
   const gvOpen = new Set();
   function gvRender() {
     if (!gv) return;
@@ -1381,7 +1395,7 @@
       .join("");
     gv.innerHTML = `<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h2 style="margin:0">Заказы фракции · ${esc(ofac().name)}</h2>
       <div class="seg" id="gvf">${[["all", "Все"], ["new", "Ждут мастера"], ["work", "В работе"], ["me", "Мои"]].map(([k, n]) => `<button type="button" data-f="${k}" aria-pressed="${gvFilter === k}">${n} (${k === "all" ? all.length : cnt(k)})</button>`).join("")}</div></div>
-      <p class="hint" style="margin:6px 0 10px">Активные заказы, которые ещё не выполнены. Новый заказ создаётся в панели заказов, вкладка «Заказ фракции».</p>
+      <p class="hint" style="margin:6px 0 10px">Активные заказы, которые ещё не выполнены. Новый заказ создаётся в панели заказов, вкладка «Заказ фракции».</p>${gvMessage ? `<p class="warn" role="alert" style="margin:6px 0">${esc(gvMessage)}</p>` : ""}
       <div class="tablebox"><table class="mini gv-t"><thead><tr><th class="l">Заказ</th><th class="l">Вещи</th><th class="l">Для кого</th><th class="l">Чей</th><th>К оплате</th><th class="l">Статус</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="7" class="hint">Нет заказов.</td></tr>'}</tbody></table></div></div>`;
   }
   if (gv)
@@ -1409,15 +1423,27 @@
         return load();
       }
       if (b.dataset.gv === "take") {
+        if (b.disabled) return;
         b.disabled = true;
-        const { error } = await sb.from("gorders").update({ taken_by: S.user.id, status: "work" }).eq("id", g.id);
-        if (error) { b.disabled = false; b.textContent = "Не вышло"; b.title = error.message; return; }
-        g.taken_by = S.user.id; g.status = "work";
-        toCex();
-        linkOrder(g);
-        await load();
-        const go = document.querySelector('[data-goview="calc"]');
-        if (go) go.click();
+        b.textContent = "Беру…";
+        gvMessage = "";
+        try {
+          await takeGOrder(g);
+        } catch (err) {
+          gvMessage = err.message || "Не удалось взять заказ.";
+          return gvRender();
+        }
+        // Изменение уже подтверждено базой. Ошибка отображения не должна скрывать взятый заказ.
+        try {
+          toCex();
+          linkOrder(g);
+          await load();
+          const go = document.querySelector('[data-goview="calc"]');
+          if (go) go.click();
+        } catch (err) {
+          gvMessage = "Заказ взят, но не удалось открыть его в расчёте: " + (err.message || "ошибка интерфейса");
+          await load();
+        }
         return;
       }
       if (b.dataset.gv === "calc") {
