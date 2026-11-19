@@ -751,7 +751,7 @@
   const tabs = document.createElement("div");
   tabs.className = "seg otabs";
   tabs.hidden = true;
-  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказ фракции</button>';
+  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказы</button>';
   const gbox = document.createElement("div");
   const gvEl = document.getElementById("gordv");
   const onG = (ev, fn) => { gbox.addEventListener(ev, fn); if (gvEl) gvEl.addEventListener(ev, fn); };
@@ -764,6 +764,39 @@
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
   const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
   // черновик нового заказа фракции: пока открыта вкладка «Заказ фракции», «+» в рецептах кладёт вещи сюда
+  // Личные размещённые заказы хранятся только на этом устройстве, без отправки в Supabase.
+  const OFFLINE_KEY = "forge-offline-orders-v1";
+  let offlineOrders = [];
+  let offlineMessage = "";
+  try {
+    const stored = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
+    offlineOrders = Array.isArray(stored) ? stored.filter(x => x && x.order && x.order.qty) : [];
+  } catch (_) {}
+  const saveOffline = arr => {
+    try { localStorage.setItem(OFFLINE_KEY, JSON.stringify(arr)); return true; }
+    catch (_) { offlineMessage = "Не удалось сохранить офлайн-заказы в браузере. Исходный заказ не изменён."; return false; }
+  };
+  let orderSubtab = "offline";
+  try { orderSubtab = localStorage.getItem("forge-order-subtab") === "faction" ? "faction" : "offline"; } catch (_) {}
+  const orderSubtabs = () => `<div class="seg" id="order-subtabs" role="tablist" aria-label="Вид заказов">
+    <button type="button" data-order-sub="offline" aria-pressed="${orderSubtab === "offline"}">Личные (офлайн)</button>
+    <button type="button" data-order-sub="faction" aria-pressed="${orderSubtab === "faction"}">Заказы фракции</button>
+  </div>`;
+  const offlineHtml = () => {
+    const items = offlineOrders.map((entry, i) => {
+      const o = entry.order;
+      const n = Object.values(o.qty || {}).reduce((sum, q) => sum + (+q || 0), 0);
+      const names = Object.entries(o.qty || {}).filter(([id, q]) => BYID[id] && +q > 0)
+        .map(([id, q]) => esc(BYID[id].n) + " ×" + num(q)).join(", ");
+      return `<div class="gcard"><div class="gtop"><b>${esc(o.name || "Заказ")}</b><span class="gst">${n} шт. · офлайн</span></div>
+        <p class="hint" style="margin:6px 0">${names || "Без предметов"}</p>
+        <div class="obar"><button class="btn go" type="button" data-offline="open" data-i="${i}">Вернуть в мои заказы</button>
+        <button class="btn" type="button" data-offline="delete" data-i="${i}">Удалить</button></div></div>`;
+    }).join("");
+    return `<p class="hint" style="margin:6px 0 10px">Личные заказы хранятся только в этом браузере. Другие участники фракции их не видят.</p>
+      ${offlineMessage ? `<p class="warn" role="alert">${esc(offlineMessage)}</p>` : ""}
+      ${items || '<p class="hint">Пока нет размещённых личных заказов. Собери заказ в «Моих заказах» и нажми «Разместить заказ».</p>'}`;
+  };
   let gDraft = { name: "", qty: {}, note: "", manual: 0, manual_set: false };
   try { gDraft = { ...gDraft, ...JSON.parse(localStorage.getItem("forge-gdraft") || "{}") }; } catch (_) {}
   // черновик - полноценный заказ: пока открыта вкладка «Заказ фракции», «Расчёт заказа» считает его
@@ -795,7 +828,7 @@
     syncTable();
     return true;
   }
-  const draftOn = () => otab === "cex" && canFacMove();
+  const draftOn = () => otab === "cex" && orderSubtab === "faction" && canFacMove();
   const draftCnt = () => Object.values(gDraft.qty).reduce((a, b) => a + (+b || 0), 0);
   function resetDraft() {
     const keep = { src: gDraft.src, bench: gDraft.bench, matby: gDraft.matby };
@@ -1034,7 +1067,7 @@
       ${dm ? `<p class="warn" style="margin:0">${esc(dm)}</p>` : ""}
       <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
 
-      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && SRC[gDraft.src] ? "" : "disabled"} title="${SRC[gDraft.src] ? "" : "Выбери, чей это заказ"}">Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
+      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && SRC[gDraft.src] ? "" : "disabled"} title="${SRC[gDraft.src] ? "" : "Выбери, чей это заказ"}">Разместить заказ</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
   }
   function cardHtml(g) {
     const uid = S.user.id;
