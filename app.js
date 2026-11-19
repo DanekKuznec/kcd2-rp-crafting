@@ -1482,8 +1482,14 @@ let dlCap = null;
   } catch (e) {}
 })();
 document.getElementById("dsave").addEventListener("click", async () => {
+  // Личные размещённые заказы тоже входят в резервную копию.
+  let offlineOrders = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem("forge-offline-orders-v1") || "[]");
+    if (Array.isArray(stored)) offlineOrders = stored;
+  } catch (_) {}
   const data = JSON.stringify(
-    { app: "forge-ledger", v: 4, P, stock, orders, cur, off, sign, journal },
+    { app: "forge-ledger", v: 4, P, stock, orders, cur, off, sign, journal, offlineOrders },
     null,
     1,
   );
@@ -1525,6 +1531,11 @@ document.getElementById("dload").addEventListener("change", async e => {
       journal = Array.isArray(j.journal) ? j.journal : [];
       orders = cleanOrders(j.orders);
       cur = Math.max(0, Math.min(j.cur | 0, orders.length - 1));
+      if (Array.isArray(j.offlineOrders)) {
+        // В старых резервных копиях поля нет - существующие офлайн-заказы не стираем.
+        localStorage.setItem("forge-offline-orders-v1", JSON.stringify(j.offlineOrders));
+        window.dispatchEvent(new Event("forge-offline-orders-imported"));
+      }
       dataNote.textContent = `Загружено: заказов ${orders.length}.`;
     } else {
       const { p, st } = fromV3(j);

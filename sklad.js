@@ -751,7 +751,7 @@
   const tabs = document.createElement("div");
   tabs.className = "seg otabs";
   tabs.hidden = true;
-  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказ фракции</button>';
+  tabs.innerHTML = '<button type="button" data-t="my">Мои заказы</button><button type="button" data-t="cex">Заказы</button>';
   const gbox = document.createElement("div");
   const gvEl = document.getElementById("gordv");
   const onG = (ev, fn) => { gbox.addEventListener(ev, fn); if (gvEl) gvEl.addEventListener(ev, fn); };
@@ -764,6 +764,47 @@
   const ST = { new: "ждёт мастера", work: "в работе", done: "готов" };
   const itemName = id => (typeof BYID !== "undefined" && BYID[id] ? BYID[id].n : id);
   // черновик нового заказа фракции: пока открыта вкладка «Заказ фракции», «+» в рецептах кладёт вещи сюда
+  // Личные размещённые заказы хранятся только на этом устройстве, без отправки в Supabase.
+  const OFFLINE_KEY = "forge-offline-orders-v1";
+  let offlineOrders = [];
+  let offlineMessage = "";
+  try {
+    const stored = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
+    offlineOrders = Array.isArray(stored) ? stored.filter(x => x && x.order && x.order.qty) : [];
+  } catch (_) {}
+  const saveOffline = arr => {
+    try { localStorage.setItem(OFFLINE_KEY, JSON.stringify(arr)); return true; }
+    catch (_) { offlineMessage = "Не удалось сохранить офлайн-заказы в браузере. Исходный заказ не изменён."; return false; }
+  };
+  window.addEventListener("forge-offline-orders-imported", () => {
+    try {
+      const list = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
+      if (Array.isArray(list)) offlineOrders = list.filter(x => x && x.order && x.order.qty);
+      offlineMessage = "Личные офлайн-заказы восстановлены из файла.";
+    } catch (_) {}
+    gRender();
+  });
+  let orderSubtab = "offline";
+  try { orderSubtab = localStorage.getItem("forge-order-subtab") === "faction" ? "faction" : "offline"; } catch (_) {}
+  const orderSubtabs = () => `<div class="seg" id="order-subtabs" role="tablist" aria-label="Вид заказов">
+    <button type="button" data-order-sub="offline" aria-pressed="${orderSubtab === "offline"}">Личные (офлайн)</button>
+    <button type="button" data-order-sub="faction" aria-pressed="${orderSubtab === "faction"}">Заказы фракции</button>
+  </div>`;
+  const offlineHtml = () => {
+    const items = offlineOrders.map((entry, i) => {
+      const o = entry.order;
+      const n = Object.values(o.qty || {}).reduce((sum, q) => sum + (+q || 0), 0);
+      const names = Object.entries(o.qty || {}).filter(([id, q]) => BYID[id] && +q > 0)
+        .map(([id, q]) => esc(BYID[id].n) + " ×" + num(q)).join(", ");
+      return `<div class="gcard"><div class="gtop"><b>${esc(o.name || "Заказ")}</b><span class="gst">${n} шт. · офлайн</span></div>
+        <p class="hint" style="margin:6px 0">${names || "Без предметов"}</p>
+        <div class="obar"><button class="btn go" type="button" data-offline="open" data-i="${i}">Вернуть в мои заказы</button>
+        <button class="btn" type="button" data-offline="delete" data-i="${i}">Удалить</button></div></div>`;
+    }).join("");
+    return `<p class="hint" style="margin:6px 0 10px">Личные заказы хранятся только в этом браузере. Другие участники фракции их не видят.</p>
+      ${offlineMessage ? `<p class="warn" role="alert">${esc(offlineMessage)}</p>` : ""}
+      ${items || '<p class="hint">Пока нет размещённых личных заказов. Собери заказ в «Моих заказах» и нажми «Разместить заказ».</p>'}`;
+  };
   let gDraft = { name: "", qty: {}, note: "", manual: 0, manual_set: false };
   try { gDraft = { ...gDraft, ...JSON.parse(localStorage.getItem("forge-gdraft") || "{}") }; } catch (_) {}
   // черновик - полноценный заказ: пока открыта вкладка «Заказ фракции», «Расчёт заказа» считает его
@@ -795,7 +836,7 @@
     syncTable();
     return true;
   }
-  const draftOn = () => otab === "cex" && canFacMove();
+  const draftOn = () => otab === "cex" && orderSubtab === "faction" && canFacMove();
   const draftCnt = () => Object.values(gDraft.qty).reduce((a, b) => a + (+b || 0), 0);
   function resetDraft() {
     const keep = { src: gDraft.src, bench: gDraft.bench, matby: gDraft.matby };
@@ -1034,7 +1075,7 @@
       ${dm ? `<p class="warn" style="margin:0">${esc(dm)}</p>` : ""}
       <input id="gd-note" maxlength="300" placeholder="Для кого или номер заказа" value="${esc(gDraft.note)}">
 
-      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && SRC[gDraft.src] ? "" : "disabled"} title="${SRC[gDraft.src] ? "" : "Выбери, чей это заказ"}">Отправить во фракцию</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
+      <div class="obar"><button class="btn go" id="gd-send" type="button" ${ids.length && SRC[gDraft.src] ? "" : "disabled"} title="${SRC[gDraft.src] ? "" : "Выбери, чей это заказ"}">Разместить заказ</button>${ids.length ? '<button class="btn" id="gd-clear" type="button">Очистить</button>' : ""}${myCnt ? `<button class="btn" id="gd-mine" type="button" title="Скопировать вещи из своего заказа">Взять из «${esc(mine.name)}»</button>` : ""}</div></div>`;
   }
   function cardHtml(g) {
     const uid = S.user.id;
@@ -1084,9 +1125,10 @@
   }
   function gRender() {
     if (!zak) return;
+    // Офлайн-заказы доступны без Discord. Фракционные действия проверяют права отдельно.
     const ok = canFacView();
-    tabs.hidden = !ok;
-    const t = ok ? otab : "my";
+    tabs.hidden = false;
+    const t = otab;
     tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.t === t)));
     // кнопка списания со склада фракции прямо в панели заказа
     let wb = document.getElementById("g-wo");
@@ -1114,43 +1156,50 @@
       post.type = "button";
       post.className = "btn go";
       post.textContent = "Разместить заказ";
-      post.title = "Перенести текущий заказ в форму фракции, проверить и отправить";
-      document.getElementById("odel").after(post);
+      post.title = "Переместить текущий заказ в личный офлайн-список (без Supabase)";
       post.addEventListener("click", () => {
         const o = orders[cur];
-        if (!canFacMove() || !o || !Object.values(o.qty || {}).some(q => +q > 0)) return;
-        // Черновик не теряется незаметно: существующий заказ фракции не перезаписываем.
-        if (Object.values(gDraft.qty || {}).some(q => +q > 0) && !post.dataset.confirm) {
-          post.dataset.confirm = "1";
-          post.textContent = "Заменить черновик?";
-          return;
+        if (!o || !Object.values(o.qty || {}).some(q => +q > 0)) return;
+        if (o.gid) { offlineMessage = "Взятый заказ фракции нельзя переместить в личные офлайн-заказы."; otab = "cex"; orderSubtab = "offline"; return gRender(); }
+        // Переносим заказ лишь после успешного сохранения. Безопасность важнее сброса формы.
+        const entry = { id: "off-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8),
+          placedAt: new Date().toISOString(), order: JSON.parse(JSON.stringify(o)) };
+        if (!saveOffline([entry, ...offlineOrders])) {
+          otab = "cex"; orderSubtab = "offline"; gRender(); return;
         }
-        delete post.dataset.confirm;
-        post.textContent = "Разместить заказ";
-        gDraft.name = o.name || "Заказ";
-        gDraft.qty = Object.fromEntries(Object.entries(o.qty || {}).filter(([id, q]) => BYID[id] && +q > 0));
-        gDraft.client = { ...(o.client || {}) };
-        gDraft.allc = !!o.allc;
-        gDraft.vars = { ...(o.vars || {}) };
-        gDraft.manual = o.manual === "" || o.manual == null ? 0 : Math.max(0, +o.manual || 0);
-        gDraft.manual_set = !!o.manualSet || (o.manual !== "" && o.manual != null);
-        if (!SRC[gDraft.src]) gDraft.src = "mine";
-        saveDraft();
+        offlineOrders.unshift(entry);
+        orders.splice(cur, 1);
+        if (!orders.length) orders.push(newOrder("Заказ 1"));
+        cur = Math.min(cur, orders.length - 1);
+        save();
+        switchOrder();
+        offlineMessage = "Заказ размещён в личных офлайн-заказах.";
         otab = "cex";
-        try { localStorage.setItem("forge-otab", otab); } catch (_) {}
-        setFocus("draft");
+        orderSubtab = "offline";
+        try {
+          localStorage.setItem("forge-otab", otab);
+          localStorage.setItem("forge-order-subtab", orderSubtab);
+        } catch (_) {}
         applyOverride();
-        if (typeof renderOrder === "function") renderOrder();
         gRender();
       });
+      document.getElementById("odel").after(post);
     }
     if (post) {
-      post.hidden = t !== "my" || !canFacMove();
-      post.disabled = !(orders[cur] && Object.values(orders[cur].qty || {}).some(q => +q > 0));
+      post.hidden = t !== "my";
+      post.disabled = !(orders[cur] && !orders[cur].gid && Object.values(orders[cur].qty || {}).some(q => +q > 0));
     }
     zak.classList.toggle("cex", t === "cex");
     gbox.hidden = t !== "cex";
     if (t !== "cex") return;
+    if (orderSubtab === "offline") {
+      gbox.innerHTML = orderSubtabs() + offlineHtml();
+      return;
+    }
+    if (!ok) {
+      gbox.innerHTML = orderSubtabs() + '<p class="hint">Заказы фракции доступны только подтверждённым участникам. Войди через Discord на вкладке «Склад фракции».</p>';
+      return;
+    }
     const mine = typeof orders !== "undefined" ? orders[cur] : null,
       myCnt = mine ? Object.values(mine.qty || {}).reduce((a, b) => a + (+b || 0), 0) : 0;
     const uid = S.user.id;
@@ -1164,16 +1213,26 @@
           .map(cardHtml)
           .join("")
       : '<p class="hint">Взятых тобой заказов нет. Свободные заказы во вкладке «Заказы фракции» сверху.</p>';
-    gbox.innerHTML = h;
+    gbox.innerHTML = orderSubtabs() + h;
     try { gvRender(); } catch (_) {}
   }
   tabs.addEventListener("click", e => {
-    const b = e.target.closest("button");
+    const b = e.target.closest("button[data-t]");
     if (!b) return;
     otab = b.dataset.t;
     try { localStorage.setItem("forge-otab", otab); } catch (_) {}
     if (applyOverride() && typeof renderOrder === "function") renderOrder();
     if (otab === "cex" && canFacView() && !srcFac) setSrc(true);
+    gRender();
+    syncTable();
+  });
+  gbox.addEventListener("click", e => {
+    const sub = e.target.closest("button[data-order-sub]");
+    if (!sub) return;
+    orderSubtab = sub.dataset.orderSub === "faction" ? "faction" : "offline";
+    try { localStorage.setItem("forge-order-subtab", orderSubtab); } catch (_) {}
+    if (applyOverride() && typeof renderOrder === "function") renderOrder();
+    if (orderSubtab === "faction" && canFacView() && !srcFac) setSrc(true);
     gRender();
     syncTable();
   });
@@ -1239,6 +1298,39 @@
   onG("click", async e => {
     const b = e.target.closest("button");
     if (!b) return;
+    if (b.dataset.offline) {
+      const i = Number(b.dataset.i);
+      if (!Number.isInteger(i) || i < 0 || i >= offlineOrders.length) return;
+      const entry = offlineOrders[i];
+      if (b.dataset.offline === "open") {
+        // Сначала сохраняем изменение списка. Только потом открываем заказ для редактирования.
+        const next = offlineOrders.filter((_, j) => j !== i);
+        if (!saveOffline(next)) return gRender();
+        offlineOrders = next;
+        orders.push(JSON.parse(JSON.stringify(entry.order)));
+        cur = orders.length - 1;
+        save();
+        offlineMessage = "";
+        otab = "my";
+        try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+        applyOverride();
+        switchOrder();
+        return gRender();
+      }
+      if (b.dataset.offline === "delete") {
+        if (b.dataset.confirm !== "1") {
+          b.dataset.confirm = "1";
+          b.textContent = "Точно удалить?";
+          return;
+        }
+        const next = offlineOrders.filter((_, j) => j !== i);
+        if (!saveOffline(next)) return gRender();
+        offlineOrders = next;
+        offlineMessage = "Личный офлайн-заказ удалён.";
+        return gRender();
+      }
+      return;
+    }
     if (!canFacMove() && b.dataset.g !== "copy" && b.dataset.g !== "del") return;
     if (b.dataset.gdsrc) {
       gDraft.src = b.dataset.gdsrc;
