@@ -1183,6 +1183,7 @@
         applyOverride();
         gRender();
       });
+      document.getElementById("odel").after(post);
     }
     if (post) {
       post.hidden = t !== "my";
