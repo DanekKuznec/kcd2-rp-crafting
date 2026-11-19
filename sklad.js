@@ -776,6 +776,14 @@
     try { localStorage.setItem(OFFLINE_KEY, JSON.stringify(arr)); return true; }
     catch (_) { offlineMessage = "Не удалось сохранить офлайн-заказы в браузере. Исходный заказ не изменён."; return false; }
   };
+  window.addEventListener("forge-offline-orders-imported", () => {
+    try {
+      const list = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
+      if (Array.isArray(list)) offlineOrders = list.filter(x => x && x.order && x.order.qty);
+      offlineMessage = "Личные офлайн-заказы восстановлены из файла.";
+    } catch (_) {}
+    gRender();
+  });
   let orderSubtab = "offline";
   try { orderSubtab = localStorage.getItem("forge-order-subtab") === "faction" ? "faction" : "offline"; } catch (_) {}
   const orderSubtabs = () => `<div class="seg" id="order-subtabs" role="tablist" aria-label="Вид заказов">
@@ -1148,10 +1156,11 @@
       post.type = "button";
       post.className = "btn go";
       post.textContent = "Разместить заказ";
-      post.title = "Разместить заказ в личных офлайн-заказах";
+      post.title = "Переместить текущий заказ в личный офлайн-список (без Supabase)";
       post.addEventListener("click", () => {
         const o = orders[cur];
         if (!o || !Object.values(o.qty || {}).some(q => +q > 0)) return;
+        if (o.gid) { offlineMessage = "Взятый заказ фракции нельзя переместить в личные офлайн-заказы."; otab = "cex"; orderSubtab = "offline"; return gRender(); }
         // Переносим заказ лишь после успешного сохранения. Безопасность важнее сброса формы.
         const entry = { id: "off-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8),
           placedAt: new Date().toISOString(), order: JSON.parse(JSON.stringify(o)) };
@@ -1177,7 +1186,7 @@
     }
     if (post) {
       post.hidden = t !== "my";
-      post.disabled = !(orders[cur] && Object.values(orders[cur].qty || {}).some(q => +q > 0));
+      post.disabled = !(orders[cur] && !orders[cur].gid && Object.values(orders[cur].qty || {}).some(q => +q > 0));
     }
     zak.classList.toggle("cex", t === "cex");
     gbox.hidden = t !== "cex";
