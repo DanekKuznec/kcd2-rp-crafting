@@ -1106,6 +1106,48 @@
       });
     }
     if (wb) wb.hidden = !canFacView();
+    // Доступ к размещению текущего личного заказа должен быть прямо во вкладке «Мои заказы».
+    let post = document.getElementById("g-post-own");
+    if (!post && document.getElementById("odel")) {
+      post = document.createElement("button");
+      post.id = "g-post-own";
+      post.type = "button";
+      post.className = "btn go";
+      post.textContent = "Разместить заказ";
+      post.title = "Перенести текущий заказ в форму фракции, проверить и отправить";
+      document.getElementById("odel").after(post);
+      post.addEventListener("click", () => {
+        const o = orders[cur];
+        if (!canFacMove() || !o || !Object.values(o.qty || {}).some(q => +q > 0)) return;
+        // Черновик не теряется незаметно: существующий заказ фракции не перезаписываем.
+        if (Object.values(gDraft.qty || {}).some(q => +q > 0) && !post.dataset.confirm) {
+          post.dataset.confirm = "1";
+          post.textContent = "Заменить черновик?";
+          return;
+        }
+        delete post.dataset.confirm;
+        post.textContent = "Разместить заказ";
+        gDraft.name = o.name || "Заказ";
+        gDraft.qty = Object.fromEntries(Object.entries(o.qty || {}).filter(([id, q]) => BYID[id] && +q > 0));
+        gDraft.client = { ...(o.client || {}) };
+        gDraft.allc = !!o.allc;
+        gDraft.vars = { ...(o.vars || {}) };
+        gDraft.manual = o.manual === "" || o.manual == null ? 0 : Math.max(0, +o.manual || 0);
+        gDraft.manual_set = !!o.manualSet || (o.manual !== "" && o.manual != null);
+        if (!SRC[gDraft.src]) gDraft.src = "mine";
+        saveDraft();
+        otab = "cex";
+        try { localStorage.setItem("forge-otab", otab); } catch (_) {}
+        setFocus("draft");
+        applyOverride();
+        if (typeof renderOrder === "function") renderOrder();
+        gRender();
+      });
+    }
+    if (post) {
+      post.hidden = t !== "my" || !canFacMove();
+      post.disabled = !(orders[cur] && Object.values(orders[cur].qty || {}).some(q => +q > 0));
+    }
     zak.classList.toggle("cex", t === "cex");
     gbox.hidden = t !== "cex";
     if (t !== "cex") return;
