@@ -362,6 +362,30 @@
     const nx = root.querySelector(`.sk-n[data-k="${k}"]`);
     if (nx) nx.focus();
   }
+  // Самодостаточный обработчик: склад работает даже при блокировке/старом кеше отдельного JS-модуля.
+  // START WAREHOUSE_SAVE_PREPARE
+  const prepareWarehouseMovesFallback = (entries, opts) => {
+    const { faction, note, batch, payer, paidAmount } = opts;
+    if (!Array.isArray(entries) || !entries.length) throw new Error("Нет материалов для записи.");
+    const incoming = entries.some(([, n]) => n > 0);
+    if (incoming && payer !== "self" && payer !== "guild") throw new Error("Выбери, кто оплатил пополнение.");
+    const raw = String(paidAmount == null ? "" : paidAmount).trim();
+    const amount = incoming ? Number(raw) : null;
+    if (incoming && (!raw || !Number.isSafeInteger(amount) || amount < 0))
+      throw new Error("Впиши сумму пополнения в грошах: целое число от 0.");
+    let recorded = false;
+    return entries.map(([res, qty]) => {
+      if (typeof res !== "string" || !res || !Number.isSafeInteger(qty) || qty === 0)
+        throw new Error("Некорректное количество материалов.");
+      const firstIncoming = qty > 0 && !recorded;
+      if (firstIncoming) recorded = true;
+      return { faction, res, qty, note, batch,
+        paid_by: qty > 0 ? payer : null,
+        paid_amount: firstIncoming ? amount : null };
+    });
+  };
+  // END WAREHOUSE_SAVE_PREPARE
+  const prepareWarehouseMoves = prepareWarehouseMovesFallback;
   const pendList = () => Object.entries(S.pend).filter(([, v]) => v);
   function pendBar() {
     const l = pendList();
@@ -386,16 +410,21 @@
     const batch = newBatch();
     let rows;
     try {
-      rows = window.FORGE_WAREHOUSE_PAYMENT.prepareMoves(l, {
+      rows = prepareWarehouseMoves(l, {
         faction: F, note, batch, payer: S.payer, paidAmount: S.paidAmount
       });
     } catch (e) {
       return alertMsg(e.message);
     }
     saving = true;
-    const { error } = await sb.from("moves").insert(rows);
-    saving = false;
-    if (error) return alertMsg("Не записалось: " + error.message);
+    try {
+      const { error } = await sb.from("moves").insert(rows);
+      if (error) return alertMsg("Не записалось: " + error.message);
+    } catch (e) {
+      return alertMsg("Не удалось связаться с сервером склада: " + (e.message || "ошибка сети"));
+    } finally {
+      saving = false;
+    }
     S.pend = {};
     S.note = "";
     S.payer = "self";
