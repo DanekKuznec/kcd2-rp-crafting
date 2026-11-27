@@ -73,8 +73,8 @@ def parse():
             recipes.append({"sec":sec,"en":name,"l":level,"r":ingredients,"b":fee,
                             "o":out,"var":int(variants.group(1)) if variants else 0,
                             "kind":fields.get("Kind").get_text(" ",strip=True) if fields.get("Kind") else ""})
-    if len(recipes) != 1037:
-        raise ValueError(f"Expected 1037 confirmed wiki recipes, received {len(recipes)}. Stop - source changed.")
+    if len(recipes) != 1276:
+        raise ValueError(f"Expected 1276 confirmed wiki table rows, received {len(recipes)}. Stop - source changed.")
     return recipes
 
 def main():
