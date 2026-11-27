@@ -60,7 +60,11 @@ def parse():
                 m = re.fullmatch(r"(\d+)\s+(.+)",part.strip())
                 if not m: raise ValueError(f"Unknown ingredient: {sec}:{name}: {part}")
                 count,ingredient=int(m.group(1)),m.group(2)
-                if ingredient not in G:
+                if ingredient == "wool":
+                    # The official wiki explicitly allows hides as a 1:1 replacement
+                    # for missing wool, so use the existing hide resource conservatively.
+                    key="hd"
+                elif ingredient not in G:
                     if sec not in ("w","a"):
                         raise ValueError(f"No mapping for ingredient {ingredient!r} in {sec}:{name}")
                     key="UNMAPPED_WIKI:" + ingredient
