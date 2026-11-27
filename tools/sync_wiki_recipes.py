@@ -169,6 +169,9 @@ def main():
             "changes":details}
     Path("data/wiki_sync_report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
     print("RESULT",json.dumps({k:v for k,v in report.items() if k not in ("changes","skipped")},ensure_ascii=False))
+    print("SKIPPED_SUMMARY",json.dumps({str(k):v for k,v in collections.Counter((x["craft"],x["reason"]) for x in skipped).items()},ensure_ascii=False))
+    print("UNMAPPED_MATERIALS",json.dumps(dict(collections.Counter(y for x in skipped for y in x.get("ingredients",[]))),ensure_ascii=False))
+    print("SKIPPED_TAILORING",json.dumps([x for x in skipped if x["craft"]=="t"][:50],ensure_ascii=False))
     print("UNMATCHED_SAMPLE",json.dumps(skipped[:20],ensure_ascii=False))
     print("UPDATED_SAMPLE",json.dumps(details[:6],ensure_ascii=False))
     if args.apply:
