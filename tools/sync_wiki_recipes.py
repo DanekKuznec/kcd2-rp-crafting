@@ -128,6 +128,13 @@ def main():
                 if not any(v["id"]==item["id"] for v in arr):arr.append(item)
     updated=collections.Counter(); same=collections.Counter(); added=collections.Counter()
     skipped=[]; details=[]; new_items=[]
+    wa_signatures={}
+    for i in D["items"]:
+        if i["s"] not in ("a","w"): continue
+        if i.get("m"): continue
+        signature=(i["s"],i["l"],i.get("b",0),tuple(sorted(i.get("r",{}).items())))
+        wa_signatures.setdefault(signature,[]).append(i["id"])
+    wa_missing=collections.defaultdict(list)
     for recipe in recipes:
         sec, en = recipe["sec"], recipe["en"]
         unresolved=[k for k in recipe["r"] if k.startswith("UNMAPPED_WIKI:")]
@@ -137,11 +144,15 @@ def main():
         candidates=existing.get((sec,norm(en)),[])
         if not candidates and norm(en) in translations:
             candidates=existing.get((sec,norm(translations[norm(en)])),[])
-        # Armour/weapon names are from real screenshots and not reliably aligned
-        # with their English wiki names. Never guess or duplicate all of them.
+        # Armour/weapon names are from screenshots; report unmapped signatures.
+        if sec in ("a","w"):
+            signature=(sec,recipe["l"],recipe["b"],tuple(sorted(recipe["r"].items())))
+            if signature not in wa_signatures:
+                wa_missing[sec].append(en)
         if len(candidates)!=1:
-            # New named Silver Lys tailoring pieces: not present in older game exports.
-            if sec=="t" and not candidates and "silver lys" in norm(en):
+            # All verified unmatched tailoring entries come from the newer wiki;
+            # preserve existing translated IDs and add new ones with original names.
+            if sec=="t" and not candidates:
                 cat="Конская сбруя" if "spurs" in norm(en) else "Ноги" if "hose" in norm(en) else "Тело"
                 new={"id":f"{sec}:{en}","s":sec,"l":recipe["l"],"c":cat,"n":en,
                      "en":en,"note":"Новый рецепт с официальной вики KCDRP (27.11.2026)",
@@ -204,6 +215,7 @@ def main():
     print("UNMAPPED_MATERIALS",json.dumps(dict(collections.Counter(y for x in skipped for y in x.get("ingredients",[]))),ensure_ascii=False))
     print("SKIPPED_TAILORING",json.dumps([x for x in skipped if x["craft"]=="t"][:50],ensure_ascii=False))
     print("UNMATCHED_SAMPLE",json.dumps(skipped[:20],ensure_ascii=False))
+    print("WA_MISSING_SIGNATURES",json.dumps({k:{"count":len(v),"names":v[:90]} for k,v in wa_missing.items()},ensure_ascii=False))
     print("UPDATED_SAMPLE",json.dumps(details[:6],ensure_ascii=False))
     if args.apply:
         Path("data.js").write_text(source[:start]+" "+json.dumps(D,ensure_ascii=False,separators=(",",":"))+";\n",encoding="utf8")
