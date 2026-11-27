@@ -53,3 +53,47 @@ for h in main.find_all('h3'):
   if getattr(el,'name',None)=='h3':break
   if getattr(el,'name',None)=='table':all_tables.append(el)
  print('CRAFT_SUM',h.get_text(' ',strip=True),'TABLES',len(all_tables),'ROWS',sum(len(t.find_all('tr'))-1 for t in all_tables))
+
+import sys
+sys.path.insert(0,'tools')
+from goods_map import G
+trans={}
+for line in open('data/wiki_names_ru.tsv',encoding='utf8'):
+ bits=line.rstrip('\\n').split('\\t')
+ if len(bits)>=2:trans[bits[0].strip().casefold()]=bits[1].strip().casefold()
+def norm(x):return re.sub(r'\\s+',' ',str(x).replace('’',"'").strip()).casefold()
+existing={}
+for item in D['items']:
+ sec=item['s']
+ for val in (item.get('en'),item.get('n'),item.get('note','').split(' · ')[0]):
+  if val:existing.setdefault((sec,norm(val)),[]).append(item)
+craftmap={'Smithing':'w','Armouring':'a','Tailoring':'t','Bowyery':'b','Jewelling':'j','Alchemy':'al','Cooking':'ck','Brewing':'br','Carpentry':'cp'}
+count=Counter();match=Counter();missing={};ings=Counter();variants=Counter()
+for table in tables:
+ h=table.find_previous('h3')
+ if not h:continue
+ craft=next((v for k,v in craftmap.items() if h.get_text(' ',strip=True).startswith(k)),None)
+ if not craft:continue
+ hdr=[t.get_text(' ',strip=True) for t in table.find('tr').find_all(['th','td'])]
+ for tr in table.find_all('tr')[1:]:
+  cells=tr.find_all('td')
+  if len(cells)!=len(hdr):continue
+  fields={k:v for k,v in zip(hdr,cells)}
+  dest=fields.get('Makes') or fields.get('Piece')
+  if not dest:continue
+  name=dest.find('b').get_text(' ',strip=True) if dest.find('b') else dest.get_text(' ',strip=True)
+  name=norm(name)
+  candidates=existing.get((craft,name),[])
+  if not candidates and name in trans:candidates=existing.get((craft,trans[name]),[])
+  count[craft]+=1
+  if len(candidates)==1:match[craft]+=1
+  else:missing.setdefault(craft,[]).append(name)
+  req=fields['Needs'].get_text(' ',strip=True)
+  req=re.sub(r'\\s+\\+\\s+\\d+\\s+gr\\.?$','',req)
+  for seg in req.split(', '):
+   mt=re.match(r'^(\\d+) (.+)$',seg)
+   if mt:ings[mt.group(2)]+=1
+print('MATCH',dict(match),'COUNT',dict(count))
+for sec in craftmap.values():
+ print('UNMATCHED',sec,len(missing.get(sec,[])),missing.get(sec,[])[:35])
+print('INGREDIENTS_UNMAPPED',[(k,n) for k,n in ings.items() if k not in G])
