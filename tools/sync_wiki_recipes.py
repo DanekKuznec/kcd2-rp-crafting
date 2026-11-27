@@ -33,6 +33,28 @@ EXTRA_GOODS = {
 DYES = {"weld":("dye_weld","Weld (красильное растение)"),
         "woad":("dye_woad","Woad (красильное растение)"),
         "madder":("dye_madder","Madder (красильное растение)")}
+OLD_PARTS = {"w": {"Scrap metal","Fastening material","Iron","Antler shards","Copper",
+    "Straight sword guard","Pear sword pommel","Horned sword guard","Eight-sided sword pommel",
+    "Frankfurt steel","Toledo steel","Reinforced sword guard",
+    "Decorated sword pommel (Smithing)","Sheet steel"},
+    "a":{"Iron (Armouring)"}}
+def new_category(sec,name):
+    n=norm(name)
+    if sec=="a":
+        if "gauntlet" in n:return "Кисти"
+        if "arm" in n:return "Руки"
+        if "chausses" in n or "legs" in n:return "Ноги"
+        if "collar" in n or "hood" in n or "bascinet" in n:return "Голова"
+        return "Тело"
+    if sec=="w":
+        if "axe" in n or "battleaxe" in n:return "Топоры"
+        if "hammer" in n or "mace" in n:return "Булавы и молоты"
+        if "bardiche" in n or "polehammer" in n:return "Древковое"
+        return "Мечи"
+    if "spurs" in n:return "Конская сбруя"
+    if "hose" in n:return "Ноги"
+    return "Тело"
+
 
 def norm(s):
     return re.sub(r"\s+", " ", str(s).replace("’", "'").strip()).casefold()
@@ -150,16 +172,24 @@ def main():
             if signature not in wa_signatures:
                 wa_missing[sec].append(en)
         if len(candidates)!=1:
-            # All verified unmatched tailoring entries come from the newer wiki;
-            # preserve existing translated IDs and add new ones with original names.
-            if sec=="t" and not candidates:
-                cat="Конская сбруя" if "spurs" in norm(en) else "Ноги" if "hose" in norm(en) else "Тело"
-                new={"id":f"{sec}:{en}","s":sec,"l":recipe["l"],"c":cat,"n":en,
-                     "en":en,"note":"Новый рецепт с официальной вики KCDRP (27.11.2026)",
+            signature=(sec,recipe["l"],recipe["b"],tuple(sorted(recipe["r"].items())))
+            # Armour and weapons had Russian names from game screenshots. Only
+            # genuinely NEW signatures (not existing parts) are appended; their
+            # official English names are retained instead of guessed translations.
+            is_new_wa = sec in ("w","a") and signature not in wa_signatures and en not in OLD_PARTS[sec]
+            if (sec=="t" and not candidates) or is_new_wa:
+                newname=en
+                if any(i["id"]==f"{sec}:{newname}" for i in D["items"]+new_items):
+                    n=2
+                    while any(i["id"]==f"{sec}:{en} (рецепт {n})" for i in D["items"]+new_items):
+                        n+=1
+                    newname=f"{en} (рецепт {n})"
+                new={"id":f"{sec}:{newname}","s":sec,"l":recipe["l"],
+                     "c":new_category(sec,en),"n":newname,"en":en,
+                     "note":"Рецепт с официальной вики KCDRP (27.11.2026)",
                      "r":recipe["r"],"b":recipe["b"]}
                 if recipe["o"]!=1:new["o"]=recipe["o"]
                 if recipe["var"]:new["var"]=recipe["var"]
-                if any(i["id"]==new["id"] for i in D["items"]):raise ValueError("Duplicate "+new["id"])
                 new_items.append(new);added[sec]+=1
             else:
                 skipped.append({"craft":sec,"english_name":en,"reason":"no unique mapping to current IDs"})
@@ -194,6 +224,9 @@ def main():
         else:same[sec]+=1
 
     if args.apply:
+        # Exactly the announced 43 new recipes: 20 smithing, 15 armouring, 8 tailoring.
+        if dict(added) != {"w":20,"a":15,"t":8}:
+            raise ValueError(f"Unexpected new recipes: {dict(added)}. Stop sync, review source.")
         D["items"].extend(new_items)
         D["items"].sort(key=lambda i: (next((n for n,sec in enumerate(["a","w","t","b","j","al","ck","br","cp"]) if sec==i["s"]),99),i["l"],i.get("c",""),i["n"]))
     all_ids=[i["id"] for i in D["items"]]
