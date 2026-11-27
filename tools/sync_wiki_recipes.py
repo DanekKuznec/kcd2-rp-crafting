@@ -13,6 +13,27 @@ URL = "https://wiki.kcdroleplay.com/recipes/"
 SECS = {"Smithing":"w","Armouring":"a","Tailoring":"t","Bowyery":"b",
         "Jewelling":"j","Alchemy":"al","Cooking":"ck","Brewing":"br","Carpentry":"cp"}
 PARTS = {"t","b","j","al","ck","br","cp"}
+# Crosswalk for original game parts: verified against existing MAT/raw keys.
+EXTRA_GOODS = {
+    "Ordinary sword guard":"gcom", "Pig skin":"pig",
+    "Coin sword pommel":"pflat", "Straight sword guard":"gstr",
+    "Frankfurt steel":"frank", "Toledo steel":"tol",
+    "Antler shards":"horn", "hafts":"shaft", "Exotic wood":"exw",
+    "Coloured gold":"cgold", "Tincal":"borax", "Dogfish skin":"shark",
+    "Sheet steel":"sheet", "Cow skin":"cow", "Eight-sided sword pommel":"poct",
+    "Horned sword guard":"guard", "Deer skin":"deer",
+    "Decorated sword pommel":"porn", "Pear sword pommel":"ppear",
+    "Reinforced sword guard":"gref", "Enamel powder":"enam",
+    "Jasper":"jasp", "Acidum chloridum":"acid",
+    "pure silver nuggets":"nug", "Broken axe":"baxe", "meteoric iron":"met",
+    "Dragon claw":"dclaw", "Rock Pitch":"stres", "Weapon stub":"wfrag",
+    "Henry's longsword":"indr",
+}
+# The wiki added three dye plants. A zero is an *unset price*, not a price claim.
+DYES = {"weld":("dye_weld","Weld (красильное растение)"),
+        "woad":("dye_woad","Woad (красильное растение)"),
+        "madder":("dye_madder","Madder (красильное растение)")}
+
 def norm(s):
     return re.sub(r"\s+", " ", str(s).replace("’", "'").strip()).casefold()
 
@@ -61,9 +82,12 @@ def parse():
                 if not m: raise ValueError(f"Unknown ingredient: {sec}:{name}: {part}")
                 count,ingredient=int(m.group(1)),m.group(2)
                 if ingredient == "wool":
-                    # The official wiki explicitly allows hides as a 1:1 replacement
-                    # for missing wool, so use the existing hide resource conservatively.
+                    # Wiki permits hides as a 1:1 substitute when wool is insufficient.
                     key="hd"
+                elif ingredient in DYES:
+                    key=DYES[ingredient][0]
+                elif ingredient in EXTRA_GOODS:
+                    key=EXTRA_GOODS[ingredient]
                 elif ingredient not in G:
                     # Never invent an ingredient mapping: hold this recipe for review.
                     key="UNMAPPED_WIKI:" + ingredient
@@ -86,6 +110,12 @@ def main():
     start=source.index("=")+1
     end=source.rstrip().rindex(";")
     D=json.loads(source[start:end])
+    rawkeys={r[0] for r in D["raw"]}
+    if args.apply:
+        for k,label in DYES.values():
+            if k not in rawkeys:
+                D["raw"].append([k,label,0]) # price unknown, user must set
+                rawkeys.add(k)
     translations={}
     for line in Path("data/wiki_names_ru.tsv").read_text(encoding="utf8").splitlines():
         chunks=line.split("\t")
@@ -165,6 +195,7 @@ def main():
             "wiki_counts":dict(collections.Counter(x["sec"] for x in recipes)),
             "original_items":len(json.loads(source[start:end])["items"]),
             "updated":dict(updated),"unchanged":dict(same),"added":dict(added),
+            "new_materials_without_prices":[{"key":k,"name":label} for k,label in DYES.values() if k not in {r[0] for r in json.loads(source[start:end])["raw"]}],
             "skipped_count":len(skipped),"skipped":skipped,
             "changes":details}
     Path("data/wiki_sync_report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
