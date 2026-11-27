@@ -66,7 +66,9 @@ existing={}
 for item in D['items']:
  sec=item['s']
  for val in (item.get('en'),item.get('n'),item.get('note','').split(' · ')[0]):
-  if val:existing.setdefault((sec,norm(val)),[]).append(item)
+  if val:
+   group=existing.setdefault((sec,norm(val)),[])
+   if not any(x['id']==item['id'] for x in group):group.append(item)
 craftmap={'Smithing':'w','Armouring':'a','Tailoring':'t','Bowyery':'b','Jewelling':'j','Alchemy':'al','Cooking':'ck','Brewing':'br','Carpentry':'cp'}
 count=Counter();match=Counter();missing={};ings=Counter();variants=Counter()
 for table in tables:
