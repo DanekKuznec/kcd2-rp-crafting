@@ -103,3 +103,5 @@ print('INGREDIENTS_UNMAPPED',[(k,n) for k,n in ings.items() if k not in G])
 print('MAT_KEYS',[(k,v.get('n'),v.get('inp'),v.get('out')) for k,v in D['mat'].items()])
 print('RAW_KEYS',[(r[0],r[1]) for r in D['raw']])
 print('WA_SAMPLES',[(i['id'],i.get('n'),i.get('l'),i.get('r'),i.get('m'),i.get('b'),i.get('note')) for i in D['items'] if i['s'] in ('a','w')][:35])
+
+print('CATS',D.get('cats'))
