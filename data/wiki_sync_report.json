@@ -1,0 +1,8766 @@
+{
+  "source": "https://wiki.kcdroleplay.com/recipes/",
+  "fetched_date": "2026-11-27",
+  "wiki_recipes": 1276,
+  "wiki_counts": {
+    "w": 149,
+    "a": 140,
+    "t": 402,
+    "b": 61,
+    "j": 39,
+    "al": 83,
+    "ck": 115,
+    "br": 14,
+    "cp": 273
+  },
+  "original_items": 1288,
+  "updated": {
+    "t": 350,
+    "b": 19
+  },
+  "unchanged": {
+    "t": 44,
+    "b": 42,
+    "j": 39,
+    "al": 83,
+    "ck": 115,
+    "br": 14,
+    "cp": 272
+  },
+  "added": {
+    "w": 20,
+    "a": 15,
+    "t": 8
+  },
+  "new_materials_without_prices": [
+    {
+      "key": "dye_weld",
+      "name": "Weld (красильное растение)"
+    },
+    {
+      "key": "dye_woad",
+      "name": "Woad (красильное растение)"
+    },
+    {
+      "key": "dye_madder",
+      "name": "Madder (красильное растение)"
+    }
+  ],
+  "skipped_count": 255,
+  "skipped": [
+    {
+      "craft": "w",
+      "english_name": "jobtool:miner",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Training bludgeon",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Scrap metal",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Fastening material",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Farmer Matthew's pitchfork",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Training axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Training longsword (plain)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Staff",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Training sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Iron",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Torch",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Club",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Antler shards",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Old dagger",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Farmer's horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Work axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Painted pavese",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knight's horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Training longsword (reinforced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Homemade hunting sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Hunting sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Hunting sword (recipe 2)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Burgher's hunting sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Carpenter's axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Blacksmith's defender",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Military sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Tournament practice sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Coin sword pommel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Ordinary sword guard",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Hunting Knife",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knights Dagger",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Dagger",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Brunswick's dagger",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Copper",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Spiked horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Nobleman's horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Pitchfork",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Lovarian horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Rondel dagger",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Spiked bludgeon",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knight's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Cuman shashka",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Competition sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Jimbo's marotte",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Bearded axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Falchion",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Light mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Morgenstern",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Straight sword guard",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Heater shield",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Billhook",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Glaive",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Common war hammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Brunswick's poleaxe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Common sabre",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Zizka's mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Raborsch butcher's axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Dagger mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Broad axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Common mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Bailiff's mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Godwin's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Horseman's pick",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Pear sword pommel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Horned sword guard",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Eight-sided sword pommel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Frankfurt steel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Toledo steel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Racing horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Shell hunting sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Rider's war hammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Opportunity",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Buchar mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Cuman fokos",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Common longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Boleslav Bavor's sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Flanged mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Reinforced sword guard",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Cuman shield",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Skalitz knight's shield",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Bardiche",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Voulge",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Noble's hunting sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Heavy mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knight's war hammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "War hammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Calvaria axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Broadsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Boleslav Bavor's reforged sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Lord Capon's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Henry's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Radzig Kobyla's longsword (Istvan)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Battle longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knight shield",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Practice shield",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Ghostly horseshoes",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Emmeram's hunting sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Executioner's axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Captain's mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Basilard",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Replica of the longsword \"Absolver\"",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Dry Devil's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Raven's beak",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Decorated sword pommel (Smithing)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Guisarme",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Noble's sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knight's axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Ataman's sabre",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Lord von Bergow's sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Broad longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Lavish warhammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Knight's sword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Ornate mace",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Lion's roar Kilij",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Sheet steel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Trollbane hammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Owl’s Claw sabre",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Sword of Sir Valentine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Duelling longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Four Evangelists' longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Master Menhart's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Madman's longsword",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Adorned axe (from the relic)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Adorned axe (replica)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Dragon fang Axe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Poleaxe",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Basilisk warhammer",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Longsword of the Four Evangelists",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "w",
+      "english_name": "Henry's sword reforged",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Iron (Armouring)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Leaf-shaped couters",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Couters",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Couters with rondel",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mail coif (light)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mail coif (Zizka)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mail collar (plain)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bandit's brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bandit's brigandine - dark",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Nuremberg bascinet (light)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble's bascinet (open-faced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Hounskull bascinet (open-faced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Capon's bascinet (light)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Nuremberg bascinet (open-faced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Italian hauberk",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Rusted plate - dark",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Rusted plate",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mended cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mended cuirass - dark",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brunswick's chainmail coif",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon bascinet (open-faced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Grimey skullcap",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon hauberk",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Scaled skullcap",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Chainmail gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Steel skullcap",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kettle hat - dark (plain)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Cuman bascinet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Hauberk long (light)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Plain laminar sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Simple brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brunswick's brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Half plate legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Milanese brigandine - dark",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Teutonic brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mail coif (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Milanese chanfron",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mail collar (reinforced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Tournament kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Composite kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Killer's helmet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Murderer’s painted helmet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Constantinople bascinet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bell-shaped bascinet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble's gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brunswick's gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Old brigandine legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Smooth cuirass - blackened",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Milanese brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Rondel scullcap",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Open bascinet (style 2)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brunswick's plate leg armour",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Tournament gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Short chainmail",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kyiv helmet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Open bascinet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Plate knight sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brunswick's bascinet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brunswick's plate sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bell-shaped kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kettle hat - dark (reinforced)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Spined kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Crested Cuman helmet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bascinet with aventail (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Hourglass gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Nuremberg gauntlets (light)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brigandine gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Smooth cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Tall kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Beaked kettle hat - dark",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Magdeburg plate arms",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Laminar sleeves with rondels",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble brigandine legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bavarian plate legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Capon' plate chausses",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Riding cuirass - blackened",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon plate legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Robber baron's brigandine",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Tyrolian chanfron",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Mail collar with badge",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Karachin's chanfron",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Silver Lys Hauberk long",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bascinet with aventail",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Silver Lys Hauberk long",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Hauberk long (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Beaked kettle hat",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Milanese gauntlets",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon kettle hat (style 2)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kuttenberg plate sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Hounskull bascinet (visored)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon bascinet (visored)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Bascinet with bretèche",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brigandine gauntlets (style 2)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brigandine gauntlets (Zizka)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Magdeburg plate arms (style 2)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Magdeburg plate arms (Bergov)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble brigandine legs (style 2)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Riding cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Silesian brigandine sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Milanese plate leg armour",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Dragon chanfron",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Italian bascinet (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Nuremberg bascinet (visored)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Capon's bascinet (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble's bascinet (visored)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Saxon bascinet (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kuttenberg layered cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble laminar sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Magdeburg cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Cuman helmet with a mask",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Laminar knight legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Cuirass with falds",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Nuremberg gauntlets (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Brigandine with plate",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Miser's cuirass",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kuttenberg plate legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Nuremberg plate sleeves",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Kuttenberg bascinet",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble's bascinet (heavy)",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble's plate legs",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "a",
+      "english_name": "Noble's plate legs - dark",
+      "reason": "no unique mapping to current IDs"
+    },
+    {
+      "craft": "cp",
+      "english_name": "Lantern",
+      "reason": "no unique mapping to current IDs"
+    }
+  ],
+  "changes": [
+    {
+      "id": "t:Обмотки",
+      "en": "Hand wrap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Войлочная шапка",
+      "en": "Felt cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Головной платок",
+      "en": "Headscarf",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Фетровая шапка (фасон 2)",
+      "en": "Felt cap (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Старая соломенная шляпа",
+      "en": "Old straw hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Туника нищего",
+      "en": "Beggar tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон нищего",
+      "en": "Beggar's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон утопленника",
+      "en": "Drowner's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Венок",
+      "en": "Wreath",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Чепец",
+      "en": "Bonnet",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женская соломенная шляпа",
+      "en": "Women's straw hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Короткая рубашка",
+      "en": "Short tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Головной платок (вуаль)",
+      "en": "Frilled veil",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Цветной головной платок",
+      "en": "Colourful headscarf",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рабочий головной платок",
+      "en": "Work headscarf",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Венок (лёгкая версия)",
+      "en": "Wreath (light)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рубаха нищего",
+      "en": "Beggar's shirt",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Сапоги бродяги",
+      "en": "Vagrant's boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Койф",
+      "en": "Coif",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Свободные штаны",
+      "en": "Loose hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон слуги",
+      "en": "Servant's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Кожаный фартук",
+      "en": "Leather apron",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Фартук мясника",
+      "en": "Butcher's apron",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Ношеная туника",
+      "en": "Worn tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рубаха странника",
+      "en": "Wanderer's tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мешковатый колпак",
+      "en": "Baggy cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 1
+          },
+          "new": {
+            "nettle": 1,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Грубый батват",
+      "en": "Crude padded coif",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый воротник (простая версия)",
+      "en": "Padded collar (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Наколенники",
+      "en": "Poleyn",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Стёганая шапка бродяги",
+      "en": "Quilted vagrant's cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 1,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Длинный гамбезон (лёгкая версия)",
+      "en": "Long gambeson (light)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Батват (простая версия)",
+      "en": "Padded coif (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Кафтан с застёжками",
+      "en": "Fastened caftan",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 7,
+            "leather": 1
+          },
+          "new": {
+            "nettle": 7,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный койф (простая версия)",
+      "en": "Padded coif - black (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 7,
+            "leather": 1
+          },
+          "new": {
+            "nettle": 4,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Половецкий кафтан",
+      "en": "Cuman caftan",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 9,
+            "leather": 1
+          },
+          "new": {
+            "nettle": 8,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 4
+        }
+      }
+    },
+    {
+      "id": "t:Шафрон единорога",
+      "en": "Unicorn chanfron",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 8,
+            "leather": 1
+          },
+          "new": {
+            "nettle": 8,
+            "leather": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 72,
+          "new": 65
+        }
+      }
+    },
+    {
+      "id": "t:Половецкая кожаная шапка",
+      "en": "Cuman leather hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рабочий платок",
+      "en": "Work scarf",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа странника",
+      "en": "Wanderer's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа бродяги",
+      "en": "Vagrant's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Высокая половецкая шапка",
+      "en": "Tall Cuman cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шапка с меховой подкладкой",
+      "en": "Fur-lined hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Фетровая шляпа",
+      "en": "Felt hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Короткая рубашка (усиленная версия)",
+      "en": "Short tunic (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Простая лента на голову",
+      "en": "Simple headband",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Высокие сапоги",
+      "en": "High boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женский капюшон",
+      "en": "Women's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки утопленника",
+      "en": "Drowned man's gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны утопленника",
+      "en": "Drowner's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны водяного",
+      "en": "Water goblin's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женский капюшон (фасон 2)",
+      "en": "Women's hood (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкая соломенная шляпа",
+      "en": "Wide straw hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Соломенная шляпа с узкими полями",
+      "en": "Narrow straw hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Соломенная шляпа с лентой",
+      "en": "Straw hat with ribbon",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Туника",
+      "en": "Tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рубашка корчмаря",
+      "en": "Innkeeper tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки скомороха",
+      "en": "Jester shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Плащ нищего",
+      "en": "Beggar's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рабочее платье",
+      "en": "Work dress",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Простые штаны",
+      "en": "Simple hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны нищего",
+      "en": "Beggar's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рабочее платье (фасон 2)",
+      "en": "Work dress (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 2
+          },
+          "new": {
+            "nettle": 2,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Сюрко",
+      "en": "Surcoat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шахтёрская рубаха",
+      "en": "Miner's tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Льняной фартук",
+      "en": "Leather apron (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый воротник (усиленная версия)",
+      "en": "Padded collar (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Стёганые штаны бродяги",
+      "en": "Vagrant's quilted hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Гамбезон бродяги",
+      "en": "Vagrant's gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Роскошный кафтан",
+      "en": "Lavish caftan",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 12,
+            "leather": 2
+          },
+          "new": {
+            "nettle": 13,
+            "linen": 1,
+            "hemp": 1
+          }
+        },
+        "b": {
+          "old": 26,
+          "new": 21
+        }
+      }
+    },
+    {
+      "id": "t:Кафтан всадника",
+      "en": "Riding caftan",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 13,
+            "leather": 1
+          },
+          "new": {
+            "nettle": 13,
+            "linen": 1,
+            "hemp": 1
+          }
+        },
+        "b": {
+          "old": 30,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный стёганый кафтан",
+      "en": "Quilted caftan - black",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 12,
+            "leather": 2
+          },
+          "new": {
+            "nettle": 12,
+            "linen": 1,
+            "hemp": 1
+          }
+        },
+        "b": {
+          "old": 66,
+          "new": 62
+        }
+      }
+    },
+    {
+      "id": "t:Короткий мясницкий фартук",
+      "en": "Short butcher apron",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рубаха трактирщика",
+      "en": "Innkeeper's shirt",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рубаха карманника",
+      "en": "Pickpocket's tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Туфли ремесленника",
+      "en": "Working boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рабочие башмаки",
+      "en": "Work boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Прочные башмаки",
+      "en": "Firm boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "nettle": 3,
+            "leather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Свободные штаны (Musa)",
+      "en": "Loose hose (Musa)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Короткая рубашка (фасон 3)",
+      "en": "Short tunic (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Круглая шапка",
+      "en": "Round cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Остроконечная шапка",
+      "en": "Pointy cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шапка рудокопа",
+      "en": "Miner's cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Силезская шапка",
+      "en": "Silesian cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шапка рудокопа (шляпа)",
+      "en": "Miner's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Дублет горожанина (Bergov)",
+      "en": "Burgher coat (Bergov)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Ганс)",
+      "en": "Burgher coat (Hans)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Гануш)",
+      "en": "Burgher coat (Hanush)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Йошт, пончо)",
+      "en": "Burgher coat (Jobst Poncho)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Муса)",
+      "en": "Burgher coat (Musa)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Одерин)",
+      "en": "Burgher coat (Oderin)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Рутард)",
+      "en": "Burgher coat (Ruthard)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Сигизмунд)",
+      "en": "Burgher coat (Sigismund)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Вавак)",
+      "en": "Burgher coat (Vavak)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны карманника",
+      "en": "Pickpocket's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Простой капюшон",
+      "en": "Simple hood",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон рудокопа",
+      "en": "Miner's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа бродяги (фасон 2)",
+      "en": "Vagrant's hat (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Платье путешественницы",
+      "en": "Travel dress",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Дамское котарди",
+      "en": "Noblewoman's cotehardie",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Еврейская вуаль",
+      "en": "Jewish veil",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шаперон",
+      "en": "Chaperon",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Расшитая рубаха",
+      "en": "Embroidered shirt",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Платье с оборками",
+      "en": "Frilled dress",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Праздничное платье",
+      "en": "Festive dress",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женская соломенная шляпа (фасон 2)",
+      "en": "Women's straw hat (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женская соломенная шляпа (фасон 3)",
+      "en": "Women's straw hat (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рабочее платье (фасон 3)",
+      "en": "Work dress (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женский капюшон (тяжёлая версия)",
+      "en": "Women's hood (heavy)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Платье с оборками (фасон 2)",
+      "en": "Frilled dress (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Простые женские башмаки",
+      "en": "Common ladies shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 5,
+            "leather": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Простые женские башмаки (Katherine)",
+      "en": "Common ladies shoes (Katherine)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 5,
+            "leather": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Простой чепец",
+      "en": "Simple bonnet",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Сапоги путника",
+      "en": "Travel boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 5,
+            "leather": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Сапоги всадника",
+      "en": "Riding boots",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 6,
+            "leather": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон страстного грибника",
+      "en": "Passionate mushroom-picker's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Охотничий дублет",
+      "en": "Hunting coat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 7
+          },
+          "new": {
+            "nettle": 2,
+            "hemp": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Рукавицы",
+      "en": "Mitts",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 7
+          },
+          "new": {
+            "leather": 1,
+            "nettle": 8
+          }
+        },
+        "l": {
+          "old": 2,
+          "new": 3
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки всадника (лёгкая версия)",
+      "en": "Riding gloves (light)",
+      "changes": {
+        "l": {
+          "old": 1,
+          "new": 3
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки для верховой езды (простые)",
+      "en": "Riding gloves (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 3,
+            "nettle": 7
+          },
+          "new": {
+            "leather": 2,
+            "nettle": 9
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый батват (усиленная версия)",
+      "en": "Padded coif (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 8
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Приталенная куртка",
+      "en": "Fitted coat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 4,
+            "nettle": 11
+          },
+          "new": {
+            "linen": 1,
+            "nettle": 10,
+            "hemp": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный батват (усиленная версия)",
+      "en": "Padded coif - black (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 3,
+            "nettle": 7
+          },
+          "new": {
+            "nettle": 6,
+            "hemp": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Кастенбруст (лёгкая версия)",
+      "en": "Kastenbrust (light)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 5,
+            "nettle": 14
+          },
+          "new": {
+            "leather": 4,
+            "nettle": 15,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 36,
+          "new": 30
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый кафтан",
+      "en": "Quilted caftan",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 6,
+            "nettle": 13
+          },
+          "new": {
+            "linen": 2,
+            "nettle": 13,
+            "hemp": 4
+          }
+        },
+        "b": {
+          "old": 54,
+          "new": 46
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки всадника (тяжёлая версия)",
+      "en": "Riding gloves (heavy)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 6,
+            "nettle": 13
+          },
+          "new": {
+            "leather": 4,
+            "nettle": 13,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 76,
+          "new": 74
+        }
+      }
+    },
+    {
+      "id": "t:Богемская шапка",
+      "en": "Bohemian cap",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Иудейская шляпа",
+      "en": "Jewish hat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Странная соломенная шляпа",
+      "en": "Strange strawhat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны мастера-ловчего",
+      "en": "Master huntsman's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны рудокопа",
+      "en": "Miner hose",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Цветное праздничное платье",
+      "en": "Colorful festive dress",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 3,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женские башмаки",
+      "en": "Ladies shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 6,
+            "leather": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны с подвязками",
+      "en": "Gartered hose",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа горожанина",
+      "en": "Burgher's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шапка Карела",
+      "en": "Charlie's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шаперон камергера Ульриха",
+      "en": "Chamberlain Ulrich's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Штаны бродяги",
+      "en": "Vagrant's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 4,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Расшитый чепец",
+      "en": "Embroidered bonnet",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа мастера-ловчего",
+      "en": "Master huntsman's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Монашеский капюшон",
+      "en": "Monk's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа старшего егеря (фасон 2)",
+      "en": "Master huntsman's hat (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 4
+          },
+          "new": {
+            "nettle": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Вышитый шаперон",
+      "en": "Embroidered chaperon",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 5,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Дамское котарди (фасон 2)",
+      "en": "Noblewoman's cotehardie (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Оборчатая шапка",
+      "en": "Frilled cap",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Бургундская шляпа",
+      "en": "Burgundian hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Обычный жупан",
+      "en": "Ordinary coat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый доспех, поношенный",
+      "en": "Gambeson worn",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Ношеный гамбезон",
+      "en": "Worn gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Старые стёганые штаны",
+      "en": "Old quilted hose",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 5
+          },
+          "new": {
+            "nettle": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Высокие сапоги всадника",
+      "en": "Riding boots - high",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 6
+          },
+          "new": {
+            "nettle": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Починенные стёганые портки",
+      "en": "Mended padded leggings",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 7
+          },
+          "new": {
+            "nettle": 7,
+            "hemp": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный длинный гамбезон",
+      "en": "Long gambeson - black",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 4,
+            "nettle": 11
+          },
+          "new": {
+            "linen": 1,
+            "nettle": 9,
+            "hemp": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Жупан странника",
+      "en": "Wanderer's robe",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 4
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Шаперон пана Тота",
+      "en": "Lord Toth's chaperon",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 1,
+            "agp": 1
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 0,
+          "new": 3
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа горожанина (фасон 2)",
+      "en": "Burgher's hat (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 4
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Цветное платье с оборками",
+      "en": "Frilled colourful dress",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 4
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Платье Катерины",
+      "en": "Katherine's dress",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 4
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Платье Розы",
+      "en": "Rosa's dress",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 4
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа легата",
+      "en": "Legate's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 1,
+            "agp": 1
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 0,
+          "new": 3
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон странника",
+      "en": "Wanderer's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 9
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон священника",
+      "en": "Cleric's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 9
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки карманника",
+      "en": "Pickpocket's shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 9
+          },
+          "new": {
+            "leather": 1,
+            "hemp": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон странника (фасон 2)",
+      "en": "Wanderer's hood (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 9
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Тихие башмаки",
+      "en": "Quiet boots",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 9
+          },
+          "new": {
+            "leather": 1,
+            "hemp": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Охотничья шапочка",
+      "en": "Hunting cap",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 7
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Обычная вуаль",
+      "en": "Simple veil",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 7
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Вуаль с оборками (фасон 2)",
+      "en": "Frilled veil (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 7
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Головной платок (Magdalena)",
+      "en": "Frilled veil (Magdalena)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 7
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 5
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Жупан с гербом",
+      "en": "Coat of arms surcoat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 1,
+            "agp": 1
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 5
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа камергера Ульриха (лёгкая)",
+      "en": "Chamberlain Ulrich's hat (light)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 1,
+            "agp": 1
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 5
+        }
+      }
+    },
+    {
+      "id": "t:Панский шаперон",
+      "en": "Noble chaperon",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 1,
+            "nettle": 1,
+            "agp": 1
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 5
+        }
+      }
+    },
+    {
+      "id": "t:Шапка святого Губерта",
+      "en": "St. Hubert's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 6
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Шпоры с колёсиками",
+      "en": "Rowel spurs",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 3,
+            "steel": 1
+          },
+          "new": {
+            "leather": 2,
+            "hemp": 1,
+            "steel": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Соединённые штаны",
+      "en": "Hose joined",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 6
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Простые штаны трубадура",
+      "en": "Plain troubadours' hose",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 7
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Сюрко тевтонского брата-мирянина",
+      "en": "Teutonic lay brothers's surcoat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 7
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Тевтонский жупан",
+      "en": "Teutonic surcoat",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 8
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 7
+          }
+        },
+        "b": {
+          "old": 3,
+          "new": 11
+        }
+      }
+    },
+    {
+      "id": "t:Турнирный гамбезон",
+      "en": "Tournament gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 4,
+            "nettle": 12
+          },
+          "new": {
+            "hemp": 3,
+            "nettle": 10
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Короткий гамбезон",
+      "en": "Short gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 5,
+            "nettle": 13
+          },
+          "new": {
+            "hemp": 4,
+            "nettle": 11
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый доспех, короткий",
+      "en": "Gambeson short",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 5,
+            "nettle": 13
+          },
+          "new": {
+            "hemp": 4,
+            "nettle": 11
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Панские стёганые шоссы (фасон 2)",
+      "en": "Noble's quilted hose (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2,
+            "nettle": 1,
+            "agp": 1
+          },
+          "new": {
+            "hemp": 1,
+            "nettle": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Длинный гамбезон (тяжёлая версия)",
+      "en": "Long gambeson (heavy)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 4,
+            "nettle": 12
+          },
+          "new": {
+            "hemp": 3,
+            "nettle": 10
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Длинный гамбезон",
+      "en": "Gambeson long",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 4,
+            "nettle": 12
+          },
+          "new": {
+            "hemp": 3,
+            "nettle": 10
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Длинный стёганый доспех (усиленный)",
+      "en": "Long gambeson (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 4,
+            "nettle": 12
+          },
+          "new": {
+            "hemp": 3,
+            "nettle": 10
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой койф",
+      "en": "Broad battle coif",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Турнирный батват",
+      "en": "Tournament padded coif",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой койф (фасон 2)",
+      "en": "Broad battle coif (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой койф (фасон 3)",
+      "en": "Broad battle coif (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой подшлемник (фасон 4)",
+      "en": "Broad battle coif (style 4)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой подшлемник (фасон 5)",
+      "en": "Broad battle coif (style 5)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой подшлемник (фасон 6)",
+      "en": "Broad battle coif (style 6)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой подшлемник (фасон 7)",
+      "en": "Broad battle coif (style 7)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Широкий боевой подшлемник (фасон 8)",
+      "en": "Broad battle coif (style 8)",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 2
+          },
+          "new": {
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шляпа карманника",
+      "en": "Pickpocket's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки карманника",
+      "en": "Pickpocket's gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "leather": 2,
+            "hd": 1,
+            "pad": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон с окантовкой",
+      "en": "Hemmed hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Простые башмаки (фасон 2)",
+      "en": "Simple shoes (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "leather": 2,
+            "hd": 1,
+            "pad": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон рыцарей ордена Креста",
+      "en": "Knights of the Cross hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 1,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 5
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок конника",
+      "en": "Riding waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Шапочка с павлиньими перьями",
+      "en": "Cap with peacock feathers",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 1,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 5
+        }
+      }
+    },
+    {
+      "id": "t:Простой ваффенрок",
+      "en": "Simple waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Тевтонский капюшон",
+      "en": "Teutonic hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Монашеский капюшон (фасон 2)",
+      "en": "Monk's hood (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 5
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Наряд скомороха",
+      "en": "Jester's disguise",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Наряд Джимбо",
+      "en": "Jimbo's costume",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 12
+        }
+      }
+    },
+    {
+      "id": "t:Турнирный ваффенрок",
+      "en": "Tournament waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Придворные башмаки",
+      "en": "Courtiers boots",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 2,
+            "agp": 1
+          },
+          "new": {
+            "leather": 1,
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 0
+        }
+      }
+    },
+    {
+      "id": "t:Остроконечная шапка (фасон 2)",
+      "en": "Pointy cap (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Монашеский капюшон (фасон 3)",
+      "en": "Monk's hood (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок конника (фасон 2)",
+      "en": "Riding waffenrock (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок конника (фасон 3)",
+      "en": "Riding waffenrock (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок для верховой езды (фасон 4)",
+      "en": "Riding waffenrock (style 4)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок для верховой езды (фасон 5)",
+      "en": "Riding waffenrock (style 5)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок для верховой езды (фасон 6)",
+      "en": "Riding waffenrock (style 6)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Обувь горожанина",
+      "en": "Burgher's shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "leather": 2,
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки бродяги",
+      "en": "Vagrant's shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "leather": 2,
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок для верховой езды (фасон 7)",
+      "en": "Riding waffenrock (style 7)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки вора",
+      "en": "Thief's shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "leather": 2,
+            "hd": 2,
+            "pad": 1,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Куртка бродяги",
+      "en": "Vagrant's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 3,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Купеческий дублет",
+      "en": "Merchant's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 3,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Плащ кавалера",
+      "en": "Gallant coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 2,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 4,
+          "new": 8
+        }
+      }
+    },
+    {
+      "id": "t:Обычный жупан (фасон 2)",
+      "en": "Ordinary coat (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 2,
+            "leather": 6
+          },
+          "new": {
+            "hd": 3,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Дублет горожанина (Oderin Armor)",
+      "en": "Burgher coat (Oderin Armor)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 3,
+            "leather": 5
+          },
+          "new": {
+            "hd": 3,
+            "pad": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 13
+        }
+      }
+    },
+    {
+      "id": "t:Панские сапоги",
+      "en": "Noble boots",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 3,
+            "leather": 1,
+            "agp": 1
+          },
+          "new": {
+            "leather": 1,
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 3
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный широкий боевой койф",
+      "en": "Broad battle coif - black",
+      "changes": {
+        "r": {
+          "old": {
+            "leather": 3
+          },
+          "new": {
+            "hd": 1
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Старый гамбезон",
+      "en": "Old gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 10
+          },
+          "new": {
+            "leather": 4,
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Длинный пурпуэн",
+      "en": "Long pourpoint",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 10
+          },
+          "new": {
+            "leather": 4,
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Гамбезон Птачека",
+      "en": "Capon's gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 10
+          },
+          "new": {
+            "hd": 7,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 10,
+          "new": 18
+        }
+      }
+    },
+    {
+      "id": "t:Акетон раубриттера",
+      "en": "Robber baron's aketon",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 10
+          },
+          "new": {
+            "hd": 7,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 10,
+          "new": 18
+        }
+      }
+    },
+    {
+      "id": "t:Мягкие башмаки",
+      "en": "Soft shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 7
+          },
+          "new": {
+            "leather": 3,
+            "hd": 3,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Женские башмаки (фасон 2)",
+      "en": "Ladies shoes (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 7
+          },
+          "new": {
+            "leather": 3,
+            "hd": 3,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки мастера-ловчего",
+      "en": "Master huntsman's gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 7
+          },
+          "new": {
+            "leather": 3,
+            "hd": 3,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Мягкие сапоги",
+      "en": "Soft boots",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 7
+          },
+          "new": {
+            "leather": 3,
+            "hd": 3,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Шапка придворного",
+      "en": "Courtier's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 4,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 7,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Вышитый дублет",
+      "en": "Embroidered coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 5,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 7,
+          "new": 25
+        }
+      }
+    },
+    {
+      "id": "t:Рубаха вора",
+      "en": "Thief's tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Обычный жупан с гербом",
+      "en": "Ordinary coat with crest",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 5,
+            "agp": 1
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Обычный пражский жупан с гербом",
+      "en": "Ordinary Praguers' coat with crest",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 5,
+            "agp": 1
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Шоссы с подвязками (Капон)",
+      "en": "Gartered hose (Capon)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Шоссы с подвязками (Чёрт)",
+      "en": "Gartered hose (Devil)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Штаны с подвязками (Sigismund)",
+      "en": "Gartered hose (Sigismund)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки придворного",
+      "en": "Courtier's boots",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 5,
+            "agp": 1
+          },
+          "new": {
+            "leather": 3,
+            "hd": 1,
+            "pad": 2,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 9
+        }
+      }
+    },
+    {
+      "id": "t:Вышитый капюшон",
+      "en": "Embroidered hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 5,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 2,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 26
+        }
+      }
+    },
+    {
+      "id": "t:Остроносые башмаки",
+      "en": "Pointed shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "leather": 4,
+            "hd": 4,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 8
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон мастера-ловчего",
+      "en": "Master huntsman's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки горожанина (лёгкая версия)",
+      "en": "Burgher's shoes (light)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 4,
+            "leather": 9
+          },
+          "new": {
+            "leather": 4,
+            "hd": 4,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 8
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок с каймой",
+      "en": "Hemmed waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок рыцарей Креста с красной звездой",
+      "en": "Crusaders of the Red Star waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Пурпуэн горожанина",
+      "en": "Burgher pourpoint",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 8,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Остроносые башмаки (простые)",
+      "en": "Pointed shoes (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "leather": 4,
+            "hd": 5,
+            "pad": 2,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Чумной капюшон",
+      "en": "Plague hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 17
+        }
+      }
+    },
+    {
+      "id": "t:Связанные штаны скомороха",
+      "en": "Tied jester's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 17
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый плащ",
+      "en": "Quilted coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 17
+        }
+      }
+    },
+    {
+      "id": "t:Штаны с подвязками (простые)",
+      "en": "Gartered hose (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 17
+        }
+      }
+    },
+    {
+      "id": "t:Тевтонский ваффенрок служки",
+      "en": "Teutonic lay brother's waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "hd": 6,
+            "pad": 3,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 9,
+          "new": 17
+        }
+      }
+    },
+    {
+      "id": "t:Сапоги мастера-ловчего",
+      "en": "Master huntsman's boots",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 5,
+            "leather": 9
+          },
+          "new": {
+            "leather": 4,
+            "hd": 5,
+            "pad": 2,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 10,
+          "new": 9
+        }
+      }
+    },
+    {
+      "id": "t:Панские стёганые брюки",
+      "en": "Noble quilted trousers",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 3,
+            "leather": 4,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Панские стёганые штаны",
+      "en": "Noble's quilted hose (plain)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 3,
+            "leather": 4,
+            "agp": 1
+          },
+          "new": {
+            "hd": 1,
+            "pad": 1,
+            "linen": 1,
+            "agp": 1
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 16
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон",
+      "en": "Short aketon",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 16,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон (Комар)",
+      "en": "Short aketon (Komar)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 16,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон (Kubyenka)",
+      "en": "Short aketon (Kubyenka)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 16,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон (Лихтенштейн)",
+      "en": "Short aketon (Lichtenstein)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 16,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон (Самуэль)",
+      "en": "Short aketon (Samuel)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 16,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон (Istvan)",
+      "en": "Short aketon (Istvan)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "leather": 7,
+            "hd": 10,
+            "pad": 4,
+            "linen": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Дублет горожанина (Zachary)",
+      "en": "Burgher coat (Zachary)",
+      "changes": {
+        "r": {
+          "old": {
+            "cuo": 2,
+            "pad": 26,
+            "leather": 21,
+            "pelt": 3,
+            "feather": 2
+          },
+          "new": {
+            "cuo": 2,
+            "hd": 26,
+            "pad": 19,
+            "pelt": 3,
+            "linen": 2,
+            "feather": 2
+          }
+        },
+        "b": {
+          "old": 140,
+          "new": 120
+        }
+      }
+    },
+    {
+      "id": "t:Длинный гамбезон (фасон 4)",
+      "en": "Long gambeson (style 4)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 15,
+          "new": 23
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный длинный пурпуэн",
+      "en": "Long pourpoint - black",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 12,
+            "pelt": 1
+          },
+          "new": {
+            "hd": 10,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1
+          }
+        },
+        "b": {
+          "old": 15,
+          "new": 23
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок Полнеров",
+      "en": "House of Polner waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 6,
+            "leather": 5,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 3,
+            "pad": 3,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 11,
+          "new": 21
+        }
+      }
+    },
+    {
+      "id": "t:Пражский ваффенрок с каймой",
+      "en": "Praguers' hemmed waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 6,
+            "leather": 9,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 8,
+            "pad": 3,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 12,
+          "new": 20
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон вора",
+      "en": "Thief's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 9,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 8,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 12,
+          "new": 20
+        }
+      }
+    },
+    {
+      "id": "t:Шапка вора",
+      "en": "Thief's cap",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 9,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 8,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 12,
+          "new": 21
+        }
+      }
+    },
+    {
+      "id": "t:Шапка шляхтича",
+      "en": "Nobleman's hat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 5,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_madder": 2,
+            "hd": 4,
+            "pad": 3,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 12,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон карманника",
+      "en": "Pickpocket's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 9,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 9,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 13,
+          "new": 21
+        }
+      }
+    },
+    {
+      "id": "t:Вышитый гербовый дублет",
+      "en": "Embroidered heater coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 5,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "hd": 4,
+            "pad": 3,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 13,
+          "new": 23
+        }
+      }
+    },
+    {
+      "id": "t:Штаны вора",
+      "en": "Thief's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 10,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 9,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 13,
+          "new": 21
+        }
+      }
+    },
+    {
+      "id": "t:Панские перчатки",
+      "en": "Noble gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "leather": 6,
+            "hd": 4,
+            "pad": 3,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 13,
+          "new": 15
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон придворного",
+      "en": "Courtier's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "hd": 5,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 13,
+          "new": 23
+        }
+      }
+    },
+    {
+      "id": "t:Венгерские шпоры",
+      "en": "Hungarian spurs",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 8,
+            "pelt": 1,
+            "steel": 1,
+            "pearl": 1
+          },
+          "new": {
+            "leather": 6,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "steel": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 15
+        }
+      }
+    },
+    {
+      "id": "t:Рыцарский ваффенрок",
+      "en": "Knight's waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок крестоносцев Красной звезды (фасон 2)",
+      "en": "Crusaders of the Red Star waffenrock (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон аббата",
+      "en": "Abbot's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_madder": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон Птачека",
+      "en": "Capon's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный капюшон",
+      "en": "Black hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон легата",
+      "en": "Legate's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон раввина",
+      "en": "Rabbi's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон Семина",
+      "en": "Semine's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон Сигизмунда",
+      "en": "Sigismund's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон аббата (Альбик)",
+      "en": "Abbot's hood (Albik)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон Капона (фасон 2)",
+      "en": "Capon's hood (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 11,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Штаны придворного",
+      "en": "Courtier's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Капюшон горожанина",
+      "en": "Burgher's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 11,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 8,
+            "pad": 4,
+            "pelt": 1,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 22
+        }
+      }
+    },
+    {
+      "id": "t:Пурпуэн придворного",
+      "en": "Courtier's pourpoint.",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Шаперон с брошкой",
+      "en": "Chaperon with brooch",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 7,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_madder": 2,
+            "hd": 6,
+            "pad": 4,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 24
+        }
+      }
+    },
+    {
+      "id": "t:Плащ Нимрода",
+      "en": "Nimrod's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 12,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 8,
+            "pad": 5,
+            "pelt": 1,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 15,
+          "new": 23
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок панов из Гарбува",
+      "en": "Waffenrock of the Lords of Garbow",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 8,
+            "leather": 8,
+            "pelt": 1,
+            "agp": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 4,
+            "pad": 4,
+            "pelt": 1,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 15,
+          "new": 25
+        }
+      }
+    },
+    {
+      "id": "t:Тёмные стёганые штаны",
+      "en": "Quilted hose - dark",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "leather": 10,
+            "pelt": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 9,
+            "pad": 4,
+            "linen": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 13,
+          "new": 21
+        }
+      }
+    },
+    {
+      "id": "t:Длинный пурпуэн (фасон 2)",
+      "en": "Long pourpoint (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 12,
+            "leather": 15,
+            "pelt": 1,
+            "feather": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 12,
+            "pad": 7,
+            "pelt": 1,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 22,
+          "new": 30
+        }
+      }
+    },
+    {
+      "id": "t:Пурпуэн Эрика",
+      "en": "Erik's pourpoint",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 12,
+            "leather": 15,
+            "pelt": 1,
+            "feather": 1,
+            "pearl": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 12,
+            "pad": 7,
+            "pelt": 1,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1
+          }
+        },
+        "b": {
+          "old": 22,
+          "new": 30
+        }
+      }
+    },
+    {
+      "id": "t:Пражский ваффенрок конника",
+      "en": "Praguers' riding waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 11,
+            "pelt": 2,
+            "leather": 9,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 12,
+            "pad": 6,
+            "pelt": 1,
+            "linen": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 19,
+          "new": 28
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок кузницы Индржиха",
+      "en": "Waffenrock of Henry's Forge",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 11,
+            "pelt": 2,
+            "leather": 9,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 12,
+            "pad": 6,
+            "pelt": 1,
+            "linen": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 19,
+          "new": 28
+        }
+      }
+    },
+    {
+      "id": "t:Тевтонский ваффенрок",
+      "en": "Teutonic waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 11,
+            "pelt": 2,
+            "leather": 11,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 11,
+            "pad": 6,
+            "pelt": 2,
+            "linen": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 20,
+          "new": 29
+        }
+      }
+    },
+    {
+      "id": "t:Дублет горожанина (Injured Aulitz)",
+      "en": "Burgher coat (Injured Aulitz)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 12,
+            "pelt": 2,
+            "leather": 12,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 12,
+            "pad": 7,
+            "pelt": 2,
+            "linen": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 22,
+          "new": 30
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан (Йошт)",
+      "en": "Burgher coat (Jobst)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 12,
+            "pelt": 2,
+            "leather": 12,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 12,
+            "pad": 7,
+            "pelt": 2,
+            "linen": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 22,
+          "new": 30
+        }
+      }
+    },
+    {
+      "id": "t:Дамское котарди (фасон 3)",
+      "en": "Noblewoman's cotehardie (style 3)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 9,
+            "pelt": 3,
+            "leather": 9,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 8,
+            "pad": 7,
+            "pelt": 2,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 23,
+          "new": 32
+        }
+      }
+    },
+    {
+      "id": "t:Ваффенрок с застёжками",
+      "en": "Fastened waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 14,
+            "pelt": 3,
+            "leather": 10,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 12,
+            "pad": 8,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 24,
+          "new": 32
+        }
+      }
+    },
+    {
+      "id": "t:Украшенный ваффенрок",
+      "en": "Ornate waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 10,
+            "pelt": 3,
+            "leather": 10,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 8,
+            "pad": 7,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 24,
+          "new": 33
+        }
+      }
+    },
+    {
+      "id": "t:Башмаки вора (лёгкая версия)",
+      "en": "Thief's shoes (light)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 14,
+            "pelt": 3,
+            "leather": 11,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "leather": 7,
+            "hd": 17,
+            "pad": 9,
+            "linen": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Туника легата",
+      "en": "Legate's tunic",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 10,
+            "pelt": 3,
+            "leather": 11,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 8,
+            "pad": 7,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 25,
+          "new": 35
+        }
+      }
+    },
+    {
+      "id": "t:Пражский ваффенрок с пуговицами",
+      "en": "Praguers' waffenrock with buttons",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 11,
+            "pelt": 3,
+            "leather": 12,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 2,
+            "hd": 9,
+            "pad": 8,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 26,
+          "new": 36
+        }
+      }
+    },
+    {
+      "id": "t:Куртка вора",
+      "en": "Thief's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 15,
+            "pelt": 3,
+            "leather": 12,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 15,
+            "pad": 8,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 26,
+          "new": 34
+        }
+      }
+    },
+    {
+      "id": "t:Дублет горожанина (тяжёлая версия)",
+      "en": "Burgher coat (heavy)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 15,
+            "pelt": 3,
+            "leather": 14,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 15,
+            "pad": 9,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 28,
+          "new": 36
+        }
+      }
+    },
+    {
+      "id": "t:Двуцветный тевтонский ваффенрок",
+      "en": "Halved Teutonic waffenrock",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 16,
+            "pelt": 3,
+            "leather": 15,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 17,
+            "pad": 9,
+            "pelt": 2,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 28,
+          "new": 36
+        }
+      }
+    },
+    {
+      "id": "t:Штаны легата",
+      "en": "Legate's hose",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 14,
+            "pelt": 4,
+            "leather": 15,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "hd": 12,
+            "pad": 10,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 32,
+          "new": 41
+        }
+      }
+    },
+    {
+      "id": "t:Короткий акетон (фасон 7)",
+      "en": "Short aketon (style 7)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 18,
+            "pelt": 4,
+            "leather": 15,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_madder": 1,
+            "hd": 18,
+            "pad": 10,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 32,
+          "new": 40
+        }
+      }
+    },
+    {
+      "id": "t:Гамбезон утопленника",
+      "en": "Drowner's gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 22,
+            "pelt": 5,
+            "leather": 15,
+            "feather": 2,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 1,
+            "hd": 21,
+            "pad": 13,
+            "pelt": 4,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 39,
+          "new": 47
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный короткий пурпуэн",
+      "en": "Short pourpoint - black",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 18,
+            "pelt": 4,
+            "leather": 15,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_woad": 1,
+            "hd": 18,
+            "pad": 10,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 32,
+          "new": 40
+        }
+      }
+    },
+    {
+      "id": "t:Панский гамбезон",
+      "en": "Noble gambeson",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 18,
+            "pelt": 5,
+            "leather": 15,
+            "feather": 2,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_madder": 2,
+            "hd": 19,
+            "pad": 13,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 39,
+          "new": 48
+        }
+      }
+    },
+    {
+      "id": "t:Закалённые укреплённые рукава",
+      "en": "Reinforced tempered sleeves",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 3,
+            "au": 1,
+            "pad": 58,
+            "pelt": 13,
+            "leather": 32,
+            "feather": 5,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 3,
+            "au": 1,
+            "leather": 25,
+            "hd": 42,
+            "pad": 34,
+            "pelt": 3,
+            "linen": 4,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 600,
+          "new": 656
+        }
+      }
+    },
+    {
+      "id": "t:Кастенбруст (тяжёлая версия)",
+      "en": "Kastenbrust (heavy)",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 4,
+            "au": 2,
+            "pad": 57,
+            "pelt": 13,
+            "leather": 31,
+            "feather": 5,
+            "pearl": 1,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 4,
+            "au": 2,
+            "leather": 24,
+            "hd": 41,
+            "pad": 33,
+            "pelt": 3,
+            "linen": 4,
+            "pearl": 1,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 885,
+          "new": 944
+        }
+      }
+    },
+    {
+      "id": "t:Мещанский кафтан",
+      "en": "Burgher coat",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 5,
+            "au": 1,
+            "pad": 44,
+            "pelt": 11,
+            "leather": 45,
+            "feather": 7,
+            "agp": 4,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 6,
+            "au": 3,
+            "dye_weld": 2,
+            "hd": 28,
+            "pad": 47,
+            "pelt": 14,
+            "linen": 6,
+            "feather": 6,
+            "agp": 5,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1842,
+          "new": 1736
+        }
+      }
+    },
+    {
+      "id": "t:Ряса священника",
+      "en": "Cleric habit",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_woad": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Панский жупан",
+      "en": "Lord's overcoat",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_madder": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Ряса священника (фасон 2)",
+      "en": "Cleric habit (style 2)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 3
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_weld": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Мантия легата",
+      "en": "Legate's robe",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_madder": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Ряса священника (Rabi)",
+      "en": "Cleric habit (Rabi)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 5
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_woad": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Шаперон художника Войцеха",
+      "en": "Painter Vojtiech's cap",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 5,
+            "au": 1,
+            "pad": 44,
+            "pelt": 11,
+            "leather": 45,
+            "feather": 7,
+            "agp": 4,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 6,
+            "au": 3,
+            "dye_madder": 2,
+            "hd": 28,
+            "pad": 47,
+            "pelt": 14,
+            "linen": 6,
+            "feather": 6,
+            "agp": 5,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1842,
+          "new": 1736
+        }
+      }
+    },
+    {
+      "id": "t:Ряса священника (фасон 4)",
+      "en": "Cleric habit (style 4)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 7
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_madder": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Кузнечные рукавицы Индро",
+      "en": "Henry's blacksmith gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 7,
+            "leather": 1
+          },
+          "new": {
+            "ag": 1,
+            "leather": 13,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 1,
+            "linen": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 2,
+          "new": 52
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Стёганый капюшон",
+      "en": "Padded hood",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "pelt": 1,
+            "leather": 5,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_madder": 2,
+            "dye_weld": 1,
+            "hd": 1,
+            "pad": 3,
+            "pelt": 1,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 12,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Вышитый капюшон (тяжёлая версия)",
+      "en": "Embroidered hood (heavy)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 9,
+            "leather": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_woad": 2,
+            "hd": 19,
+            "pad": 16,
+            "pelt": 4,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 5,
+          "new": 60
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Чёрный стёганый капюшон",
+      "en": "Padded hood - black",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 7,
+            "pelt": 1,
+            "leather": 5,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_woad": 2,
+            "dye_madder": 1,
+            "hd": 1,
+            "pad": 3,
+            "pelt": 1,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 12,
+          "new": 14
+        }
+      }
+    },
+    {
+      "id": "t:Ряса священника (фасон 5)",
+      "en": "Cleric habit (style 5)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 9,
+            "leather": 1
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_weld": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Ряса священника (фасон 6)",
+      "en": "Cleric habit (style 6)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 9,
+            "leather": 1
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "dye_madder": 2,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 6,
+          "new": 72
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Стёганые штаны",
+      "en": "Quilted hose",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 15,
+            "pelt": 4,
+            "leather": 16,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 3,
+            "hd": 13,
+            "pad": 10,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 34,
+          "new": 43
+        }
+      }
+    },
+    {
+      "id": "t:Мягкие поножи",
+      "en": "Padded chausses",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 15,
+            "pelt": 4,
+            "leather": 16,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 3,
+            "hd": 13,
+            "pad": 10,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 34,
+          "new": 43
+        }
+      }
+    },
+    {
+      "id": "t:Панские стёганые штаны (усиленная версия)",
+      "en": "Noble's quilted hose (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "pad": 15,
+            "pelt": 4,
+            "leather": 16,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "dye_weld": 3,
+            "hd": 13,
+            "pad": 10,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 34,
+          "new": 43
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки вора",
+      "en": "Thief's gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 8,
+            "leather": 1
+          },
+          "new": {
+            "ag": 1,
+            "leather": 13,
+            "hd": 23,
+            "pad": 18,
+            "pelt": 1,
+            "linen": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 14,
+          "new": 52
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Панский капюшон",
+      "en": "Noble's hood",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 16,
+            "pelt": 4,
+            "leather": 11,
+            "feather": 2,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_madder": 3,
+            "hd": 9,
+            "pad": 11,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 40,
+          "new": 49
+        }
+      }
+    },
+    {
+      "id": "t:Перчатки легата",
+      "en": "Legate's gloves",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 16,
+            "pelt": 4,
+            "leather": 11,
+            "feather": 2,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "leather": 10,
+            "hd": 13,
+            "pad": 13,
+            "pelt": 1,
+            "linen": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 40,
+          "new": 41
+        }
+      }
+    },
+    {
+      "id": "t:Панские перчатки (усиленная версия)",
+      "en": "Noble gloves (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "nettle": 8,
+            "leather": 1
+          },
+          "new": {
+            "ag": 3,
+            "au": 2,
+            "leather": 26,
+            "hd": 43,
+            "pad": 36,
+            "pelt": 3,
+            "linen": 4,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 18,
+          "new": 1303
+        },
+        "l": {
+          "old": 1,
+          "new": 10
+        }
+      }
+    },
+    {
+      "id": "t:Куртка придворного",
+      "en": "Courtier's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 17,
+            "pelt": 4,
+            "leather": 11,
+            "feather": 2,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_madder": 3,
+            "hd": 10,
+            "pad": 11,
+            "pelt": 3,
+            "linen": 1,
+            "feather": 1,
+            "agp": 1,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 42,
+          "new": 51
+        }
+      }
+    },
+    {
+      "id": "t:Туфли легата",
+      "en": "Legate's shoes",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 14,
+            "pelt": 5,
+            "leather": 12,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "leather": 11,
+            "hd": 11,
+            "pad": 15,
+            "pelt": 1,
+            "linen": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 44,
+          "new": 42
+        }
+      }
+    },
+    {
+      "id": "t:Шпоры рыцаря",
+      "en": "Knight's spurs",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 16,
+            "pelt": 5,
+            "leather": 12,
+            "feather": 2,
+            "steel": 3,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "leather": 11,
+            "hd": 13,
+            "pad": 15,
+            "pelt": 1,
+            "linen": 2,
+            "steel": 3,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 45,
+          "new": 43
+        }
+      }
+    },
+    {
+      "id": "t:Парчовый капюшон",
+      "en": "Brocade hood",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 16,
+            "pelt": 5,
+            "leather": 13,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_woad": 3,
+            "hd": 9,
+            "pad": 13,
+            "pelt": 4,
+            "linen": 1,
+            "feather": 1,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 48,
+          "new": 54
+        }
+      }
+    },
+    {
+      "id": "t:Плащ мецената",
+      "en": "Patron's coat",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 17,
+            "pelt": 5,
+            "leather": 13,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_weld": 3,
+            "hd": 10,
+            "pad": 14,
+            "pelt": 4,
+            "linen": 2,
+            "feather": 1,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 49,
+          "new": 56
+        }
+      }
+    },
+    {
+      "id": "t:Тирольское парчовое котарди",
+      "en": "Tyrol brocade cotehardie",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 18,
+            "pelt": 6,
+            "leather": 14,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_woad": 3,
+            "hd": 11,
+            "pad": 15,
+            "pelt": 4,
+            "linen": 2,
+            "feather": 1,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 51,
+          "new": 58
+        }
+      }
+    },
+    {
+      "id": "t:Шаперон Иштвана",
+      "en": "Istvan's chaperon",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 19,
+            "pelt": 6,
+            "leather": 15,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_madder": 3,
+            "hd": 12,
+            "pad": 16,
+            "pelt": 4,
+            "linen": 2,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 54,
+          "new": 60
+        }
+      }
+    },
+    {
+      "id": "t:Короткий пурпуэн",
+      "en": "Short pourpoint",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "pad": 22,
+            "pelt": 6,
+            "leather": 16,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "dye_madder": 3,
+            "hd": 14,
+            "pad": 17,
+            "pelt": 5,
+            "linen": 2,
+            "feather": 2,
+            "agp": 2,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 58,
+          "new": 65
+        }
+      }
+    },
+    {
+      "id": "t:Панские шпоры",
+      "en": "Noble's spurs",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 1,
+            "au": 1,
+            "pad": 29,
+            "pelt": 8,
+            "leather": 21,
+            "feather": 3,
+            "steel": 5,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 1,
+            "au": 1,
+            "leather": 19,
+            "hd": 23,
+            "pad": 26,
+            "pelt": 2,
+            "linen": 3,
+            "steel": 5,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "t:Кастенбруст (усиленная версия)",
+      "en": "Kastenbrust (reinforced)",
+      "changes": {
+        "r": {
+          "old": {
+            "ag": 5,
+            "au": 3,
+            "pad": 43,
+            "pelt": 11,
+            "leather": 44,
+            "feather": 7,
+            "agp": 4,
+            "pearl": 2,
+            "wwpelt": 1
+          },
+          "new": {
+            "ag": 6,
+            "au": 3,
+            "leather": 34,
+            "hd": 20,
+            "pad": 39,
+            "pelt": 4,
+            "linen": 6,
+            "agp": 5,
+            "pearl": 2,
+            "wwpelt": 1
+          }
+        },
+        "b": {
+          "old": 1872,
+          "new": 1890
+        }
+      }
+    },
+    {
+      "id": "b:Солдатский болт",
+      "en": "Battle bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Турнирная стрела",
+      "en": "Tournament arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Солдатская стрела",
+      "en": "Battle arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Грубая стрела",
+      "en": "Crude arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Грубый болт",
+      "en": "Crude bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Обычный болт",
+      "en": "Common bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Обычная стрела",
+      "en": "Ordinary arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Дальнобойная стрела",
+      "en": "Long-range arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Турнирный болт",
+      "en": "Tournament bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Кровотворная стрела",
+      "en": "Wounding arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Охотничий болт",
+      "en": "Hunting bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Стрела меткого стрелка",
+      "en": "Marksman's bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "steel": 1
+          },
+          "new": {
+            "log": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Охотничья стрела",
+      "en": "Hunting arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "steel": 1
+          },
+          "new": {
+            "log": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Пробивная стрела",
+      "en": "Piercing arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "steel": 1
+          },
+          "new": {
+            "log": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Кровотворный болт",
+      "en": "Wounding bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "steel": 1
+          },
+          "new": {
+            "log": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Пробивной болт",
+      "en": "Piercing bolt",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "steel": 1
+          },
+          "new": {
+            "log": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Улучшенная дальнобойная стрела",
+      "en": "Improved long-range arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 1,
+            "feather": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 1,
+            "feather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Улучшенная охотничья стрела",
+      "en": "Improved hunting arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "feather": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 2,
+            "feather": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "b:Улучшенная кровотворная стрела",
+      "en": "Improved wounding arrow",
+      "changes": {
+        "r": {
+          "old": {
+            "log": 2,
+            "feather": 1,
+            "steel": 1
+          },
+          "new": {
+            "log": 2,
+            "feather": 1
+          }
+        }
+      }
+    }
+  ]
+}
