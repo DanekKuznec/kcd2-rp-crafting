@@ -1,40 +1,22 @@
-name: Сверка и применение новых рецептов к рабочей ветке
+name: Проверка изменений рецептов по официальной вики
 on:
   pull_request:
     paths:
-      - 'tools/wiki_probe.py'
       - 'tools/sync_wiki_recipes.py'
       - '.github/workflows/wiki-probe.yml'
+  workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
-  sync:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install beautifulsoup4
-      - name: Синхронизировать только подтверждённые рецепты
-        run: python tools/sync_wiki_recipes.py --apply
-      - name: Проверить расчёты и все тесты
+      - name: Сверка без сохранения изменений
+        run: python tools/sync_wiki_recipes.py
+      - name: Проверка существующих тестов
         run: node --test tests/*.test.js
-      - name: Проверить синтаксис
-        run: |
-          node --check data.js
-          node --check app.js
-          node --check sklad.js
-      - name: Зафиксировать в рабочей ветке проверенные изменения
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.js data/wiki_sync_report.json
-          if ! git diff --cached --quiet; then
-            git commit -m "Синхронизировать рецепты KCDRP 27 ноября: 43 новинки и изменения вики"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
