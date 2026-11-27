@@ -1,0 +1,18 @@
+name: Аудит рецептов вики (без изменений)
+on:
+  pull_request:
+    paths:
+      - 'tools/wiki_probe.py'
+      - '.github/workflows/wiki-probe.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install beautifulsoup4
+      - run: python tools/wiki_probe.py
