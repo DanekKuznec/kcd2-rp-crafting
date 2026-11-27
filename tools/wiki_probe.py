@@ -43,3 +43,13 @@ try:
   print('DATA_SAMPLE',sec,[(i['id'],i.get('en'),i.get('r'),i.get('m'),i.get('b'),i.get('o')) for i in x[:4]])
 except Exception as e:
  print('DATA_PARSE_ERROR',repr(e))
+
+from collections import Counter
+print('TABLE_HEADERS',Counter(tuple(x.get_text(' ',strip=True) for x in t.find('tr').find_all(['th','td'])) for t in tables))
+for h in main.find_all('h3'):
+ if 'pieces' not in h.get_text():continue
+ all_tables=[]
+ for el in h.next_elements:
+  if getattr(el,'name',None)=='h3':break
+  if getattr(el,'name',None)=='table':all_tables.append(el)
+ print('CRAFT_SUM',h.get_text(' ',strip=True),'TABLES',len(all_tables),'ROWS',sum(len(t.find_all('tr'))-1 for t in all_tables))
