@@ -16,6 +16,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install beautifulsoup4
+      - name: Сверить существующие ресурсы кузнецов
+        run: python tools/wiki_probe.py | grep -E 'MAT_KEYS|RAW_KEYS|WA_SAMPLES'
       - name: Проверить каталог и подготовить синхронизацию
         run: python tools/sync_wiki_recipes.py --apply
       - name: Проверить все расчёты и существующие тесты
