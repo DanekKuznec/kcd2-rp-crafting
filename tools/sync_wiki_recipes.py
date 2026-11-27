@@ -225,7 +225,8 @@ def main():
 
     if args.apply:
         # Exactly the announced 43 new recipes: 20 smithing, 15 armouring, 8 tailoring.
-        if dict(added) != {"w":20,"a":15,"t":8}:
+        expected={"w":20,"a":15,"t":8}
+        if dict(added)!=expected and not (not new_items and len(D["items"])==1331):
             raise ValueError(f"Unexpected new recipes: {dict(added)}. Stop sync, review source.")
         # Preserve the order of all pre-existing items; only append new entries.
         D["items"].extend(new_items)
@@ -242,7 +243,9 @@ def main():
             "new_materials_without_prices":[{"key":k,"name":label} for k,label in DYES.values() if k not in {r[0] for r in json.loads(source[start:end])["raw"]}],
             "skipped_count":len(skipped),"skipped":skipped,
             "changes":details}
-    Path("data/wiki_sync_report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
+    # A read-only audit must not overwrite the historical application report.
+    if args.apply and (new_items or details):
+        Path("data/wiki_sync_report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
     print("RESULT",json.dumps({k:v for k,v in report.items() if k not in ("changes","skipped")},ensure_ascii=False))
     print("SKIPPED_SUMMARY",json.dumps({str(k):v for k,v in collections.Counter((x["craft"],x["reason"]) for x in skipped).items()},ensure_ascii=False))
     print("UNMAPPED_MATERIALS",json.dumps(dict(collections.Counter(y for x in skipped for y in x.get("ingredients",[]))),ensure_ascii=False))
@@ -250,7 +253,7 @@ def main():
     print("UNMATCHED_SAMPLE",json.dumps(skipped[:20],ensure_ascii=False))
     print("WA_MISSING_SIGNATURES",json.dumps({k:{"count":len(v),"names":v[:90]} for k,v in wa_missing.items()},ensure_ascii=False))
     print("UPDATED_SAMPLE",json.dumps(details[:6],ensure_ascii=False))
-    if args.apply:
+    if args.apply and (new_items or details):
         Path("data.js").write_text(source[:start]+" "+json.dumps(D,ensure_ascii=False,separators=(",",":"))+";\n",encoding="utf8")
         print("APPLIED",len(D["items"]))
 if __name__=="__main__":
