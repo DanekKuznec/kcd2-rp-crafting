@@ -22,3 +22,24 @@ for tab in tables[:7]:
  for tr in rows[:3]:
   print('ROW',repr([x.get_text(' ',strip=True) for x in tr.find_all(['th','td'])]))
 print('NEXT_TEXT',main.get_text(' ',strip=True)[:700])
+
+import json, collections
+for t in tables[:12]:
+ print('TABLE_HTML',str(t)[:800].replace('\\n',' '))
+ print('SUMMARY', [x.get_text(' ',strip=True) for x in list(t.parents)[:5] if x.name=='details'])
+ near=t.find_previous(['h3','summary'])
+ print('PREV',near.name if near else '-',near.get_text(' ',strip=True)[:125] if near else '-')
+for heading in main.find_all('h3'):
+ if 'pieces' not in heading.get_text():continue
+ t=heading.find_next('table')
+ print('CRAFT_SAMPLE',heading.get_text(' ',strip=True),[v.get_text(' ',strip=True) for v in t.find_all('tr')[1].find_all('td')])
+src=open('data.js',encoding='utf8').read()
+try:
+ D=json.loads(src[src.index('=')+1:src.rstrip().rindex(';')])
+ print('DATA_ITEMS',len(D['items']),'DATA_CRAFTS',collections.Counter(i['s'] for i in D['items']))
+ print('DATA_MATERIALS',len(D['mat']),'DATA_RAWS',len(D['raw']))
+ for sec in ['a','w','t','b','j','al','ck','br','cp']:
+  x=[i for i in D['items'] if i['s']==sec]
+  print('DATA_SAMPLE',sec,[(i['id'],i.get('en'),i.get('r'),i.get('m'),i.get('b'),i.get('o')) for i in x[:4]])
+except Exception as e:
+ print('DATA_PARSE_ERROR',repr(e))
