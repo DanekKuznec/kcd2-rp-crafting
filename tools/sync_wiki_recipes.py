@@ -65,8 +65,7 @@ def parse():
                     # for missing wool, so use the existing hide resource conservatively.
                     key="hd"
                 elif ingredient not in G:
-                    if sec not in ("w","a"):
-                        raise ValueError(f"No mapping for ingredient {ingredient!r} in {sec}:{name}")
+                    # Never invent an ingredient mapping: hold this recipe for review.
                     key="UNMAPPED_WIKI:" + ingredient
                 else:
                     key=G[ingredient][0]
@@ -101,6 +100,10 @@ def main():
     skipped=[]; details=[]; new_items=[]
     for recipe in recipes:
         sec, en = recipe["sec"], recipe["en"]
+        unresolved=[k for k in recipe["r"] if k.startswith("UNMAPPED_WIKI:")]
+        if unresolved:
+            skipped.append({"craft":sec,"english_name":en,"reason":"ingredient not mapped","ingredients":unresolved})
+            continue
         candidates=existing.get((sec,norm(en)),[])
         if not candidates and norm(en) in translations:
             candidates=existing.get((sec,norm(translations[norm(en)])),[])
