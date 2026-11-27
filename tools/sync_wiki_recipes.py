@@ -60,8 +60,12 @@ def parse():
                 m = re.fullmatch(r"(\d+)\s+(.+)",part.strip())
                 if not m: raise ValueError(f"Unknown ingredient: {sec}:{name}: {part}")
                 count,ingredient=int(m.group(1)),m.group(2)
-                if ingredient not in G: raise ValueError(f"No mapping for ingredient {ingredient!r} in {sec}:{name}")
-                key=G[ingredient][0]
+                if ingredient not in G:
+                    if sec not in ("w","a"):
+                        raise ValueError(f"No mapping for ingredient {ingredient!r} in {sec}:{name}")
+                    key="UNMAPPED_WIKI:" + ingredient
+                else:
+                    key=G[ingredient][0]
                 ingredients[key]=ingredients.get(key,0)+count
             recipes.append({"sec":sec,"en":name,"l":level,"r":ingredients,"b":fee,
                             "o":out,"var":int(variants.group(1)) if variants else 0,
