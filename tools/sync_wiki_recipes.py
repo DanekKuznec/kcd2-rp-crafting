@@ -227,8 +227,8 @@ def main():
         # Exactly the announced 43 new recipes: 20 smithing, 15 armouring, 8 tailoring.
         if dict(added) != {"w":20,"a":15,"t":8}:
             raise ValueError(f"Unexpected new recipes: {dict(added)}. Stop sync, review source.")
+        # Preserve the order of all pre-existing items; only append new entries.
         D["items"].extend(new_items)
-        D["items"].sort(key=lambda i: (next((n for n,sec in enumerate(["a","w","t","b","j","al","ck","br","cp"]) if sec==i["s"]),99),i["l"],i.get("c",""),i["n"]))
     all_ids=[i["id"] for i in D["items"]]
     assert len(all_ids)==len(set(all_ids)), "Duplicate item ID"
     valid=set(x[0] for x in D["raw"])|set(D["mat"])
